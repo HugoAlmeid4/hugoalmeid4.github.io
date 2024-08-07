@@ -1,0 +1,51 @@
+body {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+
+.dev {
+    font-family: "Montserrat", sans-serif;  
+    font-weight: 600;
+    width: 500px;
+}
+
+.logo {
+    margin-top: 5px;
+    width: 300px;
+}
+
+    
+.texto {
+    display:none;
+}
+
+.devsign {
+    text-align: center;
+    background-color: #FFC700;
+    border: 5px solid rgb(0, 0, 0);
+    border-radius: 100px;
+    box-shadow: 10px 13px;
+    
+    
+}
+
+@media (max-width: 520px) {
+    .logo {
+        width: 180px;
+    }
+
+    .dev {
+        display: none;
+        }
+    
+    .texto {
+        display:inline-flex;
+    }
+
+    .devsign {
+        width: 225px;
+    }
+}
