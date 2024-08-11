@@ -1,0 +1,419 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;1,600&display=swap');
+
+
+
+
+/* TUDO */
+
+footer {
+    background-image: linear-gradient(0deg, rgb(255,199,0,1) 0%, rgb(255, 255, 255) 100%);
+    border: 0px;
+    padding: 50px;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
+#textofooter2 {
+    display: none;
+    font-size: 13px;
+}
+
+
+@media (max-width: 465px) {
+    #textofooter2 {
+        display: inline-flex;
+    }
+
+    #textofooter {
+        display: none;
+    }
+}
+
+/* Pagina DEV (index.html) */
+
+
+
+.bodydev {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.dev {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    width: 500px;
+}
+
+.LogoConstruct {
+    margin-top: 5px;
+    width: 300px;
+}
+
+    
+.textoconstruct {
+    display:none;
+}
+
+.devsign {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background-color: #FFC700;
+    border: 5.5px solid rgb(0, 0, 0);
+    border-radius: 100px;
+    box-shadow: 10px 13px;
+    
+    
+}
+
+@media (max-width: 520px) {
+    .LogoConstruct {
+        width: 180px;
+    }
+
+    .dev {
+        display: none;
+        }
+    
+    .textoconstruct {
+        display:inline-flex;
+    }
+
+    .devsign {
+        border: 4px solid rgb(0, 0, 0);
+        width: 225px;
+    }
+}
+
+
+
+
+
+/* Pagina Escolher (chose page.html) */
+
+
+
+
+
+.escolher {
+    text-align: center;
+    flex-direction: column;
+    top: 50%;
+    left: 50%;
+    font-family: "Montserrat", sans-serif;  
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.seta {
+    position: absolute;
+    top: 3.9rem;
+    cursor: pointer;
+    right: 4.4rem;
+    width: 60px;
+    height: 40px;
+}
+
+
+
+
+
+/* Pagina Inicial (index1.css) */
+
+
+
+* {
+    text-decoration: none;
+    list-style: none;
+    padding: 0px 10px;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;  
+}
+
+body {
+    margin: 0;
+    padding: 0px;
+}
+
+.navbar {
+    border: 5px solid rgb(0, 0, 0);
+    min-height: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color:#FFC700;
+    border-radius: 100px;
+    box-shadow: 10px 13px;
+    padding: 5px 10%;
+    max-height: 75px;
+    width: 0 auto;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+#gradiente {
+    background-image: linear-gradient(0deg, rgba(253,187,45,0) 0%, rgba(255,199,0,1) 100%);
+    padding: 50px;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
+#logotipo {
+    margin-left: 3px;
+    max-height: 35px;
+    min-height: 20px;
+    display: flex;
+    width: 0 auto;
+}
+
+.navbar-links {
+    list-style: none;
+}
+
+.navbar-links li {
+    display: inline-block;
+    padding: 0px 2px;
+}
+
+.navbar-links li a {
+    display: inline-block;
+    color: black;
+    transition: color 0.3s ease;
+}
+
+.navbar-links li a:hover {
+    color: rgb(211, 137, 0);
+}
+
+.toggle-button {
+    position: absolute;
+    top: 3.9rem;
+    cursor: pointer;
+    right: 4.4rem;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 50px;
+    height: 21px;
+}
+
+.toggle-button .bar {
+    height: 5px;
+    width: 100%;
+    background-color: rgb(0, 0, 0);
+    border-radius: 10px;
+
+}
+
+.cima {
+    text-align: center;
+    align-items: center;
+    top: 0px;
+    
+}
+
+.baixo {
+    margin-bottom: 120px;
+    text-align: center;
+    align-items: center;
+
+}
+
+.logotipo3 {
+    max-height: 35px;
+    min-height: 20px;
+    cursor: pointer;
+    display: none;
+    width: 0 auto;
+}
+
+
+@media (min-width:929px) {
+
+    #textofooter {
+        font-size: 19px;
+    }    
+
+    .butaoproj{
+        height: 40px;
+        width: 140px;
+    }
+
+    .butao2{
+        height: 50px;
+        width: 110px;
+    }
+    .cima {
+        font-size: 23px;
+    }
+
+    .baixo {
+        font-size: 23px;
+    }
+}
+
+@media (max-width: 928px) {
+
+    
+    #textofooter{
+        font-size: 12px;
+    }    
+
+    .butao2 {
+        height: 35px;
+        width: 95px;
+    }
+
+    .butaoproj{
+        height: 25px;
+        width: 100px;
+    }
+
+    #logotipo {
+        height: 27px;
+        width: 165px;
+    }
+
+    .toggle-button {
+        display: flex;
+        height: 20px;
+        width: 40px;
+    }
+    
+    .navbar-links {
+        display: none;
+    }
+    .navbar {
+        border: 4px solid rgb(0, 0, 0);
+    }
+    .cima {
+        font-size: 15px;
+    }
+
+    .baixo {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 411px) {
+
+    #logotipo {
+        display: none;
+    }
+    .logotipo3 {
+        display: flex;
+        width: 180px;
+        height: 27px;
+    }
+    
+    .toggle-button {
+        top: 3.9rem;
+        display: flex;
+    }
+    .navbar {
+        border: 4px solid rgb(0, 0, 0);
+    }
+}   
+
+.butao2 {
+    border: 3.5px solid rgb(0, 0, 0);
+    cursor: pointer;
+    box-shadow: black;
+    background-color:rgb(255, 199, 0);
+    border-radius: 100px;
+    box-shadow: 10px 13px;
+    font-family: "Montserrat", sans-serif;  
+}
+
+.butao2:hover {
+    background-color: rgb(255, 187, 0);
+}
+
+.butao {
+    text-align: center;
+}
+
+
+/* Pagina Contacto (Contact.html) */
+
+.bodycontact {
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    padding: 10px;
+    display: flex;
+}
+
+.containerContact {
+    width: 500px;
+    padding: 30px;
+}
+
+
+input {
+    border: 4.5px solid rgb(0, 0, 0);
+    border-radius: 15px;
+    width: 100%;
+    padding: 10px;
+
+}
+
+textarea {
+    border: 4.5px solid rgb(0, 0, 0);
+    border-radius: 15px;
+    width: 100%;
+    padding: 10px;
+}
+
+#submit {
+    border: 4.5px solid rgb(0, 0, 0);
+    border-radius: 100px;
+    background-color: #FFC700;
+    width: 200px;
+    margin-top: 10px;
+    box-shadow: 10px 13px;
+}
+
+#submit:hover {
+    cursor: pointer;
+    box-shadow: 10px 13px;
+    background-color: rgb(255, 187, 0);
+}
+
+.contacttitle {
+    margin-bottom: 10px;
+}
+
+/* Pagina Projects (Projects.html) */
+
+.bodyproject {
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.divproject {
+    top: 50%;
+    left: 50%;
+    font-family: "Montserrat", sans-serif;  
+    position: absolute;
+    font-size: 20px;
+    transform: translate(-50%, -50%);
+}
+
+.butaoproj {
+    border: 3.5px solid rgb(0, 0, 0);
+    cursor: pointer;
+    background-color:rgb(255, 199, 0);
+    border-radius: 100px;
+    box-shadow: 10px 13px;
+    font-family: "Montserrat", sans-serif;  
+}
+
+.butaoproj:hover {
+    background-color: rgb(255, 187, 0);
+}
