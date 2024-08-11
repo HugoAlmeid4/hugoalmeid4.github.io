@@ -1,1 +1,1 @@
-![MacBook Pro 14_ - 1 (3)](https://github.com/user-attachments/assets/7386e13f-64d5-48bd-9be9-e3766163054f)
+![MacBook Pro 14_ - 1 (4)](https://github.com/user-attachments/assets/f1fd3b64-39b8-4dcb-9915-ec546505cc84)
