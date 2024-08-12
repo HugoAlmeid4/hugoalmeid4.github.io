@@ -31,7 +31,62 @@ footer {
 
 /* Pagina DEV (index.html) */
 
+ 
+.animated-text span {
+    position: relative;
+}
 
+.animated-text span::before {
+    content: "lagger";
+    color: #eeba00;
+    animation: words 20s infinite;
+
+}
+
+.animated-text span::after {
+    content: "";
+    position: absolute;
+    width: calc(100% + -8px);
+    height: 100%;
+    background-color: rgb(255, 255, 255);
+    border-left: 2px solid #eeba00;
+    right: -8px;
+    animation: cursor .8s infinite, typing 20s steps(14) infinite;
+}
+
+@keyframes cursor {
+    to{
+        border-left: 2px solid rgb(255, 255, 255);
+    }
+}
+
+@keyframes words {
+    0%,20%{
+        content: "lagger";
+    }
+    21%,40%{
+        content: "Developer";
+    }
+    41%,60%{
+        content: "Designer";
+    }
+    61%,80%{
+        content: "Programmer";
+    }
+
+    81%,80%{
+        content: "Student";
+    }
+}
+
+@keyframes typing {
+    10%,15%,30%,35%,50%,55%,70%,75%,90%,95%{
+        width: 0;
+    }
+    5%,20%,25%,40%,45%,60%,65%,80%,85%{
+        width: calc(100% + 8px);
+    }
+}
 
 .bodydev {
     top: 50%;
@@ -163,11 +218,16 @@ body {
 }
 
 #logotipo {
+    transition: all 0.4s;
     margin-left: 3px;
     max-height: 35px;
     min-height: 20px;
     display: flex;
     width: 0 auto;
+}
+
+#logotipo:hover {
+    transform: scale(1.05);
 }
 
 .navbar-links {
@@ -183,13 +243,16 @@ body {
     display: inline-block;
     color: black;
     transition: color 0.3s ease;
+    transition: all 0.4s;
 }
 
 .navbar-links li a:hover {
+    transform: scale(1.05);
     color: rgb(211, 137, 0);
 }
 
 .toggle-button {
+    transition: all 0.4s;
     position: absolute;
     top: 3.9rem;
     cursor: pointer;
@@ -210,6 +273,7 @@ body {
 }
 
 .cima {
+    transition: all 0.4s;
     text-align: center;
     align-items: center;
     top: 0px;
@@ -299,7 +363,7 @@ body {
     }
 }
 
-@media (max-width: 411px) {
+@media (max-width: 379px) {
 
     #logotipo {
         display: none;
@@ -320,6 +384,7 @@ body {
 }   
 
 .butao2 {
+    transition: all 0.4s;
     border: 3.5px solid rgb(0, 0, 0);
     cursor: pointer;
     box-shadow: black;
@@ -331,6 +396,7 @@ body {
 
 .butao2:hover {
     background-color: rgb(255, 187, 0);
+    transform: scale(1.1);
 }
 
 .butao {
@@ -376,9 +442,11 @@ textarea {
     width: 200px;
     margin-top: 10px;
     box-shadow: 10px 13px;
+    transition: all 0.4s;
 }
 
 #submit:hover {
+    transform: scale(1.1);
     cursor: pointer;
     box-shadow: 10px 13px;
     background-color: rgb(255, 187, 0);
@@ -406,6 +474,7 @@ textarea {
 }
 
 .butaoproj {
+    transition: all 0.4s;
     border: 3.5px solid rgb(0, 0, 0);
     cursor: pointer;
     background-color:rgb(255, 199, 0);
@@ -413,7 +482,7 @@ textarea {
     box-shadow: 10px 13px;
     font-family: "Montserrat", sans-serif;  
 }
-
 .butaoproj:hover {
+    transform: scale(1.1);
     background-color: rgb(255, 187, 0);
 }
