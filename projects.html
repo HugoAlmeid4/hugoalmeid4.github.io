@@ -37,6 +37,21 @@
             bottom: 0;
         }
 
+        @keyframes transitionIn {
+          from {
+                opacity: 0;
+               transform: rotateX(100);
+             }
+          to {
+                  opacity: 1;
+                  transform: rotateX(1000);
+              }
+            }
+
+            main {
+                animation: transitionIn 0.75s;
+            }
+
     </style>
 
 </head>
@@ -45,9 +60,9 @@
 
     <header  class="navbar"> 
 
-            <img src="Imagens/Home.png" alt="Logo" id="logotipo">
+           <img src="Imagens/Home.png" alt="Logo" id="logotipo">
             
-            <img src="Imagens/Home (3).png" alt="Logo" class="logotipo3">
+           <img src="Imagens/Home (3).png" alt="Logo" class="logotipo3">
 
             <a href="chosepage.html"><img src="Imagens/icons8-hamburger-menu-50.png" alt="Menu" class="toggle-button"></a>
             
