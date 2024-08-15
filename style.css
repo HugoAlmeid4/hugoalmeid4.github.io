@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;1,600&display=swap');
 
-
-
-
 /* TUDO */
 
 footer {
@@ -16,6 +13,7 @@ footer {
 #textofooter2 {
     display: none;
     font-size: 13px;
+        transition: all 0.4s;
 }
 
 
@@ -164,18 +162,38 @@ footer {
     transform: translate(-50%, -50%);
 }
 
-.seta {
+
+#logochoosepage {
+    top: 10%;
+    left: 50%;
     position: absolute;
-    top: 3.9rem;
-    cursor: pointer;
-    right: 4.4rem;
-    width: 60px;
-    height: 40px;
+    transform: translate(-50%, -50%);
+    width: auto;
+    height: 50px;
 }
 
+@media (max-width: 375px) {
 
+    #logochoosepage {
+        height: 40px;
+    }
 
+    .escolher {
+        font-size: 14px;
+    }
 
+}
+
+@media (min-width: 376px) {
+    .escolher {
+        font-size: 13px;
+    }
+
+    #logochoosepage {
+        width: 250px;
+        height: 45px;
+    }
+}
 
 /* Pagina Inicial (index1.css) */
 
@@ -277,9 +295,27 @@ body {
     text-align: center;
     align-items: center;
     top: 0px;
+
     
 }
 
+@media (maxwidth: 440px) {
+    .cima {
+        margin-top: 55px;
+    }
+}
+
+@media (min-width: 500px) {
+    .cima {
+        margin-top: 100px;
+    }
+}
+
+@media (min-width: 900px) {
+    .cima {
+        margin-top: 110px;
+    }
+}
 .baixo {
     margin-bottom: 120px;
     text-align: center;
@@ -297,6 +333,10 @@ body {
 
 
 @media (min-width:929px) {
+
+    .divproject {
+        font-size: 20px;
+    }
 
     #textofooter {
         font-size: 19px;
@@ -333,8 +373,13 @@ body {
     }
 
     .butaoproj{
-        height: 25px;
-        width: 100px;
+        height: 35px;
+        width: 110px;
+        font-size: 10px;
+    }
+
+    .divproject {
+        font-size: 15px;
     }
 
     #logotipo {
@@ -414,16 +459,10 @@ body {
     display: flex;
 }
 
-.containerContact {
-    width: 500px;
-    padding: 30px;
-}
-
 
 input {
     border: 4.5px solid rgb(0, 0, 0);
     border-radius: 15px;
-    width: 100%;
     padding: 10px;
 
 }
@@ -431,7 +470,6 @@ input {
 textarea {
     border: 4.5px solid rgb(0, 0, 0);
     border-radius: 15px;
-    width: 100%;
     padding: 10px;
 }
 
@@ -439,7 +477,6 @@ textarea {
     border: 4.5px solid rgb(0, 0, 0);
     border-radius: 100px;
     background-color: #FFC700;
-    width: 200px;
     margin-top: 10px;
     box-shadow: 10px 13px;
     transition: all 0.4s;
@@ -456,6 +493,39 @@ textarea {
     margin-bottom: 10px;
 }
 
+@media (min-width: 501px) {
+    textarea {
+        width: 100%;
+        width: 100%;
+    }
+
+    #submit {
+        width: 200px;
+    }
+
+    input {
+        width: 100%;
+    }
+}
+
+@media (max-width: 500px) {
+    textarea {
+        width: 180px;
+        height: 75px;
+        font-size: 10px;
+    }
+
+    #submit {
+        width: 180px;
+        font-size: 10px;
+    }
+
+    input {
+        width: 180px;
+        font-size: 10px;
+    }
+}
+
 /* Pagina Projects (Projects.html) */
 
 .bodyproject {
@@ -469,7 +539,6 @@ textarea {
     left: 50%;
     font-family: "Montserrat", sans-serif;  
     position: absolute;
-    font-size: 20px;
     transform: translate(-50%, -50%);
 }
 
