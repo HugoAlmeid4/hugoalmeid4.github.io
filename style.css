@@ -60,9 +60,6 @@ footer {
 }
 
 @keyframes words {
-    0%,20%{
-        content: "lagger";
-    }
     21%,40%{
         content: "Developer";
     }
@@ -72,8 +69,7 @@ footer {
     61%,80%{
         content: "Programmer";
     }
-
-    81%,80%{
+    61%,80%{
         content: "Student";
     }
 }
