@@ -96,29 +96,8 @@ footer {
     width: 500px;
 }
 
-.LogoConstruct {
-    margin-top: 5px;
-    width: 300px;
-}
 
-    
-.textoconstruct {
-    display:none;
-}
 
-.devsign {
-    top: 50%;
-    left: 50%;
-    position: absolute;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    background-color: #FFC700;
-    border: 5.5px solid rgb(0, 0, 0);
-    border-radius: 100px;
-    box-shadow: 10px 13px;
-    
-    
-}
 
 @media (max-width: 520px) {
     .LogoConstruct {
@@ -138,8 +117,6 @@ footer {
         width: 225px;
     }
 }
-
-
 
 
 
@@ -287,14 +264,7 @@ body {
 
 }
 
-.cima {
-    transition: all 0.4s;
-    text-align: center;
-    align-items: center;
-    top: 0px;
 
-    
-}
 
 @media (maxwidth: 440px) {
     .cima {
@@ -312,12 +282,6 @@ body {
     .cima {
         margin-top: 110px;
     }
-}
-.baixo {
-    margin-bottom: 120px;
-    text-align: center;
-    align-items: center;
-
 }
 
 .logotipo3 {
@@ -424,6 +388,55 @@ body {
         border: 4px solid rgb(0, 0, 0);
     }
 }   
+
+
+@media (max-width:1400px) {
+    .cima {
+        transition: all 0.4s;
+        text-align: center;
+        align-items: center;
+        top: 0px;
+    }
+
+    .baixo {
+        margin-bottom: 120px;
+        text-align: center;
+        align-items: center;
+    }
+}
+
+@media (min-width:1400px) {
+    #mainindex {
+        padding: 0 200px;
+    }
+
+    .baixo {
+        transition: all 0.4s;
+        text-align: center;
+        float: right;
+        margin-top: 200px;
+    }
+
+    .cima {
+        transition: all 0.4s;
+        text-align: center;
+        float: left;
+        margin-top: 280px;
+    }
+}
+
+
+@media (min-width:1600px) {
+    #mainindex {
+        padding: 0 200px;
+    }
+}
+
+@media (min-width:1640px) {
+    #mainindex {
+        padding: 0 400px;
+    }
+}
 
 .butao2 {
     transition: all 0.4s;
