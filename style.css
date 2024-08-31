@@ -173,6 +173,26 @@ footer {
 
 
 
+@media (min-width:1000px) {
+    .baixo {
+        margin-top: 70px;
+    }
+
+    .cima {
+        margin-top: 150px;
+    }
+}
+
+@media (min-width:2000px) {
+    .baixo {
+        margin-top: 200px;
+    }
+
+    .cima {
+        margin-top: 280px;
+    }
+}
+
 * {
     text-decoration: none;
     list-style: none;
