@@ -28,6 +28,10 @@ footer {
     }
 }
 
+@media (max-height: 800px) {
+    
+}
+
 /* Pagina DEV (index.html) */
 
 .animated-text span {
@@ -150,6 +154,12 @@ footer {
     font-family: "Montserrat", sans-serif;  
     position: absolute;
     transform: translate(-50%, -50%);
+}
+
+@media (max-height: 600px) {
+    .cima {
+        margin-top: 0px;
+    }
 }
 
 
@@ -280,23 +290,9 @@ body {
 
 }
 
-
-
-@media (maxwidth: 440px) {
+@media (max-height: 800px) {
     .cima {
-        margin-top: 55px;
-    }
-}
-
-@media (min-width: 500px) {
-    .cima {
-        margin-top: 100px;
-    }
-}
-
-@media (min-width: 900px) {
-    .cima {
-        margin-top: 110px;
+        margin-top: 0px;
     }
 }
 
@@ -411,11 +407,9 @@ body {
         transition: all 0.4s;
         text-align: center;
         align-items: center;
-        top: 0px;
     }
 
     .baixo {
-        margin-bottom: 120px;
         text-align: center;
         align-items: center;
     }
@@ -423,23 +417,28 @@ body {
 
 @media (min-width:900px) {                     ///////////////////////dwasd////////////////
     #mainindex {
-        padding: 0 200px;
+        padding: 100px 100px 100px;
     }
 
     .baixo {
+        margin-right: 100px;
         transition: all 0.4s;
         text-align: center;
         float: right;
-        margin-top: 200px;
+
     }
 
     .cima {
+        margin-left: 100px;
+        margin-top: 90px;
         transition: all 0.4s;
         text-align: center;
         float: left;
-        margin-top: 280px;
+
     }
 }
+
+
 
 .butao2 {
     transition: all 0.4s;
@@ -541,141 +540,17 @@ textarea {
 
 /* Pagina Projects (Projects.html) */
 
-.bodyproject {
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-}
-
-.divproject {
-    top: 50%;
-    left: 50%;
-    font-family: "Montserrat", sans-serif;  
-    position: absolute;
-    transform: translate(-50%, -50%);
-}
-
-
-.butaoproj:hover {
-    transform: scale(1.1);
-    background-color: rgb(255, 187, 0);
-}
-
-.ExtensionContent {
-    padding: 0 100px;
-}
-
-#imageextensionone {
-    transition: all 0.4s;
+#DivProject {
+    border-radius: 20px;
+    padding: 10px 10px 10px;
+    margin-left: 100px;
+    margin-right: 100px;
     display: flex;
-}
-
-#imageextensionone:hover {
-    transform: scale(1.03);
-    transition: all 0.4s;
-}
-
-.divproject {
-    max-width: 400px;
-    border: 5px solid rgb(0, 0, 0);
-    background-color:rgb(255, 208, 0);
-    border-radius: 85px;
-    box-shadow: 10px 13px;
-    transition: all 0.4s;
-    min-width: 150px;
-}
-
-.btnProj {
-    transition: all 0.4s;
-    cursor: pointer;
-    height: 35px;
-    background-color:rgb(255, 199, 0);
-    border-radius: 100px;
-    font-family: "Montserrat", sans-serif;  
-}
-
-.btnProj:hover {
-    background-color: rgb(255, 187, 0);
-    transform: scale(1.1);
-}
-
-.btnProj {
+    flex-direction: row;
     text-align: center;
 }
 
+#ImagemExtension {
+    height: 80px;
 
-@media (min-width:929px) {
-
-    .btnProj{
-        height: 50px;
-        border: 3.5px solid rgb(0, 0, 0);
-        width: 110px;
-    }
-
-    #ExtensionTitle {
-        font-size: 23px;
-    }
-    
-    #ExtensionDescription {
-        font-size: 16px;
-        display: inline-block;
-    }
-
-    .divproject {
-        height: 500px;
-    }
-}
-
-#imageextensionone{
-    margin-top: 19px;
-}   
-
-@media (min-width: 929px){
-    #imageextensionone{
-        display:inline-block;
-        width: 140px;
-    }
-}
-
-@media (max-width: 929px){
-
-    .btnProj{
-        border: 2.5px solid rgb(0, 0, 0);
-    }
-
-    #imageextensionone{
-        display:inline-block;
-        width: 150px
-    }
-    
-    #ExtensionTitle {
-        font-size: 15px;
-    }
-    
-    #ExtensionDescription {
-        font-size: 12px;
-        display: inline-block;
-    }
-
-    .divproject {
-        height: 310px;
-    }
-}
-
-@media (max-width: 505px) {
-    .ExtensionContent {
-        font-size: 1px;
-    }
-}
-
-@media (max-width: 525px) {
-    .divproject {
-        height: 330px;
-    }
-}
-
-@media (max-width: 410px) {
-    .divproject {
-        height: 370px;
-    }
 }
