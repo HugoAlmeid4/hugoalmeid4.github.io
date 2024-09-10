@@ -554,3 +554,12 @@ textarea {
     height: 80px;
 
 }
+
+.butaoproj {
+    border-radius: 100px;
+    background-color: #eeba00;
+    width: 100px;
+    height: 30px;
+    transition: all 0.4s;
+    cursor: pointer;
+}
