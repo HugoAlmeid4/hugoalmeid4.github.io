@@ -559,7 +559,7 @@ textarea {
     border-radius: 100px;
     background-color: #eeba00;
     width: 145px;
-    height: 20px;
+    height: 30px;
     transition: all 0.4s;
     cursor: pointer;
 }
