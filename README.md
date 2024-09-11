@@ -3,7 +3,7 @@
 
 ## Want to see the website?👋
 
-<a href="https://hugottr.com" target="blank"><p>See It</p></a>
+[See my website](https://www.hugottr.com)
 
 
 <h3 align="left">See Me More!</h3>
