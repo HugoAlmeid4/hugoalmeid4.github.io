@@ -453,11 +453,12 @@ body {
         transition: all 0.4s;
         text-align: center;
         float: right;
+        margin-top: 0px;
 
     }
 
     .cima {
-        margin-top: 10px;
+        margin-top: 0px;
         transition: all 0.4s;
         text-align: center;
         float: left;
