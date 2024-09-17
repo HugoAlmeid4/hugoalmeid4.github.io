@@ -591,6 +591,9 @@ textarea {
     height: 30px;
     transition: all 0.4s;
     cursor: pointer;
+    border: 3.5px solid rgb(0, 0, 0);
+    cursor: pointer;
+    box-shadow: 10px 13px;
 }
 
 .butaoproj:hover {
