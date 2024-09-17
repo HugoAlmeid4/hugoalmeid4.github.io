@@ -440,6 +440,7 @@ body {
     }
 
     .baixo {
+        margin-top: 85px;
         font-size: small;
     }
 }
