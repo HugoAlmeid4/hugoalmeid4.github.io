@@ -42,6 +42,7 @@ footer {
 .animated-text span::before {
     content: "lagger";
     color: #eeba00;
+    font-weight: 900;
     animation: words 20s infinite;
 
 }
@@ -52,14 +53,14 @@ footer {
     width: calc(100% + -8px);
     height: 100%;
     background-color: rgb(255, 255, 255);
-    border-left: 2px solid #eeba00;
+    border-left: 0px solid #eeba00;
     right: -8px;
     animation: cursor .8s infinite, typing 20s steps(14) infinite;
 }
 
 @keyframes cursor {
     to{
-        border-left: 2px solid rgb(255, 255, 255);
+        border-left: 0px solid rgb(255, 255, 255);
     }
 }
 
@@ -265,12 +266,6 @@ body {
     transition: all 0.4s;
 }
 
-.navbar-links li a:hover {
-    transform: scale(1.05);
-    background-color: rgb(255, 166, 0);
-    border-radius: 5px;
-}
-
 
 @media (max-height: 800px) {
     .cima {
@@ -422,7 +417,7 @@ body {
 
 @media (max-width: 500px) {
     .cima {
-        font-size: small;
+        font-size:medium;
     }
 
     .baixo {
@@ -510,13 +505,13 @@ body {
 .mail {
     transition: all 0.4s;
     cursor: pointer;
-    width: 44px;
+    width: 55px;
 }
 
 .pencil {
     transition: all 0.4s;
     cursor: pointer;
-    width: 44px;
+    width: 55px;
 }
 
 .pencil:hover {
@@ -572,7 +567,7 @@ textarea {
 }
 
 .contacttitle {
-    margin-bottom: 10px;
+    font-size: 100px;
 }
 
 @media (min-width: 501px) {
@@ -647,15 +642,34 @@ textarea {
     .bodycontact {
         flex-direction: column;
     }
-    .OtherWayTtr {
-        margin-top: 100px;
-    }
-
 }
 
-@media (min-width: 601px) {
-    .OtherWayTtr {
-        margin-left: 100px;
-    }
+#contacttitle {
+    font-size: smaller;
+}
 
+@media (max-width: 500px) {
+    #contacttitle {
+        font-size: 16px;
+    }  
+}
+
+@media (min-width: 500px) {
+    #contacttitle {
+        font-size: 25px;
+    }
+}
+
+.navbar a.active {
+    color: var(--main-color);
+}
+
+#DivProjectBig {
+    display: flex;
+    justify-content: center;
+}
+
+#DivProject {
+    display: flex;
+    flex-direction: column;
 }
