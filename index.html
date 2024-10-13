@@ -8,28 +8,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;1,600&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,650;1,650&display=swap');
-        
-        @keyframes transitionIn {
-            from { opacity: 0; transform: rotateX(0); }
-            to { opacity: 1; transform: rotateX(0); }
+        main {
+            margin-top: 0 auto;
         }
-
-        main { animation: transitionIn 0.75s; margin-top: 0 auto; }
         
-        html, body {
-            height: 100%;
+
+        html {
             box-sizing: border-box;
+            height: 100%;
         }
 
+    
         body {
+            box-sizing: inherit;
+            position: relative;
             margin: 0;
             min-height: 100%;
-            padding-bottom: 6.64rem;
-            position: relative;
+            padding-bottom: 13.74rem;
         }
-
         footer {
             padding: 50px;
             text-align: center;
@@ -38,7 +34,39 @@
             left: 0;
             bottom: 0;
         }
+
+        @keyframes transitionIn {
+          from {
+                opacity: 0;
+               transform: rotateX(0);
+             }
+          to {
+                  opacity: 1;
+                  transform: rotateX(0);
+              }
+            }
+
+            main {
+                animation: transitionIn 0.75s;
+            }
+
+        .navbar-links li {
+            display: inline;
+            margin-right: 15px;
+        }
+
+        .navbar-links a {
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+            
     </style>
+
 </head>
 <body>
 
@@ -49,7 +77,7 @@
             <nav>             
                 <ul class="navbar-links">
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="contact.html">Contact Me</a></li>
+                    <li><a href="Contact.html">Contact Me</a></li>
                     <li><a href="projects.html">Projects</a></li>
                 </ul>
             </nav>
@@ -76,6 +104,11 @@
     </main>
     <footer style="color: rgb(0, 0, 0);">
     <div class="chooseDIV">
+        <div>
+            <img src="Imagens/Home.png" alt="Logo" id="logotipo">
+            <img src="Imagens/Home (3).png" alt="Logo" class="logotipo3">
+        </div>
+        
         <div class="ChoosePag">
             <a href="projects.html"><img src="Imagens/pencialicon.png" alt="Pencil" class="pencil"></a>
             <a href="index.html"><img src="Imagens/homeicon.png" alt="Home" class="home"></a>
@@ -86,6 +119,7 @@
         <h3 id="textofooter">© 2024. This work is openly licensed via CC BY 4.0.</h3>
         <h3 id="textofooter2">© 2024. All rights reserved</h3>
     </footer>
+
     <script src="Google Sheet.js"></script>
 </body>
 </html>
