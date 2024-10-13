@@ -314,9 +314,6 @@ body {
     .navbar-links {
         display: none;
     }
-    .ChoosePag {
-        display: flex;
-    }
 
     #textofooter{
         font-size: 12px;
@@ -417,6 +414,7 @@ body {
 
 @media (max-width: 500px) {
     .cima {
+        margin-top: 0px;
         font-size:medium;
     }
 
@@ -424,8 +422,6 @@ body {
         font-size: small;
         margin-top: 85px;
     }
-
-
 }
 
 @media (min-width:900px) {
@@ -483,35 +479,56 @@ body {
 }
 
 
-.ChoosePag {
-    box-shadow: 10px 10px;
-    padding: 10px 10px 10px;
-    background-color: #eeba00;
-    border-radius: 100px;
-    min-width: 250px;
-    align-items: center;
-    display: flex;
-    height: 50px;
-    justify-content: center;
+.chooseDIV {
+    transition: all 0.4s;
     border: 5px solid rgb(0, 0, 0);
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    background-color:#FFC700;
+    border-radius: 100px;
+    box-shadow: 10px 13px;
+    height: 85px;
+    width: 0 auto;
+    margin-right: 10px;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+@media (max-width: 918px) {
+    .navbar {
+        display: none;
+    }
+
+    .chooseDIV {
+        display: flex;
+    }
+}
+
+#logotipo {
+    margin-top: 10px;
 }
 
 .home {
+    margin-top: 5px;
     transition: all 0.4s;
     cursor: pointer;
-    width: 55px;
+    width: 45px;
+
 }
 
 .mail {
+
     transition: all 0.4s;
     cursor: pointer;
-    width: 55px;
+    width: 45px;
 }
 
 .pencil {
     transition: all 0.4s;
     cursor: pointer;
-    width: 55px;
+    width: 45px;
+
 }
 
 .pencil:hover {
@@ -535,7 +552,6 @@ body {
     padding: 10px;
     display: flex;
 }
-
 
 input {
     border: 4.5px solid rgb(0, 0, 0);
