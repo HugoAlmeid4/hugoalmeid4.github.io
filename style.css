@@ -1,697 +1,233 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;1,600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,650;1,650&display=swap');
-
-
-/* TUDO */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Oswald:wght@200..700&family=Outfit:wght@100..900&display=swap');   
 
 html {
     overscroll-behavior: none;
     }
 
-footer {
-    background-image: linear-gradient(0deg, rgb(255,199,0,1) 0%, rgb(255, 255, 255) 100%);
-    border: 0px;
-    padding: 50px;
-    margin-left: -10px;
-    margin-right: -10px;
-}
-
-#textofooter2 {
-    display: none;
-    font-size: 13px;
-        transition: all 0.4s;
-}
-
-
-@media (max-width: 465px) {
-    #textofooter2 {
-        display: inline-flex;
-    }
-
-    #textofooter {
-        display: none;
-    }
-}
-
-@media (max-height: 800px) {
-    
-}
-
-
-/* Pagina DEV (index.html) */
-
-.animated-text span {
-    position: relative;
-}
-
-.animated-text span::before {
-    content: "lagger";
-    color: #eeba00;
-    font-weight: 900;
-    animation: words 20s infinite;
-
-}
-
-.animated-text span::after {
-    content: "";
-    position: absolute;
-    width: calc(100% + -8px);
-    height: 100%;
-    background-color: rgb(255, 255, 255);
-    border-left: 0px solid #eeba00;
-    right: -8px;
-    animation: cursor .8s infinite, typing 20s steps(14) infinite;
-}
-
-@keyframes cursor {
-    to{
-        border-left: 0px solid rgb(255, 255, 255);
-    }
-}
-
-@keyframes words {
-    21%,40%{
-        content: "Developer";
-    }
-    41%,60%{
-        content: "Designer";
-    }
-    61%,80%{
-        content: "Programmer";
-    }
-    61%,80%{
-        content: "Student";
-    }
-}
-
-@keyframes typing {
-    10%,15%,30%,35%,50%,55%,70%,75%,90%,95%{
-        width: 0;
-    }
-    5%,20%,25%,40%,45%,60%,65%,80%,85%{
-        width: calc(100% + 8px);
-    }
-}
-
-.bodydev {
-    top: 50%;
-    left: 50%;
-    position: absolute;
-    transform: translate(-50%, -50%);
-}
-
-.dev {
-    font-family: "Montserrat", sans-serif;
-    font-weight: 600;
-    width: 500px;
-}
-
-
-
-
-@media (max-width: 520px) {
-    .LogoConstruct {
-        width: 180px;
-    }
-
-    .dev {
-        display: none;
-        }
-    
-    .textoconstruct {
-        display:inline-flex;
-    }
-
-    .devsign {
-        border: 4px solid rgb(0, 0, 0);
-        width: 225px;
-    }
-}
-
-@media (max-width: 900px) {
-    #mainindex {
-        font-size: 20px;
-    }
-}
-
-@media (max-width: 400px) {
-    .butao2 {
-        border: 1px;
-    }
-}
-
-@media (max-width: 900px) {
-    .navbar {
-        height: 40px;
-    }
-}
-
-
-/* Pagina Escolher (chose page.html) */
-
-
-
-
-
-.escolher {
-    text-align: center;
-    flex-direction: column;
-    top: 50%;
-    left: 50%;
-    font-family: "Montserrat", sans-serif;  
-    position: absolute;
-    transform: translate(-50%, -50%);
-}
-
-@media (max-height: 600px) {
-    .cima {
-        margin-top: 0px;
-    }
-}
-
-
-#logochoosepage {
-    top: 10%;
-    left: 50%;
-    position: absolute;
-    transform: translate(-50%, -50%);
-    width: auto;
-    height: 50px;
-}
-
-@media (max-width: 375px) {
-
-    #logochoosepage {
-        height: 40px;
-    }
-
-    .escolher {
-        font-size: 14px;
-    }
-
-}
-
-@media (min-width: 376px) {
-    .escolher {
-        font-size: 13px;
-    }
-
-    #logochoosepage {
-        width: 250px;
-        height: 45px;
-    }
-}
-
-/* Pagina Inicial (index1.css) */
-
-
-
 * {
-    text-decoration: none;
     list-style: none;
-    padding: 0px 10px;
-    box-sizing: border-box;
-    font-family: "Montserrat", sans-serif;  
+    text-decoration: none;
 }
 
 body {
-    margin: 0;
-    padding: 0px;
+    background-color: rgb(24, 24, 24);
 }
 
-.navbar {
-
-    height: 100px;
-    border: 5px solid rgb(0, 0, 0);
-    min-height: 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color:#FFC700;
-    border-radius: 100px;
-    box-shadow: 10px 13px;
-    padding: 5px 10% 13px;
-    max-height: 75px;
-    width: 0 auto;
-    margin-right: 10px;
-    margin-left: 10px;
+header {
+    padding: 0 110px;
 }
 
-#gradiente {
-    background-image: linear-gradient(0deg, rgba(253,187,45,0) 0%, rgba(255,199,0,1) 100%);
-    padding: 50px;
-    margin-left: -10px;
-    margin-right: -10px;
-}
-
-#logotipo {
-    transition: all 0.4s;
-    margin-left: 3px;
-    max-height: 35px;
-    min-height: 20px;
-    display: flex;
-    width: 0 auto;
-}
-
-#logotipo:hover {
-    transform: scale(1.05);
-}
-
-.navbar-links {
-    list-style: none;
-}
-
-.navbar-links li {
-    display: inline-block;
-    padding: 11px 0% 0px;
-}
-
-.navbar-links li a {
-    display: inline-block;
-    color: black;
-    transition: color 0.3s ease;
-    transition: all 0.4s;
-}
-
-
-@media (max-height: 800px) {
-    .cima {
-        margin-top: 0px;
-    }
-}
-
-.logotipo3 {
-    max-height: 35px;
-    min-height: 20px;
+header h3 {
+    font-family: "JetBrains Mono";
+    color: white;
+    font-size: 30px;
+    font-weight: 300;
     cursor: pointer;
-    display: none;
-    width: 0 auto;
-}
-@media (min-width:929px) {
-
-    .divproject {
-        font-size: 20px;
-    }
-
-    #textofooter {
-        font-size: 19px;
-    }    
-
-    .butaoproj{
-        height: 40px;
-        width: 140px;
-    }
-
-    .butao2{
-        height: 50px;
-        width: 110px;
-    }
-    .cima {
-        font-size: 23px;
-    }
-
-    .baixo {
-        font-size: 23px;
-    }
+    transition: all 0.2s;
 }
 
-@media (max-width: 918px) {
-
-    .navbar-links {
-        display: none;
-    }
-
-    #textofooter{
-        font-size: 12px;
-        display: none;
-    }    
-
-    #textofooter2{
-        font-size: 12px;
-        display: none;
-    }  
-
-    .butao2 {
-        height: 35px;
-        width: 75px;
-    }
-
-    .butaoproj{
-        height: 35px;
-        width: 110px;
-        font-size: 10px;
-    }
-
-    .divproject {
-        font-size: 15px;
-    }
-
-    #logotipo {
-        height: 27px;
-        width: 165px;
-    }
-
-    .navbar {
-        display: flex;
-        justify-content: center;
-        border: 4px solid rgb(0, 0, 0);
-    }
-    .cima {
-        font-size: 11px;
-    }
-
-    .baixo {
-        font-size: 11px;
-    }
-
-    #mainindex {
-        flex-direction: column;
-        display: flex;
-    }
+header h3:hover {
+    color: rgb(199, 199, 199);
+    transform: scale(1.01);
+    font-weight: 100;
 }
 
-@media (max-width: 500px) {
-    .cima {
-        font-size: 5px;
-    }
-}
-
-@media (max-width: 379px) {
-
-    #logotipo {
-        display: none;
-    }
-    .logotipo3 {
-        display: flex;
-        width: 180px;
-        height: 27px;
-    }
-    
-    .toggle-button {
-        top: 3.9rem;
-        display: flex;
-    }
-    .navbar {
-        border: 4px solid rgb(0, 0, 0);
-    }
-}   
-
-
-@media (max-width:1400px) {
-    .cima {
-        transition: all 0.4s;
-        text-align: center;
-        align-items: center;
-        font-size: 20px;
-    }
-
-    .baixo {
-        text-align: center;
-        align-items: center;
-        font-size: 20px;
-    }
-
-    .butao2 {
-        height: 38px;
-        width: 85px;
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 500px) {
-    .cima {
-        margin-top: 0px;
-        font-size:medium;
-    }
-
-    .baixo {
-        font-size: small;
-        margin-top: 85px;
-    }
-}
-
-@media (min-width:900px) {
-    #mainindex {
-        padding: 100px 100px 100px;
-    }
-
-    .baixo {
-        transition: all 0.4s;
-        text-align: center;
-        float: right;
-
-    }
-
-    .cima {
-        margin-top: 0px;
-        transition: all 0.4s;
-        text-align: center;
-        float: left;
-
-    }
-}
-
-.butao2 {
-    transition: all 0.4s;
-    border: 3.5px solid rgb(0, 0, 0);
-    cursor: pointer;
-    box-shadow: black;
-    background-color:rgb(255, 199, 0);
-    border-radius: 100px;
-    box-shadow: 10px 13px;
-    font-family: "Montserrat", sans-serif;  
-}
-
-.butao2:hover {
-    background-color: rgb(255, 187, 0);
-    transform: scale(1.1);
-}
-
-.butao {
-    text-align: center;
-}
-
-@media (max-width: 918px) {
-    .chooseDIV {
-        display: block;
-    }
-
-}
-
-@media (min-width: 919px) {
-    .chooseDIV {
-        display: none;
-    }
-}
-
-
-.chooseDIV {
-    transition: all 0.4s;
-    border: 5px solid rgb(0, 0, 0);
-    display: none;
-    justify-content: space-between;
-    align-items: center;
-    background-color:#FFC700;
-    border-radius: 100px;
-    box-shadow: 10px 13px;
-    height: 85px;
-    width: 0 auto;
-    margin-right: 10px;
+.WhoIam {
+    display: flex;
     flex-direction: column;
-    margin-left: 10px;
-}
-
-@media (max-width: 918px) {
-    .navbar {
-        display: none;
-    }
-
-    .chooseDIV {
-        display: flex;
-    }
-}
-
-#logotipo {
-    margin-top: 10px;
-}
-
-.home {
-    margin-top: 5px;
-    transition: all 0.4s;
-    cursor: pointer;
-    width: 45px;
-
-}
-
-.mail {
-
-    transition: all 0.4s;
-    cursor: pointer;
-    width: 45px;
-}
-
-.pencil {
-    transition: all 0.4s;
-    cursor: pointer;
-    width: 45px;
-
-}
-
-.pencil:hover {
-    transform: scale(1.2);
-}
-
-.mail:hover {
-    transform: scale(1.2);
-}
-
-.home:hover {
-    transform: scale(1.1);
-}
-
-/* Pagina Contacto (Contact.html) */
-
-.bodycontact {
+    text-align: center;
+    padding: 50px 0;
     align-items: center;
-    text-align: center;
-    justify-content: center;
-    padding: 10px;
-    display: flex;
 }
 
-input {
-    border: 4.5px solid rgb(0, 0, 0);
-    border-radius: 15px;
-    padding: 10px;
-
-}
-
-textarea {
-    border: 4.5px solid rgb(0, 0, 0);
-    border-radius: 15px;
-    padding: 10px;
-}
-
-#submit {
-    border: 4.5px solid rgb(0, 0, 0);
-    border-radius: 100px;
-    background-color: #FFC700;
-    margin-top: 10px;
-    box-shadow: 10px 13px;
-    transition: all 0.4s;
-}
-
-#submit:hover {
-    transform: scale(1.1);
+.WhoIam img {
     cursor: pointer;
-    box-shadow: 10px 13px;
-    background-color: rgb(255, 187, 0);
+    transition: all 0.2s;
+    width: 30px;
 }
 
-.contacttitle {
-    font-size: 100px;
+
+.WhoIam h1 {
+    color: white;
+    font-family: "JetBrains Mono";
 }
 
-@media (min-width: 501px) {
-    textarea {
-        width: 100%;
-        width: 100%;
-    }
-
-    #submit {
-        width: 200px;
-    }
-
-    input {
-        width: 100%;
-    }
+.WhoIam p {
+    color: white;
+    font-family: "JetBrains Mono";
+    font-weight: 200;
 }
 
-@media (max-width: 500px) {
-    textarea {
-        width: 180px;
-        height: 75px;
-        font-size: 10px;
-    }
-
-    #submit {
-        width: 180px;
-        font-size: 10px;
-    }
-
-    input {
-        width: 180px;
-        font-size: 10px;
-    }
+.IconsWho i {
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 22px;
+    padding: 10px;
 }
 
-/* Pagina Projects (Projects.html) */
+.IconsWho i:hover {
+    color: rgb(199, 199, 199);
+    transform: scale(0.95);
+    border-radius: 10px;
+    background-color: rgb(20, 20, 20);
+}
 
-#DivProject {
-    border-radius: 20px;
+.PortofolioCard h1 {
+    color: white;
+    font-family: "JetBrains Mono";
+}
+
+.ImagemPortofolio {
+    width: 350px;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.ImagemPortofolio:hover {
+    transform: scale(0.96);
+}
+
+.PortofolioCard h3 {
+    color: white;
+    font-family: "JetBrains Mono";
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100px;
+}
+
+.BtnPortofolio:hover {
+    transform: scale(0.95);
+    font-weight: 100;
+    background-color: rgb(20, 20, 20);
+}
+
+.Portofolio {
+    display: flex;
+    padding: 130px 0;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.BtnPortofolio {
+    display: flex;
+    justify-content: center;
+    background-color: rgb(15, 15, 15);
+    margin: 13px 0;    
+    transition: all 0.2s;
+    border-radius: 10px;
+    height: 50px;
+    cursor: pointer;
+    align-items: center;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+nav ul li {
+    background-color: white;
     padding: 10px 10px 10px;
-    margin-left: 100px;
-    margin-right: 100px;
-    display: flex;
-    flex-direction: row;
-    text-align: center;
-}
-
-#ImagemExtension {
-    height: 80px;
-
-}
-
-.butaoproj {
-    border-radius: 100px;
-    background-color: #eeba00;
-    width: 145px;
-    height: 30px;
-    transition: all 0.4s;
+    font-family: "JetBrains Mono";
+    border-radius: 5px;
+    transition: all 0.2s;
     cursor: pointer;
+    font-weight: 700;
 }
 
-#DivProjectBig {
-    display: flex;
-    justify-content: center;
+nav ul li:hover {
+    background-color: rgb(199, 199, 199);
+    transform: scale(1.02);
+    font-weight: 100;
 }
 
-.bodycontact {
-    display: flex;
-}
-
-@media (max-width: 600px) {
-    .bodycontact {
-        flex-direction: column;
-    }
+nav ul li a {
+    color: black;
 }
 
 #contacttitle {
-    font-size: smaller;
+    font-family: "JetBrains Mono";
+    color: white;
 }
 
-@media (max-width: 500px) {
-    #contacttitle {
-        font-size: 16px;
-    }  
-}
-
-@media (min-width: 500px) {
-    #contacttitle {
-        font-size: 25px;
-    }
-}
-
-.navbar a.active {
-    color: var(--main-color);
-}
-
-#DivProjectBig {
+form {
     display: flex;
+    align-items: center;
     justify-content: center;
-}
-
-#DivProject {
-    display: flex;
     flex-direction: column;
 }
+
+#Name {
+    padding: 10px 10px 10px;
+    border: 0px solid;
+    border-radius: 7px;
+    background-color: rgb(243, 243, 243);
+}
+
+#Email {
+    padding: 10px 10px 10px;
+    border-radius: 7px;
+    background-color: rgb(243, 243, 243);
+    border: 0px solid;
+}
+
+#Mens {
+    padding: 10px 10px 10px;
+    border-radius: 7px;
+    background-color: rgb(243, 243, 243);
+    font-size: 14px;
+    border: 0px solid;
+}
+
+#submit {
+    width: 190px;
+    padding: 10px 10px 10px;
+    border-radius: 10px;
+    background-color: rgb(20, 20, 20);
+    cursor: pointer;
+    font-weight: 700;
+    color: white;
+    border: 0px;
+    font-family: "JetBrains Mono";
+    transition: all 0.2s;
+}
+
+#submit:hover {
+    transform: scale(0.96);
+    font-weight: 100;
+}
+
+.ContactMe2 {
+    display: none;
+    padding: 0 0 100px;
+}
+
+
+@media (max-width: 600px) {
+    .ContactMe {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    nav{
+        display: none;
+    }
+
+    header {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .ContactMe2 {
+        display: flex;
+        justify-content: center;
+    }
+    
+}
+
+
