@@ -1,126 +1,36 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/png" href="Imagens/Hugottr simbolo (1).png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Me</title>
     <link rel="stylesheet" href="style.css">
-    <title>Hugottr - Contact Me</title>
-
-    <style>
-        main {
-            margin-top: 0 auto;
-        }
-        
-
-        html {
-            box-sizing: border-box;
-            height: 100%;
-        }
-
-    
-        body {
-            box-sizing: inherit;
-            position: relative;
-            margin: 0;
-            min-height: 100%;
-            padding-bottom: 13.74rem;
-        }
-        footer {
-            padding: 50px;
-            text-align: center;
-            position: absolute;
-            right: 0;
-            left: 0;
-            bottom: 0;
-        }
-
-        @keyframes transitionIn {
-          from {
-                opacity: 0;
-               transform: rotateX(0);
-             }
-          to {
-                  opacity: 1;
-                  transform: rotateX(0);
-              }
-            }
-
-            main {
-                animation: transitionIn 0.75s;
-            }
-            
-    </style>
-
 </head>
 <body>
-
-
-    <div id="gradiente">
-
-        <header  class="navbar"> 
-
-                <img src="Imagens/Home.png" alt="Logo" id="logotipo">
-                
-                <img src="Imagens/Home (3).png" alt="Logo" class="logotipo3">
-                
-            <nav>             
-
-                <ul  class="navbar-links">
-
-                    <li><a href="index.html">Home</a></li>
-
-                    <li><a href="Contact.html">Contact Me</a></li>
-
-                    <li><a href="projects.html">Projects</a></li>
-
-                </ul>
-
-            </nav>
-
-        </header>
-
-        </div>
-
-        </header>
-
-        <main class="bodycontact">
-
-            <div class="containercontact">
-                <form action="https://api.web3forms.com/submit" method="POST">
-                    <br>
-                    
-                    <input type="hidden" name="access_key" value="245dd064-fa11-40f1-b18a-7334683c72ec">
-                    
-                    <h4 style="font-size: 28px;" id="contacttitle">Contact Me</h4>
-                    <input type="text" name="your-name" placeholder="Name">
-                    <br><br>
-                    <input type="email" name="your-email" placeholder="Email">
-                    <br><br>
-                    <textarea name="message" rows="7" placeholder="Your Message"></textarea>
-                    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
-                    <br><br>
-                    <input type="submit" value="Submit" id="submit">
-                </form>
-            </div>
-        </main>
-
-        <footer style="color: rgb(0, 0, 0);">
-            <div class="chooseDIV">
-                <img src="Imagens/Home.png" alt="Logo" id="logotipo">
-                <div class="ChoosePag">
-                    <a href="projects.html"><img src="Imagens/pencialicon.png" alt="Pencil" class="pencil"></a>
-                    <a href="index.html"><img src="Imagens/homeicon.png" alt="Home" class="home"></a>
-                    <a href="contact.html"><img src="Imagens/mailicon.png" alt="Contact" class="mail"></a>
-                </div>
-            </div>
-            
-            <h3 id="textofooter">© 2024. This work is openly licensed via CC BY 4.0.</h3>
-            <h3 id="textofooter2">© 2024. All rights reserved</h3>
-        </footer>
-
-        <script src="Google Sheet.js"></script>
     
+    <header>
+        <a href="index.html"><h3>hugottr.com</h3></a>
+        <nav>
+            <ul>
+                <li><a href="contact.html">Contact Me</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <form action="https://api.web3forms.com/submit" method="POST">
+        <br>
+        <input type="hidden" name="access_key" value="245dd064-fa11-40f1-b18a-7334683c72ec">
+        <h4 style="font-size: 28px;" id="contacttitle">Contact Me</h4>
+
+        <input type="text" name="your-name" placeholder="Name" id="Name" required >
+        <br><br>
+        <input type="email" name="your-email" placeholder="Email" id="Email" required>
+        <br><br>
+        <textarea name="message" rows="7" placeholder="Your Message" id="Mens" required></textarea>
+        <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+        <br><br>
+        <input type="submit" value="Submit" id="submit">
+    </form>
+
 </body>
 </html>
