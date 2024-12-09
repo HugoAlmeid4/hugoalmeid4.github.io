@@ -3,7 +3,7 @@
 
 ## Want to see the website?👋
 
-[See my website](https://www.hugottr.com)
+Did you end up here? Go to the website at [here](https://www.hugottr.com)
 
 
 <h3 align="left">See Me More!</h3>
