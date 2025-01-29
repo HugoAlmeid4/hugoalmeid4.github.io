@@ -12,6 +12,8 @@
     <header>
         <h3>hugottr.com</h3>
         <nav>
+            <ul>
+            </ul>
         </nav>
     </header>
 
@@ -20,8 +22,9 @@
         <p>I am a new developer, want to <br> teach and learn more about it. <br> I am from Portugal.</p>
 
         <div class="IconsWho">
-            <i><a href="https://github.com/HugoAlmeid4"><i class="fa-brands fa-github"></i></a></i>
-            <i><a href="https://x.com/hugottr_"><i class="fa-brands fa-x-twitter"></i></a></i>
+            </i><a href="https://github.com/HugoAlmeid4"><i class="fa-brands fa-github"></i></a>
+            <a href="https://x.com/hugottr_"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfen6_RBTIywIXSjMuBbpq98kAiDmX2cSF2Rt7Gxj8PlWnjKw/viewform?usp=sharing"><i class="fa-regular fa-paper-plane"></i></a>
         </div>
 
     </div>
@@ -29,12 +32,29 @@
     <div class="Portofolio">
         <span class="PortofolioCard">
             <h1>Portofolio</h1>
-            <a href="https://sinfoniettaobidos.pt"><img class="ImagemPortofolio" src="Imagens/Sinfo.webp" alt="DefaultImage"></a>
+            <a class="btnCard" href="https://sinfoniettaobidos.pt"><img class="ImagemPortofolio" src="Images/Sinfo.webp" alt="DefaultImage"></a>
             <span class="BtnPortofolio">
                  <a target="_blank" href="https://sinfoniettaobidos.pt"><h3>See it</h3></a>
             </span>
         </span>
     </div>
-    
+
+
+    <div class="ContactMe2">
+        <form action="https://api.web3forms.com/submit" method="POST">
+            <br>
+            <input type="hidden" name="access_key" value="245dd064-fa11-40f1-b18a-7334683c72ec">
+            <h4 style="font-size: 28px;" id="contacttitle">Contact Me</h4>
+            <input type="text" name="your-name" placeholder="Name" id="Name" required >
+            <br><br>
+            <input type="email" name="your-email" placeholder="Email" id="Email" required>
+            <br><br>
+            <textarea name="message" rows="7" placeholder="Your Message" id="Mens" required></textarea>
+            <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+            <br><br>
+            <input type="submit" value="Submit" id="submit">
+        </form>
+    </div>
+
 </body>
 </html>
