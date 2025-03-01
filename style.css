@@ -10,45 +10,21 @@ html {
 }
 
 body {
-    background-color: rgb(24, 24, 24);
-}
-
-header {
-    padding: 0 110px;
-}
-
-header h3 {
-    font-family: "JetBrains Mono";
-    color: white;
-    font-size: 30px;
-    font-weight: 300;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-header h3:hover {
-    color: rgb(199, 199, 199);
-    transform: scale(1.01);
-    font-weight: 100;
+    background-color: rgb(14, 13, 13);
 }
 
 .WhoIam {
     display: flex;
     flex-direction: column;
-    text-align: center;
     padding: 50px 0;
+    height: 70vh;
+    justify-content: center;
     align-items: center;
 }
 
-.WhoIam img {
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 30px;
-}
-
-
 .WhoIam h1 {
     color: white;
+    font-size: 50px;
     font-family: "JetBrains Mono";
 }
 
@@ -56,6 +32,8 @@ header h3:hover {
     color: white;
     font-family: "JetBrains Mono";
     font-weight: 200;
+    font-size: 20px;
+    text-align: center;
 }
 
 .IconsWho i {
@@ -63,14 +41,16 @@ header h3:hover {
     cursor: pointer;
     transition: all 0.2s;
     font-size: 22px;
+    border: 2px solid rgb(17, 17, 17);
+    border-radius: 10px;
+    background-color: rgb(29, 28, 28);
     padding: 10px;
 }
 
 .IconsWho i:hover {
     color: rgb(199, 199, 199);
-    transform: scale(0.95);
     border-radius: 10px;
-    background-color: rgb(20, 20, 20);
+    background-color: rgb(12, 12, 12);
 }
 
 .PortofolioCard h1 {
@@ -230,4 +210,6 @@ form {
     
 }
 
-
+.Logo{
+    width: 140px;
+}
