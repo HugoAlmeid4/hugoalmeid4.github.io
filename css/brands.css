@@ -91,6 +91,14 @@
 	background-image:linear-gradient(to bottom,#F452FF,#832BC1);
 }
 
+/* Astro Bin */
+.button-astrobin {
+	--button-text:#ffffff;
+	border: 1px solid white;
+	background-image:linear-gradient(to bottom,#CD4B2F,#CD4B2F);
+}
+
+
 /* Bandcamp */
 .button-bandcamp {
 	--button-text:#ffffff;
