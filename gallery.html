@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gallery — Hralmeida</title>
+  <meta name="description" content="Astrophotography gallery by Hugo Almeida."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    /* ══════════════════════════
+       TOKENS
+    ══════════════════════════ */
+    :root {
+      --dark:      #080e05;
+      --dark2:     #0f1a09;
+      --dark3:     #162010;
+      --green:     #3a7a20;
+      --green-lt:  #5a9e35;
+      --green-dim: rgba(58,122,32,0.18);
+      --star:      #c8e8b4;
+      --muted:     rgba(255,255,255,0.38);
+      --serif:     'Playfair Display', Georgia, serif;
+      --sans:      'DM Sans', system-ui, sans-serif;
+      --mono:      'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--dark);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══════════════════════════
+       STARFIELD BACKGROUND
+    ══════════════════════════ */
+    #starfield {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ══════════════════════════
+       HERO BAND
+    ══════════════════════════ */
+    .gallery-hero {
+      position: relative;
+      z-index: 1;
+      padding: 64px 24px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .gallery-hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--green-lt);
+      margin-bottom: 12px;
+    }
+    .gallery-hero-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+    .gallery-hero-sub {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 500px;
+      line-height: 1.7;
+    }
+
+    /* ══════════════════════════
+       FILTER BAR
+    ══════════════════════════ */
+    .filter-bar {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filter-label {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-right: 4px;
+      flex-shrink: 0;
+    }
+    .filter-pill {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.65);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: var(--mono);
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .filter-pill:hover { background: rgba(255,255,255,0.11); color: #fff; }
+    .filter-pill.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    /* ══════════════════════════
+       MASONRY GRID
+    ══════════════════════════ */
+    .gallery-grid {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+      columns: 3;
+      column-gap: 16px;
+    }
+    @media (max-width: 900px) { .gallery-grid { columns: 2; } }
+    @media (max-width: 520px) { .gallery-grid { columns: 1; } }
+
+    /* ══════════════════════════
+       PHOTO CARDS
+    ══════════════════════════ */
+    .photo-card {
+      break-inside: avoid;
+      margin-bottom: 16px;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      background: var(--dark3);
+      border: 1px solid rgba(255,255,255,0.06);
+      display: block;
+      animation: fadeUp 0.5s both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .photo-card:nth-child(2)  { animation-delay: 0.05s; }
+    .photo-card:nth-child(3)  { animation-delay: 0.10s; }
+    .photo-card:nth-child(4)  { animation-delay: 0.15s; }
+    .photo-card:nth-child(5)  { animation-delay: 0.20s; }
+    .photo-card:nth-child(6)  { animation-delay: 0.25s; }
+    .photo-card:nth-child(7)  { animation-delay: 0.30s; }
+    .photo-card:nth-child(8)  { animation-delay: 0.35s; }
+
+    .photo-card img {
+      width: 100%;
+      display: block;
+      transition: transform 0.45s ease, opacity 0.3s ease;
+    }
+    .photo-card:hover img { transform: scale(1.03); }
+
+    .photo-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(8,14,5,0.88) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 20px;
+    }
+    .photo-card:hover .photo-overlay { opacity: 1; }
+
+    .photo-title {
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+    .photo-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .photo-date {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.55);
+      font-family: var(--mono);
+    }
+    .photo-tag {
+      background: var(--green-dim);
+      color: var(--star);
+      border: 1px solid rgba(90,158,53,0.3);
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-family: var(--mono);
+    }
+
+    /* Skeleton placeholder while loading */
+    .photo-skeleton {
+      break-inside: avoid;
+      margin-bottom: 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 0.8; }
+    }
+
+    /* Loading / empty */
+    .state-box {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--muted);
+    }
+    .state-box p { font-size: 0.9rem; margin-top: 12px; }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-top-color: var(--green-lt);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ══════════════════════════
+       LIGHTBOX
+    ══════════════════════════ */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(4,8,3,0.96);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .lightbox.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .lightbox-inner {
+      position: relative;
+      max-width: 1100px;
+      width: 100%;
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+    .lightbox-img-wrap {
+      flex: 1;
+      min-width: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+    }
+    .lightbox-img-wrap img {
+      width: 100%;
+      display: block;
+      max-height: 80vh;
+      object-fit: contain;
+      background: var(--dark3);
+    }
+    .lightbox-info {
+      width: 260px;
+      flex-shrink: 0;
+    }
+    .lb-object {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+      line-height: 1.25;
+    }
+    .lb-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .lb-date {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .lb-desc {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .lb-gear {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 16px;
+    }
+    .lb-gear-label {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green-lt);
+      margin-bottom: 8px;
+    }
+    .lb-gear-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .lb-gear-list li {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .lb-gear-list li::before {
+      content: '— ';
+      color: rgba(255,255,255,0.2);
+    }
+
+    /* Nav arrows */
+    .lb-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+    .lb-arrow:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    .lb-prev { left: -56px; }
+    .lb-next { right: -56px; }
+
+    /* Close */
+    .lb-close {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      z-index: 501;
+    }
+    .lb-close:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+    /* ══════════════════════════
+       FOOTER
+    ══════════════════════════ */
+    .site-footer {
+      position: relative;
+      z-index: 1;
+      margin-top: auto;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 0.73rem;
+      color: var(--muted);
+    }
+    .footer-logo {
+      font-family: var(--serif);
+      font-size: 1rem;
+      color: rgba(255,255,255,0.7);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .footer-copy { flex: 1; min-width: 140px; }
+    .footer-link { color: rgba(255,255,255,0.45); text-decoration: none; }
+    .footer-link:hover { color: #fff; }
+
+    /* ══════════════════════════
+       RESPONSIVE LIGHTBOX
+    ══════════════════════════ */
+    @media (max-width: 780px) {
+      .lightbox-inner { flex-direction: column; gap: 20px; }
+      .lightbox-info { width: 100%; }
+      .lb-prev { left: 4px; top: auto; bottom: auto; transform: none; }
+      .lb-next { right: 4px; top: auto; bottom: auto; transform: none; }
+      .lb-arrow { top: calc(50% - 60px); }
+    }
+    @media (max-width: 640px) {
+      .gallery-hero { padding: 40px 16px 32px; }
+      .filter-bar { padding: 0 16px; }
+      .gallery-grid { padding: 0 16px 64px; column-gap: 10px; }
+      .photo-overlay { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- STARFIELD CANVAS -->
+  <canvas id="starfield"></canvas>
+
+  <!-- HEADER -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a class="logo" href="index.html">Hralmeida</a>
+      <nav class="main-nav" id="main-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="gallery.html" class="nav-link active">Gallery</a>
+        <a href="index.html#about" class="nav-link">About</a>
+      </nav>
+      <div class="search-box" role="search">
+        <form onsubmit="handleGallerySearch(event)">
+          <svg fill="none" height="13" stroke="rgba(255,255,255,0.45)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="13"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="gallery-search-input" autocomplete="off" placeholder="Search…" type="text"/>
+        </form>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MOBILE NAV DRAWER -->
+  <div class="mobile-drawer" id="mobile-drawer">
+    <a href="index.html">Home</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="index.html#about">About</a>
+  </div>
+
+  <!-- HERO -->
+  <div class="gallery-hero">
+    <p class="gallery-hero-eyebrow">Astrophotography</p>
+    <h1 class="gallery-hero-title">How the sky<br><em style="font-style:italic;color:rgba(255,255,255,0.6)">really is</em></h1>
+    <p class="gallery-hero-sub">Nebulae, galaxies, planets and moons captured by me.</p>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar" id="filter-bar">
+    <span class="filter-label">Filter</span>
+    <button class="filter-pill active" onclick="setFilter(null, this)">All</button>
+  </div>
+
+  <!-- GALLERY GRID -->
+  <div class="gallery-grid" id="gallery-grid"></div>
+
+  <!-- STATES -->
+  <div id="loading-state" class="state-box">
+    <div class="spinner"></div>
+    <p>Loading gallery…</p>
+  </div>
+  <div id="empty-state" class="state-box" style="display:none">
+    <p>No photos found.</p>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" onclick="handleLightboxClick(event)">
+    <button class="lb-close" onclick="closeLightbox()">✕</button>
+    <div class="lightbox-inner">
+      <button class="lb-arrow lb-prev" onclick="navigateLightbox(-1)">&#8592;</button>
+      <div class="lightbox-img-wrap">
+        <img id="lb-img" src="" alt=""/>
+      </div>
+      <div class="lightbox-info">
+        <h2 class="lb-object" id="lb-title"></h2>
+        <div class="lb-tags" id="lb-tags"></div>
+        <p class="lb-date" id="lb-date"></p>
+        <p class="lb-desc" id="lb-desc"></p>
+        <div class="lb-gear" id="lb-gear" style="display:none">
+          <p class="lb-gear-label">Equipment</p>
+          <ul class="lb-gear-list" id="lb-gear-list"></ul>
+        </div>
+      </div>
+      <button class="lb-arrow lb-next" onclick="navigateLightbox(1)">&#8594;</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-logo">Hralmeida</span>
+      
+      <span class="footer-copy">© 2026 Hugo Almeida · Caldas da Rainha, Portugal</span><a class="footer-link footer-gh" href="https://github.com/hralmeida" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </footer>
+
+  <script>
+  /* ═══════════════════════════════════════════════════════════
+     GALLERY — gallery.html
+     Reads photos from a Google Sheet published as CSV.
+
+     SHEET COLUMNS (row 1 = headers):
+     title   | date       | category | description | gear         | image        | thumb
+     --------+------------+----------+-------------+--------------+--------------+--------
+     M42     | 2026-03-15 | Nebulosa | Short text  | 72ED, GTi... | https://...  | https://...
+                                                                    (full res)     (optional small version)
+
+     - title       → Object name e.g. "M42 — Nebulosa de Orion"
+     - date        → Capture date e.g. "2026-03-15"
+     - category    → Tag shown on cards e.g. "Nebulosa", "Galáxia", "Planeta"
+                     Multiple: "Nebulosa, Emissão"
+     - description → Short text shown in the lightbox
+     - gear        → Equipment list, comma-separated e.g. "72ED DS-Pro, Star Adventurer GTi, Canon 1200D"
+     - image       → Direct URL to the full-resolution image (required)
+     - thumb       → URL to a smaller/thumbnail version (optional, falls back to image)
+
+     HOW TO PUBLISH:
+     File → Share → Publish to web → Sheet (gallery tab) → CSV → copy URL
+     Paste it in GALLERY_SHEET_URL below.
+  ═══════════════════════════════════════════════════════════ */
+
+  const GALLERY_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRflcn1gEVEONoP4Taq6A6TOBQiyiugLPzuYOG7OLIW2u-19vxBWaruZR-8x_KH4bYAYnpLZkrA-vtH/pub?gid=0&single=true&output=csv';
+
+  /* ─── State ───────────────────────────────────────────── */
+  let photos = [];
+  let filtered = [];
+  let currentIndex = 0;
+  let activeFilter = null;
+
+  /* ─── Boot ────────────────────────────────────────────── */
+  function toggleMobileMenu() {
+    document.getElementById('mobile-drawer').classList.toggle('open');
+    document.getElementById('hamburger').classList.toggle('open');
+  }
+
+  function handleGallerySearch(e) {
+    e.preventDefault();
+    const q = document.getElementById('gallery-search-input').value.trim().toLowerCase();
+    if (!q) { applyFilter(activeFilter); return; }
+    filtered = photos.filter(p =>
+      (p.title||'').toLowerCase().includes(q) ||
+      (p.description||'').toLowerCase().includes(q) ||
+      (p.category||'').toLowerCase().includes(q)
+    );
+    renderGrid();
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    drawStars();
+    loadGallery();
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('lightbox').classList.contains('open')) {
+        if (e.key === 'ArrowRight') navigateLightbox(1);
+        if (e.key === 'ArrowLeft')  navigateLightbox(-1);
+        if (e.key === 'Escape')     closeLightbox();
+      }
+    });
+  });
+
+  /* ─── Load ────────────────────────────────────────────── */
+  async function loadGallery() {
+    showLoading(true);
+    try {
+      const url = GALLERY_SHEET_URL.includes('YOUR_GALLERY') ? null : GALLERY_SHEET_URL;
+      if (!url) {
+        photos = getDemoPhotos();
+      } else {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('fetch failed');
+        photos = parseCSV(await res.text());
+      }
+      buildFilters();
+      applyFilter(null);
+    } catch (err) {
+      console.error(err);
+      photos = getDemoPhotos();
+      buildFilters();
+      applyFilter(null);
+    }
+    showLoading(false);
+  }
+
+  /* ─── CSV Parser (handles multi-line quoted fields) ────── */
+  function parseCSV(csv) {
+    const rows = parseCSVRows(csv.trim());
+    if (rows.length < 2) return [];
+    const headers = rows[0].map(h => h.trim().toLowerCase());
+    return rows.slice(1).map(vals => {
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim(); });
+      return obj;
+    }).filter(r => r.title && r.image);
+  }
+
+  function parseCSVRows(csv) {
+    const rows = []; let row = []; let field = ''; let inQ = false;
+    for (let i = 0; i < csv.length; i++) {
+      const c = csv[i], n = csv[i+1];
+      if (inQ) {
+        if (c === '"' && n === '"') { field += '"'; i++; }
+        else if (c === '"') inQ = false;
+        else field += c;
+      } else {
+        if (c === '"') inQ = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\r' && n === '\n') { i++; row.push(field); rows.push(row); row = []; field = ''; }
+        else if (c === '\n' || c === '\r') { row.push(field); rows.push(row); row = []; field = ''; }
+        else field += c;
+      }
+    }
+    if (field || row.length) { row.push(field); if (row.some(f => f)) rows.push(row); }
+    return rows;
+  }
+
+  /* ─── Filters ─────────────────────────────────────────── */
+  function buildFilters() {
+    const categories = new Set();
+    photos.forEach(p => {
+      (p.category || '').split(',').map(c => c.trim()).filter(Boolean).forEach(c => categories.add(c));
+    });
+    const bar = document.getElementById('filter-bar');
+    // Keep "Tudo" button, add one per category
+    categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-pill';
+      btn.textContent = cat;
+      btn.onclick = () => setFilter(cat, btn);
+      bar.appendChild(btn);
+    });
+  }
+
+  function setFilter(cat, btn) {
+    activeFilter = cat;
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilter(cat);
+  }
+
+  function applyFilter(cat) {
+    filtered = cat
+      ? photos.filter(p => (p.category || '').split(',').map(c => c.trim()).includes(cat))
+      : [...photos];
+    renderGrid();
+  }
+
+  /* ─── Grid ────────────────────────────────────────────── */
+  function renderGrid() {
+    const grid = document.getElementById('gallery-grid');
+    const empty = document.getElementById('empty-state');
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    grid.innerHTML = filtered.map((photo, i) => {
+      const thumb = photo.thumb && photo.thumb.trim() ? photo.thumb : photo.image;
+      const cats = (photo.category || '').split(',').map(c => c.trim()).filter(Boolean);
+      return `
+        <div class="photo-card" onclick="openLightbox(${i})" style="animation-delay:${Math.min(i*0.05, 0.4)}s">
+          <img src="${esc(thumb)}" alt="${esc(photo.title)}" loading="lazy"
+               onerror="this.style.opacity='0.2';this.style.minHeight='180px'"/>
+          <div class="photo-overlay">
+            <p class="photo-title">${esc(photo.title)}</p>
+            <div class="photo-meta">
+              <span class="photo-date">${formatDate(photo.date)}</span>
+              ${cats.slice(0,2).map(c => `<span class="photo-tag">${esc(c)}</span>`).join('')}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  /* ─── Lightbox ────────────────────────────────────────── */
+  function openLightbox(index) {
+    currentIndex = index;
+    showLightboxPhoto(index);
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function showLightboxPhoto(index) {
+    const photo = filtered[index];
+    if (!photo) return;
+    currentIndex = index;
+
+    document.getElementById('lb-img').src = photo.image;
+    document.getElementById('lb-img').alt = photo.title;
+    document.getElementById('lb-title').textContent = photo.title;
+    document.getElementById('lb-date').textContent = formatDate(photo.date);
+    document.getElementById('lb-desc').textContent = photo.description || '';
+
+    // Tags
+    const cats = (photo.category || '').split(',').map(c => c.trim()).filter(Boolean);
+    document.getElementById('lb-tags').innerHTML = cats
+      .map(c => `<span class="photo-tag">${esc(c)}</span>`).join('');
+
+    // Gear
+    const gearWrap = document.getElementById('lb-gear');
+    const gearList = document.getElementById('lb-gear-list');
+    if (photo.gear && photo.gear.trim()) {
+      gearList.innerHTML = photo.gear.split(',').map(g => `<li>${esc(g.trim())}</li>`).join('');
+      gearWrap.style.display = 'block';
+    } else {
+      gearWrap.style.display = 'none';
+    }
+  }
+
+  function navigateLightbox(dir) {
+    const next = currentIndex + dir;
+    if (next >= 0 && next < filtered.length) showLightboxPhoto(next);
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleLightboxClick(e) {
+    if (e.target === document.getElementById('lightbox')) closeLightbox();
+  }
+
+  /* ─── Starfield canvas ────────────────────────────────── */
+  function drawStars() {
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let W, H, stars;
+
+    function init() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      stars = Array.from({length: 220}, () => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.2 + 0.2,
+        o: Math.random() * 0.6 + 0.1,
+        speed: Math.random() * 0.004 + 0.002,
+        phase: Math.random() * Math.PI * 2
+      }));
+    }
+
+    let frame = 0;
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      frame++;
+      stars.forEach(s => {
+        const pulse = s.o * (0.7 + 0.3 * Math.sin(frame * s.speed + s.phase));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(220,235,210,${pulse})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', init);
+    init();
+    draw();
+  }
+
+  /* ─── Helpers ─────────────────────────────────────────── */
+  function esc(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function formatDate(d) {
+    if (!d) return '';
+    const p = new Date(d);
+    if (isNaN(p)) return d;
+    return p.toLocaleDateString('pt-PT', {day:'numeric', month:'short', year:'numeric'});
+  }
+  function showLoading(show) {
+    document.getElementById('loading-state').style.display = show ? 'block' : 'none';
+  }
+
+  /* ─── Demo photos ─────────────────────────────────────── */
+  function getDemoPhotos() {
+    return [
+      {
+        title: 'M42 — Nebulosa de Orion',
+        date: '2026-02-14',
+        category: 'Nebula',
+        description: 'The Orion Nebula, one of the most photogenic objects in the sky. Captured in 45 minutes total exposure with 3 min per frame.',
+        gear: 'Sky-Watcher Evostar 72ED DS-Pro, Star Adventurer GTi, Canon EOS 1200D, ISO 800',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg/800px-Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg',
+        thumb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg/400px-Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg'
+      },
+      {
+        title: 'M31 — Galáxia de Andrómeda',
+        date: '2026-01-20',
+        category: 'Galaxy',
+        description: 'Our closest neighbour at 2.5 million light-years. 30 exposures of 2 minutes, processed in PixInsight.',
+        gear: 'Sky-Watcher Evostar 72ED DS-Pro, Star Adventurer GTi, Canon EOS 1200D',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg/800px-Andromeda_Galaxy_%28with_h-alpha%29.jpg',
+        thumb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg/400px-Andromeda_Galaxy_%28with_h-alpha%29.jpg'
+      },
+      {
+        title: 'M45 — Plêiades',
+        date: '2026-01-05',
+        category: 'Cluster',
+        description: 'The famous Seven Sisters cluster with its surrounding blue reflection nebula. 20 min total exposure.',
+        gear: 'Sky-Watcher Evostar 72ED DS-Pro, Star Adventurer GTi, Canon EOS 1200D',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Pleiades_large.jpg/800px-Pleiades_large.jpg',
+        thumb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Pleiades_large.jpg/400px-Pleiades_large.jpg'
+      },
+      {
+        title: 'NGC 869/884 — Perseus Double Cluster',
+        date: '2025-12-18',
+        category: 'Cluster',
+        description: 'Two open clusters in Perseus, separated by only about 800 light-years. Wide-field image.',
+        gear: 'Sky-Watcher Evostar 72ED DS-Pro, Canon EOS 1200D, ISO 1600',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/NGC_869_and_NGC_884.jpg/800px-NGC_869_and_NGC_884.jpg',
+        thumb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/NGC_869_and_NGC_884.jpg/400px-NGC_869_and_NGC_884.jpg'
+      },
+      {
+        title: 'Júpiter',
+        date: '2025-11-30',
+        category: 'Planet',
+        description: 'Jupiter with the Great Red Spot and all four Galilean moons visible. Lucky imaging from 2000 frames.',
+        gear: 'Meazza 150mm Newtoniano, Pixel 8a, AutoStakkert, RegiStax',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg/800px-Jupiter_and_its_shrunken_Great_Red_Spot.jpg',
+        thumb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg/400px-Jupiter_and_its_shrunken_Great_Red_Spot.jpg'
+      },
+      {
+        title: 'IC 434 — Nebulosa Cabeça de Cavalo',
+        date: '2025-11-10',
+        category: 'Nebula',
+        description: 'One of the most iconic silhouettes in the sky, in Orion. Required an H-alpha filter to boost contrast.',
+        gear: 'Sky-Watcher Evostar 72ED DS-Pro, Star Adventurer GTi, Canon EOS 1200D, Filtro Halpha',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Horsehead-Hubble.jpg/600px-Horsehead-Hubble.jpg',
+        thumb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Horsehead-Hubble.jpg/400px-Horsehead-Hubble.jpg'
+      }
+    ];
+  }
+  </script>
+</body>
+</html>
