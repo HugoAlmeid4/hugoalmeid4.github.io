@@ -535,6 +535,31 @@ p:last-child { margin-bottom: 0; }
   letter-spacing: 0.07em;
 }
 
+/* About Button */
+.about-btn {
+  display: block;
+  width: 100%;
+  margin: 16px 0 4px;
+  padding: 10px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(58,122,32,0.2);
+}
+.about-btn:hover {
+  transform: scale(1.04);
+  background: var(--green-lt);
+  box-shadow: 0 6px 16px rgba(58,122,32,0.3);
+}
+
 /* Label cloud */
 .label-cloud {
   display: flex;

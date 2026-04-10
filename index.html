@@ -19,7 +19,7 @@
       <nav class="main-nav" id="main-nav">
         <a href="index.html" class="nav-link active">Home</a>
         <a href="gallery.html" class="nav-link">Gallery</a>
-        <a href="#about" class="nav-link">About</a>
+        <a href="javascript:void(0)" onclick="openAboutMe()" class="nav-link">About</a>
       </nav>
       <div class="search-box" role="search">
         <form id="search-form" onsubmit="handleSearch(event)">
@@ -37,7 +37,7 @@
   <div class="mobile-drawer" id="mobile-drawer">
     <a href="index.html">Home</a>
     <a href="gallery.html">Gallery</a>
-    <a href="#about">About</a>
+    <a href="javascript:void(0)" onclick="openAboutMe(); toggleMobileMenu();">About</a>
   </div>
 
   <!-- HERO (latest post) -->
@@ -45,7 +45,7 @@
     <div class="hero-bg" id="hero-bg"></div>
     <div class="hero-glow"></div>
     <div class="hero-content" id="hero-content">
-      <p class="hero-eyebrow">Featured article</p>
+      <p class="hero-eyebrow">Most recent article</p>
       <h1 class="hero-title" id="hero-title">Loading…</h1>
       <div class="hero-meta" id="hero-meta"></div>
       <div class="hero-labels" id="hero-labels"></div>
@@ -73,7 +73,8 @@
         <div class="widget-body">
           <div class="profile-avatar">🔭</div>
           <p class="profile-name">Hugo Almeida</p>
-          <p class="profile-bio">Student in Caldas da Rainha, passionate about astrophotography, astrophysics, digital privacy and web development.</p>
+          <p class="profile-bio">Student passionate about astrophotography, astrophysics, digital privacy and web development.</p>
+          <button class="about-btn" onclick="openAboutMe()">Read full bio</button>
           <a class="profile-link" href="https://github.com/hralmeida" target="_blank" rel="noopener">View GitHub →</a>
         </div>
       </div>
@@ -103,7 +104,7 @@
   <footer class="site-footer">
     <div class="footer-inner">
       <span class="footer-logo">Hralmeida</span>
-      <span class="footer-copy">© 2026 Hugo Almeida · Caldas da Rainha, Portugal</span>
+      <span class="footer-copy">© 2026 Hugo Almeida · Portugal</span>
       <a class="footer-gh" href="https://github.com/hralmeida" target="_blank" rel="noopener">GitHub</a>
     </div>
   </footer>

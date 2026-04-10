@@ -452,7 +452,7 @@
       <nav class="main-nav" id="main-nav">
         <a href="index.html" class="nav-link">Home</a>
         <a href="gallery.html" class="nav-link active">Gallery</a>
-        <a href="index.html#about" class="nav-link">About</a>
+        <a href="index.html#about-me" class="nav-link">About</a>
       </nav>
       <div class="search-box" role="search">
         <form onsubmit="handleGallerySearch(event)">
@@ -470,7 +470,7 @@
   <div class="mobile-drawer" id="mobile-drawer">
     <a href="index.html">Home</a>
     <a href="gallery.html">Gallery</a>
-    <a href="index.html#about">About</a>
+    <a href="index.html#about-me">About</a>
   </div>
 
   <!-- HERO -->
@@ -524,8 +524,8 @@
   <footer class="site-footer">
     <div class="footer-inner">
       <span class="footer-logo">Hralmeida</span>
-      
-      <span class="footer-copy">© 2026 Hugo Almeida · Caldas da Rainha, Portugal</span><a class="footer-link footer-gh" href="https://github.com/hralmeida" target="_blank" rel="noopener">GitHub</a>
+      <span class="footer-copy">© 2026 Hugo Almeida · Portugal</span>
+      <a class="footer-link footer-gh" href="https://github.com/hralmeida" target="_blank" rel="noopener">GitHub</a>
     </div>
   </footer>
 
@@ -577,6 +577,13 @@
       (p.description||'').toLowerCase().includes(q) ||
       (p.category||'').toLowerCase().includes(q)
     );
+    filtered.sort((a, b) => {
+      const aTitle = (a.title || '').toLowerCase().includes(q);
+      const bTitle = (b.title || '').toLowerCase().includes(q);
+      if (aTitle && !bTitle) return -1;
+      if (!aTitle && bTitle) return 1;
+      return new Date(b.date || 0) - new Date(a.date || 0);
+    });
     renderGrid();
   }
 
@@ -604,6 +611,7 @@
         if (!res.ok) throw new Error('fetch failed');
         photos = parseCSV(await res.text());
       }
+      photos.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
       buildFilters();
       applyFilter(null);
     } catch (err) {
@@ -695,7 +703,7 @@
       const cats = (photo.category || '').split(',').map(c => c.trim()).filter(Boolean);
       return `
         <div class="photo-card" onclick="openLightbox(${i})" style="animation-delay:${Math.min(i*0.05, 0.4)}s">
-          <img src="${esc(thumb)}" alt="${esc(photo.title)}" loading="lazy"
+          <img src="${esc(getOptimizedUrl(thumb))}" alt="${esc(photo.title)}" loading="lazy" decoding="async"
                onerror="this.style.opacity='0.2';this.style.minHeight='180px'"/>
           <div class="photo-overlay">
             <p class="photo-title">${esc(photo.title)}</p>
@@ -721,7 +729,7 @@
     if (!photo) return;
     currentIndex = index;
 
-    document.getElementById('lb-img').src = photo.image;
+    document.getElementById('lb-img').src = getOptimizedUrl(photo.image);
     document.getElementById('lb-img').alt = photo.title;
     document.getElementById('lb-title').textContent = photo.title;
     document.getElementById('lb-date').textContent = formatDate(photo.date);
@@ -799,11 +807,17 @@
   function esc(s) {
     return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+  function getOptimizedUrl(url) {
+    if (!url) return '';
+    const match = url.match(/drive\.google\.com\/file\/d\/([^\/]+)/);
+    if (match) return `https://drive.google.com/uc?id=${match[1]}`;
+    return url;
+  }
   function formatDate(d) {
     if (!d) return '';
     const p = new Date(d);
     if (isNaN(p)) return d;
-    return p.toLocaleDateString('pt-PT', {day:'numeric', month:'short', year:'numeric'});
+    return p.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
   }
   function showLoading(show) {
     document.getElementById('loading-state').style.display = show ? 'block' : 'none';
@@ -813,7 +827,7 @@
   function getDemoPhotos() {
     return [
       {
-        title: 'M42 — Nebulosa de Orion',
+        title: 'M42 — Orion Nebula',
         date: '2026-02-14',
         category: 'Nebula',
         description: 'The Orion Nebula, one of the most photogenic objects in the sky. Captured in 45 minutes total exposure with 3 min per frame.',
@@ -822,7 +836,7 @@
         thumb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg/400px-Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg'
       },
       {
-        title: 'M31 — Galáxia de Andrómeda',
+        title: 'M31 — Andromeda Galaxy',
         date: '2026-01-20',
         category: 'Galaxy',
         description: 'Our closest neighbour at 2.5 million light-years. 30 exposures of 2 minutes, processed in PixInsight.',
@@ -831,7 +845,7 @@
         thumb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg/400px-Andromeda_Galaxy_%28with_h-alpha%29.jpg'
       },
       {
-        title: 'M45 — Plêiades',
+        title: 'M45 — Pleiades',
         date: '2026-01-05',
         category: 'Cluster',
         description: 'The famous Seven Sisters cluster with its surrounding blue reflection nebula. 20 min total exposure.',
@@ -849,7 +863,7 @@
         thumb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/NGC_869_and_NGC_884.jpg/400px-NGC_869_and_NGC_884.jpg'
       },
       {
-        title: 'Júpiter',
+        title: 'Jupiter',
         date: '2025-11-30',
         category: 'Planet',
         description: 'Jupiter with the Great Red Spot and all four Galilean moons visible. Lucky imaging from 2000 frames.',
@@ -858,7 +872,7 @@
         thumb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg/400px-Jupiter_and_its_shrunken_Great_Red_Spot.jpg'
       },
       {
-        title: 'IC 434 — Nebulosa Cabeça de Cavalo',
+        title: 'IC 434 — Horsehead Nebula',
         date: '2025-11-10',
         category: 'Nebula',
         description: 'One of the most iconic silhouettes in the sky, in Orion. Required an H-alpha filter to boost contrast.',

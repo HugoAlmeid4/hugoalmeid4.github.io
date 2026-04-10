@@ -61,6 +61,8 @@ async function loadPosts() {
       const csv = await res.text();
       allPosts = parseCSV(csv);
     }
+    // Sort posts by date descending
+    allPosts.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
     renderAll();
   } catch (err) {
     console.error('Error loading posts:', err);
@@ -69,6 +71,15 @@ async function loadPosts() {
     renderAll();
   }
   showLoading(false);
+
+  // Deep linking for single posts
+  const hash = window.location.hash.replace(/^#/, '');
+  if (hash === 'about-me') {
+    setTimeout(openAboutMe, 50);
+  } else if (hash) {
+    const post = allPosts.find(p => (p.slug || slugify(p.title)) === hash);
+    if (post) openPost(post);
+  }
 }
 
 function parseCSV(csv) {
@@ -136,6 +147,14 @@ function getFilteredPosts() {
       (p.excerpt || '').toLowerCase().includes(q) ||
       (p.body || '').toLowerCase().includes(q)
     );
+    // Sort by relevance: title match first
+    posts.sort((a, b) => {
+      const aTitle = (a.title || '').toLowerCase().includes(q);
+      const bTitle = (b.title || '').toLowerCase().includes(q);
+      if (aTitle && !bTitle) return -1;
+      if (!aTitle && bTitle) return 1;
+      return 0; // fallback to date order
+    });
   }
   return posts;
 }
@@ -146,7 +165,7 @@ function renderHero(post) {
   document.title = `Hralmeida — ${post.title}`;
   document.getElementById('hero-title').textContent = post.title;
   document.getElementById('hero-meta').innerHTML =
-    `<span>Por ${post.author || 'hralmeida'}</span><span>${formatDate(post.date)}</span>`;
+    `<span>By ${post.author || 'hralmeida'}</span><span>${formatDate(post.date)}</span>`;
   document.getElementById('hero-labels').innerHTML =
     labelsHtml(post.labels, 'hero-label');
   document.getElementById('hero-cta').onclick = (e) => {
@@ -154,7 +173,7 @@ function renderHero(post) {
     openPost(post);
   };
   if (post.image) {
-    document.getElementById('hero-bg').style.backgroundImage = `url(${post.image})`;
+    document.getElementById('hero-bg').style.backgroundImage = `url(${optimizeImageUrl(post.image)})`;
   }
 }
 
@@ -170,17 +189,14 @@ function renderCards(posts) {
     const banner = document.createElement('div');
     banner.id = 'search-banner';
     banner.className = 'search-banner';
-    banner.innerHTML = `<span>Resultados para "<strong>${escHtml(currentSearch)}</strong>" — ${posts.length} post${posts.length !== 1 ? 's' : ''}</span>
-      <button onclick="clearSearch()">Limpar</button>`;
+    banner.innerHTML = `<span>Results for "<strong>${escHtml(currentSearch)}</strong>" — ${posts.length} post${posts.length !== 1 ? 's' : ''}</span>
+      <button onclick="clearSearch()">Clear</button>`;
     grid.parentElement.insertBefore(banner, grid);
   }
 
-  // When filtering/searching: show ALL matching posts as cards (including the hero one)
-  // When showing everything: skip only the hero if there are other posts too
+  // Show all posts in the recent list so we meet the minimum count
   const heroPost = allPosts[0];
-  const cardPosts = (currentFilter || currentSearch)
-    ? posts
-    : (posts.length > 1 ? posts.slice(1) : posts);
+  const cardPosts = posts;
 
   if (cardPosts.length === 0) {
     grid.innerHTML = '';
@@ -203,7 +219,7 @@ function renderCards(posts) {
           <span>${formatDate(post.date)}</span>
         </div>
       </div>
-      ${hasImage ? `<div class="card-thumb"><img src="${escAttr(post.image)}" alt="${escAttr(post.title)}" loading="lazy"/></div>` : ''}
+      ${hasImage ? `<div class="card-thumb"><img src="${escAttr(optimizeImageUrl(post.image))}" alt="${escAttr(post.title)}" loading="lazy" decoding="async"/></div>` : ''}
     </article>`;
   }).join('');
 }
@@ -235,7 +251,7 @@ function openPost(post) {
   document.getElementById('post-heading').textContent = post.title;
 
   document.getElementById('post-meta-row').innerHTML =
-    `<span>Por ${escHtml(post.author || 'hralmeida')}</span>
+    `<span>By ${escHtml(post.author || 'hralmeida')}</span>
      <span>${formatDate(post.date)}</span>`;
 
   document.getElementById('post-body-text').innerHTML =
@@ -250,7 +266,7 @@ function openPost(post) {
       𝕏 Twitter
     </button>
     <button class="share-btn" onclick="copyLink('${escAttr(postUrl)}', this)">
-      🔗 Copiar link
+      🔗 Copy link
     </button>
   `;
   const body = document.getElementById('post-body-text');
@@ -271,6 +287,27 @@ function closePost(pushState = true) {
   document.body.style.overflow = '';
   document.title = 'Hralmeida';
   if (pushState) history.pushState(null, '', location.pathname);
+}
+
+function openAboutMe() {
+  const aboutPost = {
+    title: 'About me',
+    author: 'Hugo Almeida',
+    date: new Date().toISOString(),
+    labels: 'Bio, Contact',
+    slug: 'about-me',
+    body: `## Hello!
+
+I'm **Hugo Almeida**, a student passionate about **astrophotography**, **astrophysics**, **digital privacy**, and **web development**. 
+
+I love capturing the night sky and exploring the universe through my telescope. My setup currently includes a Sky-Watcher Evostar 72ED DS-Pro and a Star Adventurer GTi mount.
+
+When I'm not gazing at the stars, I explore technology, specifically digital privacy like running GrapheneOS, and building small web projects.
+
+### Get in touch
+You can find my projects and code on [GitHub](https://github.com/hralmeida).`
+  };
+  openPost(aboutPost);
 }
 
 // ─── Search ────────────────────────────────────────────────────
@@ -309,10 +346,10 @@ function shareTwitter(title, url) {
 }
 function copyLink(url, btn) {
   navigator.clipboard.writeText(url).then(() => {
-    btn.textContent = '✓ Copiado!';
+    btn.textContent = '✓ Copied!';
     btn.classList.add('copy-success');
     setTimeout(() => {
-      btn.textContent = '🔗 Copiar link';
+      btn.textContent = '🔗 Copy link';
       btn.classList.remove('copy-success');
     }, 2000);
   });
@@ -348,7 +385,9 @@ function markdownToHtml(md) {
   html = html.replace(/_(.+?)_/g, '<em>$1</em>');
 
   // Images ![alt](url)
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1"/>');
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+    return `<img src="${optimizeImageUrl(url)}" alt="${alt}" loading="lazy" decoding="async"/>`;
+  });
 
   // Links [text](url)
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
@@ -392,7 +431,7 @@ function formatDate(d) {
   if (!d) return '';
   const parsed = new Date(d);
   if (isNaN(parsed)) return d; // return as-is if not parseable
-  return parsed.toLocaleDateString('pt-PT', { day: 'numeric', month: 'short', year: 'numeric' });
+  return parsed.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 function slugify(s) {
   return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -405,88 +444,94 @@ function labelsHtml(labels, cls) {
 function showLoading(show) {
   document.getElementById('loading').style.display = show ? 'flex' : 'none';
 }
+function optimizeImageUrl(url) {
+  if (!url) return '';
+  const match = url.match(/drive\.google\.com\/file\/d\/([^\/]+)/);
+  if (match) return `https://drive.google.com/uc?id=${match[1]}`;
+  return url;
+}
 
 // ─── Demo posts (used when no Sheet URL is configured) ─────────
 function getDemoPosts() {
   return [
     {
-      title: 'O Meu Novo Setup de Astrofotografia',
+      title: 'My New Astrophotography Setup',
       date: '2026-03-20',
       author: 'hralmeida',
-      labels: 'Astrofotografia, Equipamento',
-      excerpt: 'Finalizei o meu setup com o Sky-Watcher Evostar 72ED DS-Pro e a montagem Star Adventurer GTi. Aqui estão as minhas impressões iniciais.',
-      body: `## O equipamento
+      labels: 'Astrophotography, Gear',
+      excerpt: 'I wrapped up my setup with the Sky-Watcher Evostar 72ED DS-Pro and the Star Adventurer GTi mount. Here are my first impressions.',
+      body: `## The Gear
 
-Depois de meses a investigar, finalizei o meu setup de astrofotografia. Os componentes principais são:
+After months of research, I finalized my astrophotography setup. The main components are:
 
-- **Sky-Watcher Evostar 72ED DS-Pro** — refractor apocromático 72mm f/5.8
-- **Sky-Watcher Star Adventurer GTi** — montagem goto portátil
-- **Canon EOS 1200D (T5)** — câmara DSLR modificável
-- **JINTU C1** — intervalómetro para captura automática
+- **Sky-Watcher Evostar 72ED DS-Pro** — 72mm f/5.8 apochromatic refractor
+- **Sky-Watcher Star Adventurer GTi** — portable goto mount
+- **Canon EOS 1200D (T5)** — moddable DSLR camera
+- **JINTU C1** — intervalometer for automatic capture
 
-## Workflow de processamento
+## Processing Workflow
 
-Uso o seguinte workflow para processar as imagens:
+I use the following workflow to process images:
 
-1. Captura em RAW com o intervalómetro
-2. Stacking com **DeepSkyStacker** ou **Siril**
-3. Processamento final no **PixInsight 1.8**
+1. Capture in RAW with the intervalometer
+2. Stacking with **DeepSkyStacker** or **Siril**
+3. Final processing in **PixInsight 1.8**
 
-## Primeiras impressões
+## First Impressions
 
-A montagem Star Adventurer GTi surpreendeu-me positivamente. O tracking é muito estável para exposições até 3 minutos sem guiding.
+The Star Adventurer GTi mount positively surprised me. The tracking is very stable for up to 3-minute exposures without guiding.
 
-> "A astrofotografia é a arte de capturar luz que viajou milhões de anos."
+> "Astrophotography is the art of capturing light that has travelled millions of years."
 
-O próximo passo é experimentar com a Nebulosa de Orion e a Galáxia de Andrómeda.`,
+The next step is to experiment with the Orion Nebula and the Andromeda Galaxy.`,
       image: '',
       slug: 'setup-astrofotografia-2026'
     },
     {
-      title: 'GrapheneOS no Pixel 8a — Vale a Pena?',
+      title: 'GrapheneOS on Pixel 8a — Is It Worth It?',
       date: '2026-03-15',
       author: 'hralmeida',
-      labels: 'Privacidade, Android',
-      excerpt: 'Depois de migrar para o GrapheneOS, aqui está o que mudou na minha experiência diária.',
-      body: `## Porquê mudar?
+      labels: 'Privacy, Android',
+      excerpt: 'After migrating to GrapheneOS, here is what changed in my daily experience.',
+      body: `## Why change?
 
-Preocupações com privacidade e controlo sobre o dispositivo levaram-me a experimentar o GrapheneOS no Pixel 8a.
+Concerns with privacy and control over the device led me to try GrapheneOS on the Pixel 8a.
 
-## O que mudou
+## What changed
 
-**Positivo:**
-- Sem telemetria do Google por defeito
-- Sandbox para apps do Google (opcional)
-- Atualizações de segurança rápidas
-- Performance idêntica ao stock
+**Positive:**
+- No Google telemetry by default
+- Sandbox for Google apps (optional)
+- Fast security updates
+- Identical performance to stock
 
-**Negativo:**
-- Algumas apps bancárias precisam de configuração extra
-- Google Pay não funciona (esperado)
+**Negative:**
+- Some banking apps need extra configuration
+- Google Pay does not work (expected)
 
-## Conclusão
+## Conclusion
 
-Para quem valoriza privacidade, vale definitivamente a pena.`,
+For those who value privacy, it is definitely worth it.`,
       image: '',
       slug: 'grapheneos-pixel-8a'
     },
     {
-      title: 'Buracos Negros e o Destino do Universo',
+      title: 'Black Holes and the Fate of the Universe',
       date: '2026-02-28',
       author: 'hralmeida',
-      labels: 'Astrofísica',
-      excerpt: 'Uma exploração sobre evaporação de Hawking e o que acontece quando o último buraco negro se extingue.',
-      body: `## Evaporação de Hawking
+      labels: 'Astrophysics',
+      excerpt: 'An exploration of Hawking radiation and what happens when the last black hole flickers out.',
+      body: `## Hawking Radiation
 
-Stephen Hawking previu em 1974 que os buracos negros não são completamente negros — emitem radiação térmica lentamente.
+Stephen Hawking predicted in 1974 that black holes are not completely black — they emit thermal radiation slowly.
 
-## O paradoxo da informação
+## The Information Paradox
 
-Se um buraco negro evapora completamente, o que acontece à informação que caiu dentro dele? Esta questão ainda não tem resposta definitiva.
+If a black hole evaporates completely, what happens to the information that fell into it? This question still has no definitive answer.
 
-## O fim do universo
+## The End of the Universe
 
-Num futuro distante (cerca de 10^100 anos), o último buraco negro evapora. O universo fica num estado de morte térmica — máxima entropia, temperatura próxima do zero absoluto.`,
+In a distant future (about 10^100 years), the last black hole evaporates. The universe is left in a state of thermal death — maximum entropy, temperature close to absolute zero.`,
       image: '',
       slug: 'buracos-negros-universo'
     }
