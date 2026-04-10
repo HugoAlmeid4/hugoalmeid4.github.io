@@ -298,14 +298,14 @@ function openAboutMe() {
     slug: 'about-me',
     body: `## Hello!
 
-I'm **Hugo Almeida**, a student passionate about **astrophotography**, **astrophysics**, **digital privacy**, and **web development**. 
+I'm **Hugo Almeida**.
 
-I love capturing the night sky and exploring the universe through my telescope. My setup currently includes a Sky-Watcher Evostar 72ED DS-Pro and a Star Adventurer GTi mount.
+> "We are made of star stuff" — Carl Sagan
 
-When I'm not gazing at the stars, I explore technology, specifically digital privacy like running GrapheneOS, and building small web projects.
+I am a student from Portugal. That likes technology. But want to work as an astrophisysict. I like math, and physics. But the main thing that I want is to understand anything I have the chance too.
 
 ### Get in touch
-You can find my projects and code on [GitHub](https://github.com/hralmeida).`
+You can find my projects and code on [GitHub](https://github.com/HugoAlmeid4).`
   };
   openPost(aboutPost);
 }
