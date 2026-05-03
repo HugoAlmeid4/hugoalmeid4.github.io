@@ -221,6 +221,16 @@ body {
   color: #333;
 }
 
+.post-inline-link {
+  color: #0056b3;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.post-inline-link:hover {
+  color: #003d82;
+}
+
 .post-body a.read-more {
   display: inline-block;
   margin-top: 10px;
