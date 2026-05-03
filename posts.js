@@ -99,7 +99,7 @@ async function loadPosts() {
 
 // ── Rendering ────────────────────────────────────────────────────────────────
 
-function renderPosts(posts, list, status) {
+function renderPosts(posts, list, status, visibleCount = 3) {
   list.innerHTML = '';
 
   // Sort newest first
@@ -112,8 +112,9 @@ function renderPosts(posts, list, status) {
   });
 
   let currentGroup = null;
+  const postsToShow = posts.slice(0, visibleCount);
 
-  posts.forEach(post => {
+  postsToShow.forEach(post => {
     const group = groupLabel(post.date);
 
     // Insert a month/year divider when the group changes
@@ -161,9 +162,25 @@ function renderPosts(posts, list, status) {
     list.appendChild(card);
   });
 
-  const statusEl = document.getElementById('postsStatus');
-  if (statusEl) {
-    statusEl.textContent = `${posts.length} post${posts.length !== 1 ? 's' : ''}`;
+  if (posts.length > visibleCount) {
+    const btnContainer = document.createElement('div');
+    btnContainer.className = 'show-more-container';
+    
+    const btn = document.createElement('button');
+    btn.className = 'show-more-btn';
+    btn.textContent = 'Show more';
+    btn.addEventListener('click', () => {
+      renderPosts(posts, list, status, posts.length);
+    });
+    
+    btnContainer.appendChild(btn);
+    list.appendChild(btnContainer);
+  }
+
+  if (status) {
+    status.textContent = `${posts.length} post${posts.length !== 1 ? 's' : ''}`;
+    status.style.textAlign = 'center';
+    list.appendChild(status);
   }
 }
 
