@@ -87,8 +87,10 @@ body {
   text-decoration: none;
 }
 
-.Socials span a:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .Socials span a:hover {
+    text-decoration: underline;
+  }
 }
 
 /* ── Posts column ── */
@@ -135,8 +137,10 @@ body {
   flex-shrink: 0;
 }
 
-.post-card:hover {
-  background: #e0d8c8;
+@media (hover: hover) {
+  .post-card:hover {
+    background: #e0d8c8;
+  }
 }
 
 .post-header {
@@ -227,8 +231,10 @@ body {
   text-underline-offset: 2px;
 }
 
-.post-inline-link:hover {
-  color: #003d82;
+@media (hover: hover) {
+  .post-inline-link:hover {
+    color: #003d82;
+  }
 }
 
 .post-body a.read-more {
@@ -268,9 +274,11 @@ body {
   letter-spacing: 0.05em;
 }
 
-.show-more-btn:hover {
-  background: #333;
-  color: rgb(237, 231, 220);
+@media (hover: hover) {
+  .show-more-btn:hover {
+    background: #333;
+    color: rgb(237, 231, 220);
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
