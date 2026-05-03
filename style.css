@@ -248,6 +248,31 @@ body {
   min-height: 18px;
 }
 
+/* ── Show More Button ── */
+.show-more-container {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 4px;
+}
+
+.show-more-btn {
+  background: transparent;
+  border: 1.5px solid #333;
+  color: #333;
+  padding: 8px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.show-more-btn:hover {
+  background: #333;
+  color: rgb(237, 231, 220);
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    ── RESPONSIVE / MOBILE ──
    ══════════════════════════════════════════════════════════════════════════════ */
