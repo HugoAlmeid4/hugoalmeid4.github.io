@@ -9,10 +9,20 @@
 </head>
 
 <body>
+  <script>
+    try {
+      if (localStorage.getItem('theme') !== 'light') {
+        document.body.classList.add('dark-mode');
+      }
+    } catch(e) {
+      document.body.classList.add('dark-mode');
+    }
+  </script>
 
   <div class="Name-Photo">
     <img src="imgs/imgs.jpg" alt="Hralmeida">
     <h3>Hralmeida</h3>
+    <button id="theme-toggle" class="theme-toggle">Dark Mode</button>
   </div>
 
   <div class="Medium-Path">
@@ -20,7 +30,8 @@
     <div class="Bio-Socials">
       <div>
         <h2>Bio</h2>
-        <p>Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.</p>
+        <p>Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just
+          enjoying the view while the world turns, again.</p>
       </div>
       <div class="Socials">
         <h2>Socials</h2>
@@ -44,6 +55,27 @@
   </div>
 
   <script src="posts.js"></script>
+  <script>
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    
+    function updateBtnText() {
+      if (document.body.classList.contains('dark-mode')) {
+        themeToggleBtn.textContent = 'Light Mode';
+      } else {
+        themeToggleBtn.textContent = 'Dark Mode';
+      }
+    }
+    updateBtnText();
+
+    themeToggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      updateBtnText();
+      try {
+        const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+        localStorage.setItem('theme', theme);
+      } catch(e) {}
+    });
+  </script>
 </body>
 
 </html>
