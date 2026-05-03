@@ -140,7 +140,7 @@ function renderPosts(posts, list, status) {
       </div>
       <div class="post-body">
         <div class="post-body-inner">
-          <p>${esc(post.excerpt)}</p>
+          <p>${linkify(esc(post.excerpt))}</p>
           ${post.url ? `<a class="read-more" href="${esc(post.url)}" target="_blank" rel="noopener">Read full post →</a>` : ''}
         </div>
       </div>`;
@@ -243,4 +243,16 @@ function esc(s) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function linkify(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(urlRegex, function(url) {
+    let trailing = '';
+    if (url.match(/[.,;:\)]$/)) {
+      trailing = url.slice(-1);
+      url = url.slice(0, -1);
+    }
+    return `<a href="${url}" target="_blank" rel="noopener" class="post-inline-link">${url}</a>` + trailing;
+  });
 }
