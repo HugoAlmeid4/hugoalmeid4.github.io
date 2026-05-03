@@ -113,6 +113,7 @@ function renderPosts(posts, list, status, visibleCount = 3) {
 
   let currentGroup = null;
   const postsToShow = posts.slice(0, visibleCount);
+  const fragment = document.createDocumentFragment();
 
   postsToShow.forEach(post => {
     const group = groupLabel(post.date);
@@ -123,7 +124,7 @@ function renderPosts(posts, list, status, visibleCount = 3) {
       const label = document.createElement('div');
       label.className = 'date-group-label';
       label.textContent = group;
-      list.appendChild(label);
+      fragment.appendChild(label);
     }
 
     const card = document.createElement('div');
@@ -159,7 +160,7 @@ function renderPosts(posts, list, status, visibleCount = 3) {
       }
     });
 
-    list.appendChild(card);
+    fragment.appendChild(card);
   });
 
   if (posts.length > visibleCount) {
@@ -174,14 +175,16 @@ function renderPosts(posts, list, status, visibleCount = 3) {
     });
     
     btnContainer.appendChild(btn);
-    list.appendChild(btnContainer);
+    fragment.appendChild(btnContainer);
   }
 
   if (status) {
     status.textContent = `${posts.length} post${posts.length !== 1 ? 's' : ''}`;
     status.style.textAlign = 'center';
-    list.appendChild(status);
+    fragment.appendChild(status);
   }
+
+  list.appendChild(fragment);
 }
 
 // ── Date helpers ─────────────────────────────────────────────────────────────
