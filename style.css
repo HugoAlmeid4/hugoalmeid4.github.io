@@ -1,0 +1,340 @@
+@import url('https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,100..700;1,100..700&display=swap');
+
+* {
+  font-family: "Lilex", monospace;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: rgb(237, 231, 220);
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.Name-Photo {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 30px 0 20px;
+  gap: 8px;
+}
+
+.Name-Photo img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border: 2px solid #333;
+}
+
+.Name-Photo h3 {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* ── Main layout ── */
+.Medium-Path {
+  display: flex;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px 40px;
+  align-items: flex-start;
+}
+
+/* ── Bio & Socials ── */
+.Bio-Socials {
+  flex: 1.5;
+  padding: 20px 50px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.Bio-Socials h2,
+.Posts-Section h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+.Bio-Socials p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #333;
+}
+
+.Socials {
+  display: flex;
+  flex-direction: column;
+}
+
+.Socials span {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.Socials span a,
+.Socials span p {
+  font-size: 15px;
+  color: #111;
+  text-decoration: none;
+}
+
+.Socials span a:hover {
+  text-decoration: underline;
+}
+
+/* ── Posts column ── */
+.Posts-Section {
+  flex: 1;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.posts-scroll {
+  max-height: 450px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 6px;
+  min-width: 0;
+}
+
+.posts-scroll::-webkit-scrollbar { width: 4px; }
+.posts-scroll::-webkit-scrollbar-track { background: transparent; }
+.posts-scroll::-webkit-scrollbar-thumb { background: #aaa; border-radius: 2px; }
+
+/* ── Date group label ── */
+.date-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 2px 2px;
+  flex-shrink: 0;
+}
+
+/* ── Post card ── */
+.post-card {
+  border: 1.5px solid #333;
+  background: rgb(237, 231, 220);
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.post-card:hover {
+  background: #e0d8c8;
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 8px;
+}
+
+.post-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.post-title {
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.post-date {
+  font-weight: 400;
+  color: #555;
+}
+
+.post-excerpt-preview {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 20px;
+  opacity: 1;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+}
+
+.post-card.open .post-excerpt-preview {
+  max-height: 0;
+  opacity: 0;
+}
+
+.post-arrow {
+  font-size: 11px;
+  color: #555;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+  user-select: none;
+}
+
+.post-card.open .post-arrow {
+  transform: rotate(180deg);
+}
+
+/* ── Expandable body ── */
+.post-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s ease-out, padding 0.4s ease-out;
+  padding: 0 16px;
+}
+
+.post-card.open .post-body {
+  grid-template-rows: 1fr;
+  padding: 14px 16px;
+  border-top: 1px solid #ccc;
+}
+
+.post-body-inner {
+  overflow: hidden;
+}
+
+.post-body p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #333;
+}
+
+.post-body a.read-more {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #333;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Status message ── */
+.posts-status {
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
+  min-height: 18px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ── RESPONSIVE / MOBILE ──
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Tablet breakpoint */
+@media (max-width: 768px) {
+  .Medium-Path {
+    flex-direction: column;
+    padding: 0 20px 32px;
+    align-items: center;
+  }
+
+  .Bio-Socials {
+    padding: 20px 0;
+    gap: 20px;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .Posts-Section {
+    padding: 10px 0 20px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .Bio-Socials h2,
+  .Posts-Section h2 {
+    font-size: 20px;
+  }
+}
+
+/* Phone breakpoint */
+@media (max-width: 480px) {
+  .Name-Photo {
+    padding: 20px 0 16px;
+  }
+
+  .Name-Photo img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .Name-Photo h3 {
+    font-size: 14px;
+  }
+
+  .Medium-Path {
+    padding: 0 16px 24px;
+  }
+
+  .Bio-Socials h2,
+  .Posts-Section h2 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .Bio-Socials p {
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .Socials span {
+    gap: 4px;
+  }
+
+  .Socials span a,
+  .Socials span p {
+    font-size: 13px;
+  }
+
+  .post-header {
+    padding: 12px 14px;
+  }
+
+  .post-title {
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  .post-excerpt-preview {
+    font-size: 11px;
+  }
+
+  .post-card.open .post-body {
+    padding: 12px 14px;
+  }
+
+  .post-body p {
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .post-body a.read-more {
+    font-size: 11px;
+  }
+
+  .posts-scroll {
+    padding-right: 0;
+  }
+}
