@@ -4,8 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Hralmeida's personal website, blog, and astrophotography portfolio.">
   <title>Hralmeida</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="posts.js" defer></script>
+  <script src="player.js" defer></script>
 </head>
 
 <body>
@@ -19,15 +25,15 @@
     }
   </script>
 
-  <div class="Name-Photo">
-    <img src="imgs/imgs.jpg" alt="Hralmeida">
+  <header class="Name-Photo">
+    <img src="imgs/imgs.jpg" alt="Hralmeida profile picture" fetchpriority="high">
     <h3>Hralmeida</h3>
     <button id="theme-toggle" class="theme-toggle">Dark Mode</button>
-  </div>
+  </header>
 
-  <div class="Medium-Path">
+  <main class="Medium-Path">
 
-    <div class="Bio-Socials">
+    <section class="Bio-Socials">
       <div>
         <h2>Bio</h2>
         <p>Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just
@@ -36,26 +42,26 @@
       <div class="Socials">
         <h2>Socials</h2>
         <span>
-          <a href="https://github.com/HugoAlmeid4">Github</a>
+          <a href="https://github.com/HugoAlmeid4" target="_blank" rel="noopener">Github</a>
           <p>-</p>
-          <a href="https://www.youtube.com/@hralmeid44">Youtube</a>
+          <a href="https://www.youtube.com/@hralmeid44" target="_blank" rel="noopener">Youtube</a>
           <p>-</p>
-          <a href="">hralmeid4@gmail.com</a>
+          <a href="mailto:hralmeid4@gmail.com">hralmeid4@gmail.com</a>
         </span>
       </div>
-    </div>
+    </section>
 
-    <div class="Posts-Section">
+    <section class="Posts-Section">
       <h2>Most Recent Posts</h2>
       <div class="posts-scroll" id="postsList">
         <div class="posts-status" id="postsStatus">Loading posts…</div>
       </div>
-    </div>
+    </section>
 
-  </div>
+  </main>
 
   <!-- ── Music Player ── -->
-  <div class="music-player" id="musicPlayer">
+  <footer class="music-player" id="musicPlayer">
     <div class="player-controls">
       <button id="player-prev" class="player-btn" aria-label="Previous track">⟨</button>
       <button id="player-play" class="player-btn player-btn-play" aria-label="Play">▶</button>
@@ -69,10 +75,8 @@
     </div>
     <div class="player-time" id="player-time">0:00</div>
     <input type="range" id="player-volume" class="player-volume" min="0" max="100" value="50" aria-label="Volume">
-  </div>
+  </footer>
 
-  <script src="posts.js"></script>
-  <script src="player.js"></script>
   <script>
     const themeToggleBtn = document.getElementById('theme-toggle');
     
