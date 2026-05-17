@@ -1,4 +1,3 @@
-
 * {
   font-family: "Lilex", monospace;
   box-sizing: border-box;
@@ -18,6 +17,7 @@ body {
     opacity: 0;
     transform: translateY(15px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -57,12 +57,13 @@ body {
   margin: 0 auto;
   padding: 0 24px 40px;
   align-items: flex-start;
+  gap: 40px; /* unified column gap instead of asymmetric padding */
 }
 
 /* ── Bio & Socials ── */
 .Bio-Socials {
   flex: 1.5;
-  padding: 20px 50px 20px 0;
+  padding: 20px 0; /* no asymmetric right padding – gap handles column spacing */
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -130,9 +131,18 @@ body {
   min-width: 0;
 }
 
-.posts-scroll::-webkit-scrollbar { width: 4px; }
-.posts-scroll::-webkit-scrollbar-track { background: transparent; }
-.posts-scroll::-webkit-scrollbar-thumb { background: #aaa; border-radius: 2px; }
+.posts-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.posts-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.posts-scroll::-webkit-scrollbar-thumb {
+  background: #aaa;
+  border-radius: 2px;
+}
 
 /* ── Date group label ── */
 .date-group-label {
@@ -433,20 +443,19 @@ body {
   .Medium-Path {
     flex-direction: column;
     padding: 0 20px 32px;
-    align-items: center;
+    align-items: stretch; /* full-width children, no centering quirks */
+    gap: 0;
   }
 
   .Bio-Socials {
-    padding: 20px 0;
+    padding: 20px 0 16px;
     gap: 20px;
     width: 100%;
-    max-width: 440px;
   }
 
   .Posts-Section {
-    padding: 10px 0 20px;
+    padding: 8px 0 20px;
     width: 100%;
-    max-width: 360px;
   }
 
   .Bio-Socials h2,
@@ -458,7 +467,7 @@ body {
 /* Phone breakpoint */
 @media (max-width: 480px) {
   .Name-Photo {
-    padding: 20px 0 16px;
+    padding: 20px 16px 16px; /* side-pad matches content below */
   }
 
   .Name-Photo img {
@@ -470,8 +479,20 @@ body {
     font-size: 14px;
   }
 
+  /* Single horizontal padding source for everything */
   .Medium-Path {
     padding: 0 16px 24px;
+    gap: 0;
+  }
+
+  /* Bio & Posts inherit the 16px side-padding from .Medium-Path */
+  .Bio-Socials {
+    padding: 16px 0 12px;
+    gap: 16px;
+  }
+
+  .Posts-Section {
+    padding: 6px 0 16px;
   }
 
   .Bio-Socials h2,
@@ -618,8 +639,8 @@ body.dark-mode .post-inline-link {
   }
 }
 
-body.dark-mode .posts-scroll::-webkit-scrollbar-thumb { 
-  background: #555; 
+body.dark-mode .posts-scroll::-webkit-scrollbar-thumb {
+  background: #555;
 }
 
 body.dark-mode .show-more-btn {
