@@ -166,14 +166,14 @@ function renderPosts(posts, list, status, visibleCount = 3) {
   if (posts.length > visibleCount) {
     const btnContainer = document.createElement('div');
     btnContainer.className = 'show-more-container';
-    
+
     const btn = document.createElement('button');
     btn.className = 'show-more-btn';
     btn.textContent = 'Show more';
     btn.addEventListener('click', () => {
       renderPosts(posts, list, status, posts.length);
     });
-    
+
     btnContainer.appendChild(btn);
     fragment.appendChild(btnContainer);
   }
@@ -192,7 +192,7 @@ function renderPosts(posts, list, status, visibleCount = 3) {
 function parseDate(str) {
   if (!str) return null;
   str = str.trim();
-  
+
   // Try MM/DD/YYYY (US Format)
   let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (m) return new Date(+m[3], +m[1] - 1, +m[2]);
@@ -200,7 +200,7 @@ function parseDate(str) {
   // Try MM/DD (assume current year if missing)
   m = str.match(/^(\d{1,2})\/(\d{1,2})$/);
   if (m) return new Date(new Date().getFullYear(), +m[1] - 1, +m[2]);
-  
+
   // Try YYYY-MM-DD
   m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
@@ -208,7 +208,7 @@ function parseDate(str) {
   // Fallback to standard JS parsing
   const d = new Date(str);
   if (!isNaN(d)) return d;
-  
+
   return null;
 }
 
@@ -267,7 +267,7 @@ function esc(s) {
 
 function linkify(text) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
-  return text.replace(urlRegex, function(url) {
+  return text.replace(urlRegex, function (url) {
     let trailing = '';
     if (url.match(/[.,;:\)]$/)) {
       trailing = url.slice(-1);
