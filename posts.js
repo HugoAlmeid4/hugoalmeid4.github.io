@@ -17,6 +17,9 @@
 const SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwnRK7M9iCWkMhmnKBT4ceHJI_sZIA_pg3uXiijzt3kPjFKkU3kEp_OY-KQ4DXQOhaWsyLe68w4k9n/pub?output=csv";
 // ─────────────────────────────────────────────────────────────────────────────
 
+const CACHE_KEY = "posts_cache";
+const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours caching layer
+
 document.addEventListener('DOMContentLoaded', loadPosts);
 
 async function loadPosts() {
@@ -58,9 +61,31 @@ async function loadPosts() {
       }
     ];
     renderPosts(demo, list, status);
+    setupRSSFeed(demo); // Dynamic feed setup for fallback items
     return;
   }
 
+  // 1. Caching layer router check
+  try {
+    const cache = JSON.parse(localStorage.getItem(CACHE_KEY));
+    if (cache && cache.timestamp && (Date.now() - cache.timestamp < CACHE_EXPIRY) && Array.isArray(cache.data)) {
+      // Instant render from cache (bypasses shimmer loading skeletons completely)
+      renderPosts(cache.data, list, status);
+      setupRSSFeed(cache.data);
+
+      // Silent background fetch to update cache for next session (no UI shifts)
+      fetchPostsAndCache(true);
+      return;
+    }
+  } catch (e) {
+    console.warn('Cache parse error, falling back to standard fetch:', e);
+  }
+
+  // 2. Cache empty or expired: normal fetch with shimmer skeletons displayed
+  fetchPostsAndCache(false);
+}
+
+async function fetchPostsAndCache(isSilent) {
   try {
     const res = await fetch(SHEETS_CSV_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -68,7 +93,10 @@ async function loadPosts() {
     const rows = parseCSV(text);
 
     if (rows.length < 2) {
-      status.textContent = 'No posts found in sheet.';
+      if (!isSilent) {
+        const status = document.getElementById('postsStatus');
+        if (status) status.textContent = 'No posts found in sheet.';
+      }
       return;
     }
 
@@ -89,11 +117,32 @@ async function loadPosts() {
         url: idx.url >= 0 ? r[idx.url] : '',
       }));
 
-    renderPosts(posts, list, status);
+    // Cache updated data
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        timestamp: Date.now(),
+        data: posts
+      }));
+    } catch (e) {
+      console.warn('Could not save posts to localStorage:', e);
+    }
+
+    // Dynamic RSS rebuild
+    setupRSSFeed(posts);
+
+    // If standard fetch (not silent background update), render to UI
+    if (!isSilent) {
+      const list = document.getElementById('postsList');
+      const status = document.getElementById('postsStatus');
+      renderPosts(posts, list, status);
+    }
 
   } catch (e) {
-    status.textContent = 'Could not load posts. Check the CSV URL and sheet sharing settings.';
-    console.error(e);
+    console.error('Fetch error:', e);
+    if (!isSilent) {
+      const status = document.getElementById('postsStatus');
+      if (status) status.textContent = 'Could not load posts. Check the CSV URL.';
+    }
   }
 }
 
@@ -111,6 +160,31 @@ function renderPosts(posts, list, status, visibleCount = 3) {
     return db - da;
   });
 
+  // Create fullscreen overlay (singleton)
+  if (!document.getElementById('postFullscreenOverlay')) {
+    const overlay = document.createElement('div');
+    overlay.id = 'postFullscreenOverlay';
+    overlay.className = 'project-fullscreen-overlay';
+    overlay.innerHTML = `
+      <div class="project-fullscreen-content">
+        <button class="project-fullscreen-close" id="postFullscreenClose" aria-label="Close">✕</button>
+        <div class="project-fullscreen-type" id="postFullscreenDate"></div>
+        <h2 class="project-fullscreen-title" id="postFullscreenTitle"></h2>
+        <div class="project-fullscreen-body" id="postFullscreenBody"></div>
+        <div class="project-fullscreen-link-container" id="postFullscreenLinkContainer"></div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    // Close overlay handlers
+    document.getElementById('postFullscreenClose').addEventListener('click', closePostOverlay);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closePostOverlay();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closePostOverlay();
+    });
+  }
+
   let currentGroup = null;
   const postsToShow = posts.slice(0, visibleCount);
   const fragment = document.createDocumentFragment();
@@ -127,6 +201,10 @@ function renderPosts(posts, list, status, visibleCount = 3) {
       fragment.appendChild(label);
     }
 
+    // Truncate excerpt for the collapsed preview
+    const previewText = truncatePostText(post.excerpt, 80);
+    const hasMore = post.excerpt.length > 80;
+
     const card = document.createElement('div');
     card.className = 'post-card';
     card.innerHTML = `
@@ -136,14 +214,14 @@ function renderPosts(posts, list, status, visibleCount = 3) {
             ${esc(post.title)}
             <span class="post-date">• ${formatShort(post.date)}</span>
           </div>
-          <div class="post-excerpt-preview">${esc(post.excerpt)}</div>
+          <div class="post-excerpt-preview">${esc(previewText)}${hasMore ? '<span class="ellipsis-dots">...</span>' : ''}</div>
         </div>
         <span class="post-arrow">▼</span>
       </div>
       <div class="post-body">
         <div class="post-body-inner">
-          <p>${linkify(esc(post.excerpt))}</p>
-          ${post.url ? `<a class="read-more" href="${esc(post.url)}" target="_blank" rel="noopener">Read full post →</a>` : ''}
+          <p>${linkify(esc(truncatePostText(post.excerpt, 160)))}${post.excerpt.length > 160 ? '...' : ''}</p>
+          <button class="read-full-doc-btn">Read full documentation →</button>
         </div>
       </div>`;
 
@@ -158,6 +236,12 @@ function renderPosts(posts, list, status, visibleCount = 3) {
           card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }, 100);
       }
+    });
+
+    // "Read full documentation" button opens fullscreen overlay
+    card.querySelector('.read-full-doc-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      openPostOverlay(post);
     });
 
     fragment.appendChild(card);
@@ -181,10 +265,120 @@ function renderPosts(posts, list, status, visibleCount = 3) {
   if (status) {
     status.textContent = `${posts.length} post${posts.length !== 1 ? 's' : ''}`;
     status.style.textAlign = 'center';
+    status.style.display = 'block'; // Ensure state labels display correctly after skeleton removal
     fragment.appendChild(status);
   }
 
   list.appendChild(fragment);
+}
+
+// ── Post Fullscreen Overlay Controls ─────────────────────────────────────────
+
+function openPostOverlay(post) {
+  const overlay = document.getElementById('postFullscreenOverlay');
+  document.getElementById('postFullscreenDate').textContent = post.date || '';
+  document.getElementById('postFullscreenTitle').textContent = post.title;
+  document.getElementById('postFullscreenBody').innerHTML = `<p>${linkify(esc(post.excerpt))}</p>`;
+
+  const linkContainer = document.getElementById('postFullscreenLinkContainer');
+  if (post.url) {
+    linkContainer.innerHTML = `<a class="project-fullscreen-link" href="${esc(post.url)}" target="_blank" rel="noopener">Read full post →</a>`;
+  } else {
+    linkContainer.innerHTML = '';
+  }
+
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePostOverlay() {
+  const overlay = document.getElementById('postFullscreenOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function truncatePostText(text, maxLen) {
+  if (!text || text.length <= maxLen) return text;
+  const cut = text.lastIndexOf(' ', maxLen);
+  return text.substring(0, cut > 0 ? cut : maxLen);
+}
+
+// ── Client-Side RSS XML Generator ───────────────────────────────────────────
+
+function setupRSSFeed(posts) {
+  try {
+    let xml = `<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>Hralmeida's Blog</title>
+  <link>https://HugoAlmeid4.github.io</link>
+  <description>Hralmeida's personal website, blog, and astrophotography portfolio.</description>
+  <language>en-us</language>
+  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+  <atom:link href="https://HugoAlmeid4.github.io/rss.xml" rel="self" type="application/rss+xml" />`;
+
+    posts.forEach(post => {
+      const postUrl = post.url || 'https://HugoAlmeid4.github.io';
+      const pubDate = parseDate(post.date) ? parseDate(post.date).toUTCString() : new Date().toUTCString();
+      
+      xml += `
+  <item>
+    <title>${escXML(post.title)}</title>
+    <link>${escXML(postUrl)}</link>
+    <description>${escXML(post.excerpt)}</description>
+    <pubDate>${pubDate}</pubDate>
+    <guid>${escXML(postUrl)}</guid>
+  </item>`;
+    });
+
+    xml += `
+</channel>
+</rss>`;
+
+    // Compile virtual URL blob
+    const blob = new Blob([xml], { type: 'application/xml' });
+    if (window.rssUrl) {
+      URL.revokeObjectURL(window.rssUrl);
+    }
+    window.rssUrl = URL.createObjectURL(blob);
+    
+    // Register console handle
+    window.downloadRSS = () => {
+      const a = document.createElement('a');
+      a.href = window.rssUrl;
+      a.download = 'rss.xml';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      console.log('%c📥 RSS feed download successfully triggered!', 'color: #00ff00; font-weight: bold;');
+    };
+
+    // Console ASCII info log
+    if (!window.rssBannerPrinted) {
+      console.log(
+        `%c📰 [RSS Generator Active] %cType %cwindow.downloadRSS()%c to download your feed!`,
+        "color: #00ff00; font-weight: bold;",
+        "color: #888;",
+        "color: #ff00ff; font-family: monospace; background: #222; padding: 2px 4px; border: 1px solid #555;",
+        "color: #888;"
+      );
+      window.rssBannerPrinted = true;
+    }
+
+  } catch (e) {
+    console.error('Error generating RSS feed:', e);
+  }
+}
+
+// XML entity escaper
+function escXML(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 // ── Date helpers ─────────────────────────────────────────────────────────────

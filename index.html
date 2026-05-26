@@ -28,6 +28,11 @@
   <header class="Name-Photo">
     <img src="imgs/imgs.jpg" alt="Hralmeida profile picture" fetchpriority="high">
     <h3>Hralmeida</h3>
+    <nav class="nav-links">
+      <a href="index.html" class="nav-link active">Home</a>
+      <span class="nav-separator">•</span>
+      <a href="projects.html" class="nav-link">Projects</a>
+    </nav>
     <button id="theme-toggle" class="theme-toggle">Dark Mode</button>
   </header>
 
@@ -54,6 +59,22 @@
     <section class="Posts-Section">
       <h2>Most Recent Posts</h2>
       <div class="posts-scroll" id="postsList">
+        <div class="post-card skeleton-card">
+          <div class="post-header">
+            <div class="post-header-left" style="width: 100%;">
+              <div class="skeleton-line" style="margin-bottom: 8px; max-width: 180px;"></div>
+              <div class="skeleton-line short"></div>
+            </div>
+          </div>
+        </div>
+        <div class="post-card skeleton-card">
+          <div class="post-header">
+            <div class="post-header-left" style="width: 100%;">
+              <div class="skeleton-line" style="margin-bottom: 8px; max-width: 120px;"></div>
+              <div class="skeleton-line short"></div>
+            </div>
+          </div>
+        </div>
         <div class="posts-status" id="postsStatus">Loading posts…</div>
       </div>
     </section>
