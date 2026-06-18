@@ -11,6 +11,7 @@ async function loadPosts() {
   const list = document.getElementById('postsList');
   const status = document.getElementById('postsStatus');
 
+  if (status) status.textContent = 'Loading posts...';
   injectSearchUI();
 
   const cached = (() => {
@@ -21,11 +22,15 @@ async function loadPosts() {
     allPosts = cached.data;
     renderPosts(allPosts, list, status);
     handleSharedPostLink(allPosts);
+    if (status) status.textContent = 'Updating...';
   }
 
   try {
     const posts = await fetchAndParsePosts();
-    if (!posts) return;
+    if (!posts) {
+      if (status) status.textContent = 'No posts found.';
+      return;
+    }
     allPosts = posts;
 
     try { localStorage.setItem('posts_cache', JSON.stringify({ data: posts })); } catch { }
@@ -37,24 +42,32 @@ async function loadPosts() {
     } else if (!cached) {
       handleSharedPostLink(posts);
     }
+    if (status) status.textContent = '';
   } catch (e) {
     console.error('Posts load error:', e);
-    if (!cached) {
-      if (status) status.textContent = 'Could not load posts.';
-      if (list) list.innerHTML = '';
+    const errorMsg = `Error loading posts: ${e.message}. Check if posts/index.json exists and is accessible.`;
+    if (status) status.textContent = errorMsg;
+    if (!cached && list) {
+      list.innerHTML = `<div class="error-notice">${errorMsg}</div>`;
     }
   }
 }
 
 async function fetchAndParsePosts() {
-  const idxRes = await fetch('posts/index.json');
-  if (!idxRes.ok) throw new Error(`index.json: HTTP ${idxRes.status}`);
+  // Use relative path without leading slash for better compatibility with subfolders
+  const indexUrl = 'posts/index.json';
+  console.log('Fetching index from:', indexUrl);
+  
+  const idxRes = await fetch(indexUrl);
+  if (!idxRes.ok) throw new Error(`index.json: HTTP ${idxRes.status} at ${indexUrl}`);
+  
   const fileList = await idxRes.json();
   if (!Array.isArray(fileList) || !fileList.length) return null;
 
   const posts = await Promise.all(fileList.map(async (filename) => {
-    const res = await fetch(`posts/${filename}`);
-    if (!res.ok) throw new Error(`${filename}: HTTP ${res.status}`);
+    const postUrl = `posts/${filename}`;
+    const res = await fetch(postUrl);
+    if (!res.ok) throw new Error(`${filename}: HTTP ${res.status} at ${postUrl}`);
     const mdText = await res.text();
 
     const { metadata, content } = parseFrontmatter(mdText);
@@ -318,7 +331,7 @@ function injectSearchUI() {
   }
   const input = document.getElementById('postSearchInput');
   input.addEventListener('input', () => filterAndRender(activeFilterTag));
-
+  
   const filterBtn = document.getElementById('postFilterBtn');
   const popup = document.getElementById('postTagPopup');
   filterBtn.onclick = () => {
@@ -345,7 +358,7 @@ function filterAndRender(tag) {
     return matchesSearch && matchesTag;
   });
   renderPosts(filtered, list, status, 100);
-
+  
   const filterBtn = document.getElementById('postFilterBtn');
   if (activeFilterTag) {
     filterBtn.classList.add('filtering');
@@ -360,7 +373,7 @@ function updateTagFilters(activeTag) {
   const tagContainer = document.getElementById('postTagFilters');
   const allTags = [...new Set(allPosts.flatMap(p => p.tags))];
   tagContainer.innerHTML = '';
-
+  
   const allBtn = document.createElement('button');
   allBtn.className = `tag-btn ${!activeTag ? 'active' : ''}`;
   allBtn.textContent = 'All Posts';
@@ -475,6 +488,16 @@ if (!document.getElementById('postCustomStyles')) {
     }
     .project-fullscreen-content { position: relative; }
     #readingProgressBar { width: 0%; height: 100%; background: #007bff; transition: width 0.1s ease; }
+    
+    .error-notice {
+      padding: 20px;
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid #ff0000;
+      color: #ff0000;
+      margin: 20px 0;
+      font-family: monospace;
+      font-size: 14px;
+    }
   `;
   document.head.appendChild(style);
 }
@@ -503,7 +526,7 @@ function renderPosts(posts, list, status, visibleCount = 3) {
     document.body.appendChild(ov);
     document.getElementById('postFullscreenClose').onclick = closePostOverlay;
     ov.onclick = e => { if (e.target === ov) closePostOverlay(); };
-
+    
     const content = ov.querySelector('.project-fullscreen-content');
     content.onscroll = () => {
       const winScroll = content.scrollTop;
