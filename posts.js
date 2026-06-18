@@ -1,24 +1,9 @@
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
-// Paste your Google Sheets published CSV URL here.
-// How to get it:
-//   1. Open your Google Sheet
-//   2. File → Share → Publish to web
-//   3. Select your sheet, choose "Comma-separated values (.csv)"
-//   4. Click Publish, copy the URL and paste it below
-//
-// Expected sheet columns (row 1 = headers, case-insensitive):
-//   title   | date         | excerpt               | url (optional)
-//   --------|--------------|------------------------|-----------------------------
-//   My post | 25/04/2025   | Short description...   | https://yourblog.com/post
-//
-// Supported date formats: DD/MM/YYYY  •  MM/YYYY  •  YYYY-MM-DD
-// Posts are sorted newest → oldest and grouped by Month Year.
-// ─────────────────────────────────────────────────────────────────────────────
-const SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwnRK7M9iCWkMhmnKBT4ceHJI_sZIA_pg3uXiijzt3kPjFKkU3kEp_OY-KQ4DXQOhaWsyLe68w4k9n/pub?output=csv";
+// Local blog posts – reads posts/index.json then fetches each .md file.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const CACHE_KEY = "posts_cache";
-const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours caching layer
+let allPosts = []; // Global store for filtering
+let activeFilterTag = null;
 
 document.addEventListener('DOMContentLoaded', loadPosts);
 
@@ -26,132 +11,93 @@ async function loadPosts() {
   const list = document.getElementById('postsList');
   const status = document.getElementById('postsStatus');
 
-  // If no URL is set, show demo posts so the layout isn't empty
-  if (SHEETS_CSV_URL === "YOUR_GOOGLE_SHEETS_CSV_URL_HERE") {
-    const demo = [
-      {
-        title: "First telescope",
-        date: "25/04/2025",
-        excerpt: "My journey getting into astrophotography with a simple refractor and a lot of patience under Portuguese skies.",
-        url: ""
-      },
-      {
-        title: "Jupiter opposition",
-        date: "12/03/2025",
-        excerpt: "Capturing Jupiter at opposition with my 150mm Newtonian — stacking 3000 frames in AutoStakkert.",
-        url: ""
-      },
-      {
-        title: "Setting up the GTi",
-        date: "01/03/2025",
-        excerpt: "First light with the Star Adventurer GTi and the Evostar 72ED DS-Pro. Polar alignment notes and first DSO attempt.",
-        url: ""
-      },
-      {
-        title: "Bahtinov mask print",
-        date: "15/02/2025",
-        excerpt: "Designed and 3D-printed a Bahtinov mask for the 72ED. Notes on the FocusForge design process.",
-        url: ""
-      },
-      {
-        title: "Saturn season recap",
-        date: "20/01/2025",
-        excerpt: "Best Saturn frames of the season, processing workflow in PixInsight and what I'd do differently next time.",
-        url: ""
-      }
-    ];
-    renderPosts(demo, list, status);
-    setupRSSFeed(demo); // Dynamic feed setup for fallback items
-    return;
+  injectSearchUI();
+
+  const cached = (() => {
+    try { return JSON.parse(localStorage.getItem('posts_cache')); } catch { return null; }
+  })();
+
+  if (cached && Array.isArray(cached.data) && cached.data.length) {
+    allPosts = cached.data;
+    renderPosts(allPosts, list, status);
+    handleSharedPostLink(allPosts);
   }
 
-  // 1. Caching layer router check
   try {
-    const cache = JSON.parse(localStorage.getItem(CACHE_KEY));
-    if (cache && cache.timestamp && (Date.now() - cache.timestamp < CACHE_EXPIRY) && Array.isArray(cache.data)) {
-      // Instant render from cache (bypasses shimmer loading skeletons completely)
-      renderPosts(cache.data, list, status);
-      setupRSSFeed(cache.data);
+    const posts = await fetchAndParsePosts();
+    if (!posts) return;
+    allPosts = posts;
 
-      // Silent background fetch to update cache for next session (no UI shifts)
-      fetchPostsAndCache(true);
-      return;
-    }
-  } catch (e) {
-    console.warn('Cache parse error, falling back to standard fetch:', e);
-  }
-
-  // 2. Cache empty or expired: normal fetch with shimmer skeletons displayed
-  fetchPostsAndCache(false);
-}
-
-async function fetchPostsAndCache(isSilent) {
-  try {
-    const res = await fetch(SHEETS_CSV_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    const rows = parseCSV(text);
-
-    if (rows.length < 2) {
-      if (!isSilent) {
-        const status = document.getElementById('postsStatus');
-        if (status) status.textContent = 'No posts found in sheet.';
-      }
-      return;
-    }
-
-    const headers = rows[0].map(h => h.toLowerCase().trim());
-    const idx = {
-      title: headers.findIndex(h => h.includes('title')),
-      date: headers.findIndex(h => h.includes('date')),
-      excerpt: headers.findIndex(h => h.includes('excerpt') || h.includes('summary') || h.includes('desc')),
-      url: headers.findIndex(h => h.includes('url') || h.includes('link')),
-    };
-
-    const posts = rows.slice(1)
-      .filter(r => r.some(c => c.trim()))
-      .map(r => ({
-        title: idx.title >= 0 ? r[idx.title] : r[0] || '',
-        date: idx.date >= 0 ? r[idx.date] : r[1] || '',
-        excerpt: idx.excerpt >= 0 ? r[idx.excerpt] : r[2] || '',
-        url: idx.url >= 0 ? r[idx.url] : '',
-      }));
-
-    // Cache updated data
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({
-        timestamp: Date.now(),
-        data: posts
-      }));
-    } catch (e) {
-      console.warn('Could not save posts to localStorage:', e);
-    }
-
-    // Dynamic RSS rebuild
+    try { localStorage.setItem('posts_cache', JSON.stringify({ data: posts })); } catch { }
     setupRSSFeed(posts);
 
-    // If standard fetch (not silent background update), render to UI
-    if (!isSilent) {
-      const list = document.getElementById('postsList');
-      const status = document.getElementById('postsStatus');
+    if (!cached || JSON.stringify(cached.data) !== JSON.stringify(posts)) {
       renderPosts(posts, list, status);
+      handleSharedPostLink(posts);
+    } else if (!cached) {
+      handleSharedPostLink(posts);
     }
-
   } catch (e) {
-    console.error('Fetch error:', e);
-    if (!isSilent) {
-      const status = document.getElementById('postsStatus');
-      if (status) status.textContent = 'Could not load posts. Check the CSV URL.';
+    console.error('Posts load error:', e);
+    if (!cached) {
+      if (status) status.textContent = 'Could not load posts.';
+      if (list) list.innerHTML = '';
     }
   }
 }
 
-// ── Rendering ────────────────────────────────────────────────────────────────
+async function fetchAndParsePosts() {
+  const idxRes = await fetch('posts/index.json');
+  if (!idxRes.ok) throw new Error(`index.json: HTTP ${idxRes.status}`);
+  const fileList = await idxRes.json();
+  if (!Array.isArray(fileList) || !fileList.length) return null;
 
-function renderPosts(posts, list, status, visibleCount = 3) {
-  list.innerHTML = '';
+  const posts = await Promise.all(fileList.map(async (filename) => {
+    const res = await fetch(`posts/${filename}`);
+    if (!res.ok) throw new Error(`${filename}: HTTP ${res.status}`);
+    const mdText = await res.text();
 
-  // Sort newest first
+    const { metadata, content } = parseFrontmatter(mdText);
+    const bodyHtml = parseMarkdown(content);
+    const slug = filename.replace(/\.md$/, '');
+
+    const date = metadata.date || new Date().toISOString().slice(0, 10);
+
+    const cleanText = content.replace(/!\[\[[^\]]*\]\]/g, '')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+      .replace(/\[([^\]) ]*)\]\([^)]*\)/g, '$1')
+      .replace(/[#*`_|~>]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    let readingTime = metadata.readingTime;
+    if (!readingTime) {
+      const words = cleanText.split(/\s+/).filter(w => w.length > 0).length;
+      let totalSeconds = (words / 200) * 60;
+      const imageCount = (content.match(/!\[.*?\]\(.*?\)/g) || []).length + (content.match(/!\[\[.*?\]\]/g) || []).length;
+      for (let i = 0; i < imageCount; i++) totalSeconds += Math.max(12 - i, 3);
+      const codeBlockCount = (content.match(/```/g) || []).length / 2;
+      totalSeconds += codeBlockCount * 15;
+      const mins = Math.ceil(totalSeconds / 60);
+      readingTime = `${mins} min read`;
+    }
+
+    const excerpt = metadata.excerpt || (cleanText.slice(0, 180) + (cleanText.length > 180 ? '...' : ''));
+    const tags = metadata.tags ? metadata.tags.split(',').map(t => t.trim()) : [];
+
+    return {
+      slug,
+      title: metadata.title || slug.replace(/-/g, ' '),
+      date,
+      excerpt,
+      readingTime,
+      author: metadata.author || '',
+      tags,
+      bodyHtml,
+      filename,
+    };
+  }));
+
   posts.sort((a, b) => {
     const da = parseDate(a.date), db = parseDate(b.date);
     if (!da && !db) return 0;
@@ -160,313 +106,583 @@ function renderPosts(posts, list, status, visibleCount = 3) {
     return db - da;
   });
 
-  // Create fullscreen overlay (singleton)
-  if (!document.getElementById('postFullscreenOverlay')) {
-    const overlay = document.createElement('div');
-    overlay.id = 'postFullscreenOverlay';
-    overlay.className = 'project-fullscreen-overlay';
-    overlay.innerHTML = `
-      <div class="project-fullscreen-content">
-        <button class="project-fullscreen-close" id="postFullscreenClose" aria-label="Close">✕</button>
-        <div class="project-fullscreen-type" id="postFullscreenDate"></div>
-        <h2 class="project-fullscreen-title" id="postFullscreenTitle"></h2>
-        <div class="project-fullscreen-body" id="postFullscreenBody"></div>
-        <div class="project-fullscreen-link-container" id="postFullscreenLinkContainer"></div>
-      </div>`;
-    document.body.appendChild(overlay);
+  return posts;
+}
 
-    // Close overlay handlers
-    document.getElementById('postFullscreenClose').addEventListener('click', closePostOverlay);
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) closePostOverlay();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closePostOverlay();
-    });
-  }
+function parseFrontmatter(mdContent) {
+  const fmMatch = mdContent.match(/^---\r?\n([\s\S]+?)\r?\n---[ \t]*\r?\n?/);
+  if (!fmMatch) return { metadata: {}, content: mdContent };
 
-  let currentGroup = null;
-  const postsToShow = posts.slice(0, visibleCount);
-  const fragment = document.createDocumentFragment();
+  const metadata = {};
+  fmMatch[1].split('\n').forEach(line => {
+    const colon = line.indexOf(':');
+    if (colon > 0) {
+      const key = line.slice(0, colon).trim();
+      const value = line.slice(colon + 1).trim().replace(/^['"]|['"]$/g, '');
+      metadata[key] = value;
+    }
+  });
 
-  postsToShow.forEach(post => {
-    const group = groupLabel(post.date);
+  return { metadata, content: mdContent.slice(fmMatch[0].length) };
+}
 
-    // Insert a month/year divider when the group changes
-    if (group !== currentGroup) {
-      currentGroup = group;
-      const label = document.createElement('div');
-      label.className = 'date-group-label';
-      label.textContent = group;
-      fragment.appendChild(label);
+function parseMarkdown(md) {
+  const html = parseLines(md.split('\n'));
+  return linkifyRawUrls(html);
+}
+
+function parseLines(lines) {
+  const out = [];
+  let inUL = false;
+  let inCodeBlock = false;
+  let codeLang = '';
+  let codeLines = [];
+  let tableHeaderCells = null;
+  let tableRowsBuffer = [];
+  let awaitingSeparator = false;
+
+  const flushTable = () => {
+    if (tableHeaderCells) out.push(renderTable(tableHeaderCells, tableRowsBuffer));
+    tableHeaderCells = null; tableRowsBuffer = []; awaitingSeparator = false;
+  };
+
+  const flushList = () => { if (inUL) { out.push('</ul>'); inUL = false; } };
+
+  for (const line of lines) {
+    if (line.trim().startsWith('```')) {
+      flushList(); flushTable();
+      if (inCodeBlock) {
+        inCodeBlock = false;
+        out.push(`<pre><code class="language-${codeLang}">${esc(codeLines.join('\n'))}</code></pre>`);
+        codeLines = []; codeLang = '';
+      } else {
+        inCodeBlock = true;
+        codeLang = line.trim().slice(3).trim();
+      }
+      continue;
+    }
+    if (inCodeBlock) { codeLines.push(line); continue; }
+
+    const trimmed = line.trim();
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      flushList();
+      const cells = trimmed.slice(1, -1).split('|').map(c => c.trim());
+      const isSep = cells.every(c => /^:?-+:?$/.test(c));
+      if (isSep) { awaitingSeparator = false; continue; }
+      if (tableHeaderCells === null) { tableHeaderCells = cells; awaitingSeparator = true; }
+      else { tableRowsBuffer.push(cells); }
+      continue;
+    }
+    if (tableHeaderCells !== null) flushTable();
+    if (trimmed === '' || trimmed === ' ') { flushList(); continue; }
+
+    const hMatch = line.match(/^(#{1,6})\s+(.*)/);
+    if (hMatch) {
+      flushList();
+      const level = hMatch[1].length;
+      out.push(`<h${level}>${parseInline(hMatch[2])}</h${level}>`);
+      continue;
     }
 
-    // Truncate excerpt for the collapsed preview
-    const previewText = truncatePostText(post.excerpt, 80);
-    const hasMore = post.excerpt.length > 80;
+    const liMatch = line.match(/^[ \t]*[-*+]\s+(.*)/);
+    if (liMatch) {
+      if (!inUL) { out.push('<ul>'); inUL = true; }
+      out.push(`<li>${parseInline(liMatch[1])}</li>`);
+      continue;
+    }
+
+    flushList();
+    out.push(`<p>${parseInline(line)}</p>`);
+  }
+
+  if (inCodeBlock) out.push(`<pre><code>${esc(codeLines.join('\n'))}</code></pre>`);
+  flushList();
+  if (tableHeaderCells !== null) flushTable();
+
+  return out.join('\n');
+}
+
+function renderTable(headers, rows) {
+  let h = '<div class="data-log-container"><table class="data-log-table"><thead><tr>';
+  headers.forEach(c => { h += `<th>${parseInline(c)}</th>`; });
+  h += '</tr></thead><tbody>';
+  rows.forEach(row => {
+    h += '<tr>';
+    row.forEach(c => { h += `<td>${parseInline(c)}</td>`; });
+    h += '</tr>';
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+
+function parseInline(text) {
+  const placeholders = [];
+  text = text.replace(/`([^`]+)`/g, (_, code) => {
+    const id = `\uFFFC${placeholders.length}\uFFFC`;
+    placeholders.push(`<code>${esc(code)}</code>`);
+    return id;
+  });
+
+  text = text.replace(/!\[\[([^\]|]+?)\|([^\]|]+?)\]\]/g, (match, light, dark) => {
+    if (/^\d+$/.test(dark.trim())) {
+      return match;
+    }
+    const id = `\uFFFC${placeholders.length}\uFFFC`;
+    const lRaw = light.trim().startsWith('http') ? light.trim() : `posts/${light.trim()}`;
+    const dRaw = dark.trim().startsWith('http') ? dark.trim() : `posts/${dark.trim()}`;
+    const lSrc = lRaw.split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
+    const dSrc = dRaw.split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
+    placeholders.push(`<picture class="theme-aware-img">
+      <source srcset="${dSrc}" media="(prefers-color-scheme: dark)">
+      <img src="${lSrc}" style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;">
+    </picture>`);
+    return id;
+  });
+
+  text = text.replace(/!\[\[([^\]|]+?)(?:\|(\d+))?\]\]/g, (_, fname, w) => {
+    const f = fname.trim();
+    const src = /^https?:\/\//.test(f) ? f : `posts/${f}`;
+    const enc = src.split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
+    const dims = w ? `width="${w}" style="max-width:${w}px;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;"`
+      : `style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;"`;
+    const id = `\uFFFC${placeholders.length}\uFFFC`;
+    placeholders.push(`<img src="${enc}" ${dims} alt="${esc(f)}">`);
+    return id;
+  });
+
+  text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, url) => {
+    const u = url.trim();
+    const src = /^https?:\/\//.test(u) || u.startsWith('/') ? u : `posts/${u}`;
+    const enc = src.split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
+    const id = `\uFFFC${placeholders.length}\uFFFC`;
+    placeholders.push(`<img src="${enc}" style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;" alt="${esc(alt)}">`);
+    return id;
+  });
+
+  text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+(?:\([^\s)]*\)[^\s)]*)*)\)/g, (_, linkText, url) => {
+    const id = `\uFFFC${placeholders.length}\uFFFC`;
+    const parsedText = parseInlineRecursive(linkText);
+    placeholders.push(`<a href="${url}" target="_blank" rel="noopener">${parsedText}</a>`);
+    return id;
+  });
+
+  text = text.replace(/(^|[^\w])(\*\*|__)(?=\S)(.+?)(?<=\S)\2(?=[^\w]|$)/g, '$1<strong>$3</strong>');
+  text = text.replace(/(^|[^\w])(\*|_)(?=\S)(.+?)(?<=\S)\2(?=[^\w]|$)/g, '$1<em>$3</em>');
+
+  for (let i = 0; i < placeholders.length; i++) {
+    text = text.split(`\uFFFC${i}\uFFFC`).join(placeholders[i]);
+  }
+  return text;
+}
+
+function parseInlineRecursive(text) {
+  text = text.replace(/(^|[^\w])(\*\*|__)(?=\S)(.+?)(?<=\S)\2(?=[^\w]|$)/g, '$1<strong>$3</strong>');
+  text = text.replace(/(^|[^\w])(\*|_)(?=\S)(.+?)(?<=\S)\2(?=[^\w]|$)/g, '$1<em>$3</em>');
+  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+  return text;
+}
+
+function linkifyRawUrls(html) {
+  return html.replace(/(<a\s[^>]+>[\s\S]*?<\/a>)|(<img\s[^>]+>)|(https?:\/\/[^\s<"']+(?:\([^\s<"']*\)[^\s<"']*)*)/g, (m, aTag, imgTag, url) => {
+    if (aTag || imgTag) return m;
+    const clean = url.replace(/[.,;:!?)]+$/, '');
+    const trail = url.slice(clean.length);
+    return `<a href="${clean}" target="_blank" rel="noopener">${clean}</a>${trail}`;
+  });
+}
+
+// ── Search & Filters ─────────────────────────────────────────────────────────
+
+function injectSearchUI() {
+  if (document.getElementById('postSearchContainer')) return;
+  const container = document.createElement('div');
+  container.id = 'postSearchContainer';
+  container.className = 'search-container';
+  container.innerHTML = `
+    <div class="search-bar-wrapper">
+      <input type="text" id="postSearchInput" placeholder="Search posts..." aria-label="Search posts">
+      <button id="postFilterBtn" class="filter-toggle-btn">Filters</button>
+    </div>
+    <div id="postTagPopup" class="tag-popup">
+      <div class="tag-popup-content">
+        <h4>Filter by Tags</h4>
+        <div id="postTagFilters" class="tag-filters"></div>
+        <button id="closeTagPopup" class="close-popup-btn">Done</button>
+      </div>
+    </div>
+  `;
+  const section = document.querySelector('.Posts-Section');
+  if (section) {
+    const h2 = section.querySelector('h2');
+    if (h2) h2.after(container);
+  }
+  const input = document.getElementById('postSearchInput');
+  input.addEventListener('input', () => filterAndRender(activeFilterTag));
+
+  const filterBtn = document.getElementById('postFilterBtn');
+  const popup = document.getElementById('postTagPopup');
+  filterBtn.onclick = () => {
+    updateTagFilters(activeFilterTag);
+    popup.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+  const closePopup = () => {
+    popup.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+  document.getElementById('closeTagPopup').onclick = closePopup;
+  popup.onclick = (e) => { if (e.target === popup) closePopup(); };
+}
+
+function filterAndRender(tag) {
+  activeFilterTag = tag;
+  const query = document.getElementById('postSearchInput').value.toLowerCase();
+  const list = document.getElementById('postsList');
+  const status = document.getElementById('postsStatus');
+  const filtered = allPosts.filter(p => {
+    const matchesSearch = p.title.toLowerCase().includes(query) || p.excerpt.toLowerCase().includes(query);
+    const matchesTag = activeFilterTag ? p.tags.includes(activeFilterTag) : true;
+    return matchesSearch && matchesTag;
+  });
+  renderPosts(filtered, list, status, 100);
+
+  const filterBtn = document.getElementById('postFilterBtn');
+  if (activeFilterTag) {
+    filterBtn.classList.add('filtering');
+    filterBtn.textContent = `Tag: ${activeFilterTag}`;
+  } else {
+    filterBtn.classList.remove('filtering');
+    filterBtn.textContent = 'Filters';
+  }
+}
+
+function updateTagFilters(activeTag) {
+  const tagContainer = document.getElementById('postTagFilters');
+  const allTags = [...new Set(allPosts.flatMap(p => p.tags))];
+  tagContainer.innerHTML = '';
+
+  const allBtn = document.createElement('button');
+  allBtn.className = `tag-btn ${!activeTag ? 'active' : ''}`;
+  allBtn.textContent = 'All Posts';
+  allBtn.onclick = () => { filterAndRender(null); updateTagFilters(null); };
+  tagContainer.appendChild(allBtn);
+
+  allTags.forEach(tag => {
+    const btn = document.createElement('button');
+    btn.className = `tag-btn ${tag === activeTag ? 'active' : ''}`;
+    btn.textContent = tag;
+    btn.onclick = () => { filterAndRender(tag); updateTagFilters(tag); };
+    tagContainer.appendChild(btn);
+  });
+}
+
+// ── Related Posts ────────────────────────────────────────────────────────────
+
+function getRelatedPosts(currentPost) {
+  if (!currentPost.tags.length) return [];
+  return allPosts
+    .filter(p => p.slug !== currentPost.slug)
+    .map(p => {
+      const commonTags = p.tags.filter(t => currentPost.tags.includes(t));
+      return { ...p, score: commonTags.length };
+    })
+    .filter(p => p.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
+}
+
+// ── Styles ───────────────────────────────────────────────────────────────────
+
+if (!document.getElementById('postCustomStyles')) {
+  const style = document.createElement('style');
+  style.id = 'postCustomStyles';
+  style.textContent = `
+    .project-fullscreen-overlay { background: rgba(18, 18, 18, 0.98) !important; }
+    .project-fullscreen-body a { color: #007bff !important; text-decoration: underline; }
+    .project-fullscreen-body a:hover { color: #0056b3 !important; }
+    .project-fullscreen-link-btn {
+      background: transparent !important; border: 1.5px solid currentColor !important;
+      color: inherit !important; padding: 8px 16px !important; font-family: monospace !important;
+      font-size: 14px !important; letter-spacing: 2px !important; cursor: pointer !important;
+      display: flex !important; align-items: center !important; gap: 10px !important;
+      transition: all 0.2s ease !important; text-transform: uppercase !important;
+    }
+    .project-fullscreen-link-btn:hover { background: rgba(128, 128, 128, 0.1) !important; }
+    @media (prefers-color-scheme: light) {
+      .project-fullscreen-overlay { background: rgba(255, 255, 255, 0.98) !important; }
+      .project-fullscreen-link-btn { border-color: #333 !important; color: #333 !important; }
+    }
+    .light-mode .project-fullscreen-overlay { background: rgba(255, 255, 255, 0.98) !important; }
+    .light-mode .project-fullscreen-link-btn { border-color: #333 !important; color: #333 !important; }
+    
+    .search-container { margin: 20px 0; }
+    .search-bar-wrapper { display: flex; gap: 10px; align-items: center; }
+    .search-bar-wrapper input {
+      flex: 1; padding: 10px; background: transparent; border: 1.5px solid #333;
+      color: inherit; font-family: inherit; border-radius: 0;
+    }
+    .dark-mode .search-bar-wrapper input { border-color: #555; }
+    .filter-toggle-btn {
+      background: transparent; border: 1.5px solid #333; color: inherit;
+      padding: 10px 15px; border-radius: 0; cursor: pointer; transition: all 0.2s;
+      font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em;
+    }
+    .dark-mode .filter-toggle-btn { border-color: #555; }
+    .filter-toggle-btn.filtering { border-color: #007bff; color: #007bff; }
+    
+    .tag-popup {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: transparent; display: none; align-items: center;
+      justify-content: center; z-index: 2000; pointer-events: none;
+    }
+    .tag-popup.active { display: flex; }
+    .tag-popup-content {
+      background: rgb(237, 231, 220); padding: 40px; border: 1.5px solid #333;
+      max-width: 500px; width: 90%; text-align: center;
+      pointer-events: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+    .dark-mode .tag-popup-content { background: #1a1a1a; border-color: #555; }
+    .tag-popup-content h4 { margin-bottom: 25px; font-size: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .tag-filters { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; justify-content: center; }
+    .tag-btn {
+      background: transparent; border: 1.5px solid #333; color: inherit; padding: 8px 16px;
+      border-radius: 0; cursor: pointer; font-size: 12px; transition: all 0.2s;
+      text-transform: uppercase; font-weight: 600;
+    }
+    .dark-mode .tag-btn { border-color: #555; }
+    .tag-btn.active { background: #333; color: rgb(237, 231, 220); }
+    .dark-mode .tag-btn.active { background: #ededed; color: #1a1a1a; border-color: #ededed; }
+    .close-popup-btn {
+      background: #333; color: rgb(237, 231, 220); border: none; padding: 12px 30px;
+      cursor: pointer; margin-top: 20px; text-transform: uppercase; font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    .dark-mode .close-popup-btn { background: #ededed; color: #1a1a1a; }
+    
+    .related-posts { margin-top: 40px; border-top: 1px solid #333; padding-top: 20px; }
+    .related-posts h4 { margin-bottom: 15px; font-size: 18px; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+    .related-card {
+      background: rgba(128,128,128,0.05); padding: 15px; border-radius: 0;
+      cursor: pointer; transition: transform 0.2s; border: 1.5px solid #333;
+    }
+    .dark-mode .related-card { border-color: #555; }
+    .related-card:hover { transform: translateY(-3px); background: rgba(128,128,128,0.1); }
+    
+    .reading-progress-container {
+      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+      background: rgba(0,0,0,0.1); z-index: 1001;
+    }
+    .project-fullscreen-content { position: relative; }
+    #readingProgressBar { width: 0%; height: 100%; background: #007bff; transition: width 0.1s ease; }
+  `;
+  document.head.appendChild(style);
+}
+
+// ── Rendering ────────────────────────────────────────────────────────────────
+
+function renderPosts(posts, list, status, visibleCount = 3) {
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (!document.getElementById('postFullscreenOverlay')) {
+    const ov = document.createElement('div');
+    ov.id = 'postFullscreenOverlay';
+    ov.className = 'project-fullscreen-overlay';
+    ov.innerHTML = `
+      <div class="reading-progress-container"><div id="readingProgressBar"></div></div>
+      <div class="project-fullscreen-content">
+        <button class="project-fullscreen-close" id="postFullscreenClose" aria-label="Close">✕</button>
+        <div class="project-fullscreen-type"     id="postFullscreenDate"></div>
+        <h2 class="project-fullscreen-title"     id="postFullscreenTitle"></h2>
+        <div class="project-fullscreen-body"     id="postFullscreenBody"></div>
+        <div class="project-fullscreen-link-container" id="postFullscreenLinkContainer"></div>
+        <div id="relatedPostsContainer"></div>
+        <div id="mostRecentContainer"></div>
+      </div>`;
+    document.body.appendChild(ov);
+    document.getElementById('postFullscreenClose').onclick = closePostOverlay;
+    ov.onclick = e => { if (e.target === ov) closePostOverlay(); };
+
+    const content = ov.querySelector('.project-fullscreen-content');
+    content.onscroll = () => {
+      const winScroll = content.scrollTop;
+      const height = content.scrollHeight - content.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('readingProgressBar').style.width = scrolled + "%";
+    };
+  }
+
+  const fragment = document.createDocumentFragment();
+  let currentGroup = null;
+
+  posts.slice(0, visibleCount).forEach(post => {
+    const group = groupLabel(post.date);
+    if (group !== currentGroup) {
+      currentGroup = group;
+      const lbl = document.createElement('div');
+      lbl.className = 'date-group-label';
+      lbl.textContent = group;
+      fragment.appendChild(lbl);
+    }
 
     const card = document.createElement('div');
     card.className = 'post-card';
     card.innerHTML = `
       <div class="post-header">
         <div class="post-header-left">
-          <div class="post-title">
-            ${esc(post.title)}
-            <span class="post-date">• ${formatShort(post.date)}</span>
-          </div>
-          <div class="post-excerpt-preview">${esc(previewText)}${hasMore ? '<span class="ellipsis-dots">...</span>' : ''}</div>
+          <div class="post-title">${esc(post.title)} <span class="post-date">• ${fmtShort(post.date)}</span></div>
+          <div class="post-excerpt-preview">${esc(truncate(post.excerpt, 80))}</div>
         </div>
         <span class="post-arrow">▼</span>
       </div>
       <div class="post-body">
         <div class="post-body-inner">
-          <p>${linkify(esc(truncatePostText(post.excerpt, 160)))}${post.excerpt.length > 160 ? '...' : ''}</p>
-          <button class="read-full-doc-btn">Read full documentation →</button>
+          <p>${esc(truncate(post.excerpt, 160))}</p>
+          <button class="read-full-doc-btn">Read full post →</button>
         </div>
       </div>`;
 
-    card.querySelector('.post-header').addEventListener('click', () => {
-      const isOpen = card.classList.contains('open');
-      // Close any other open card
+    card.querySelector('.post-header').onclick = () => {
+      const open = card.classList.contains('open');
       document.querySelectorAll('.post-card.open').forEach(c => c.classList.remove('open'));
-      if (!isOpen) {
-        card.classList.add('open');
-        // Wait for the expand animation, then scroll the card into view
-        setTimeout(() => {
-          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
-      }
-    });
-
-    // "Read full documentation" button opens fullscreen overlay
-    card.querySelector('.read-full-doc-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      openPostOverlay(post);
-    });
-
+      if (!open) card.classList.add('open');
+    };
+    card.querySelector('.read-full-doc-btn').onclick = e => { e.stopPropagation(); openPostOverlay(post); };
     fragment.appendChild(card);
   });
 
   if (posts.length > visibleCount) {
-    const btnContainer = document.createElement('div');
-    btnContainer.className = 'show-more-container';
-
+    const wrap = document.createElement('div');
+    wrap.className = 'show-more-container';
     const btn = document.createElement('button');
     btn.className = 'show-more-btn';
     btn.textContent = 'Show more';
-    btn.addEventListener('click', () => {
-      renderPosts(posts, list, status, posts.length);
-    });
-
-    btnContainer.appendChild(btn);
-    fragment.appendChild(btnContainer);
-  }
-
-  if (status) {
-    status.textContent = `${posts.length} post${posts.length !== 1 ? 's' : ''}`;
-    status.style.textAlign = 'center';
-    status.style.display = 'block'; // Ensure state labels display correctly after skeleton removal
-    fragment.appendChild(status);
+    btn.onclick = () => renderPosts(posts, list, status, visibleCount + 5);
+    wrap.appendChild(btn);
+    fragment.appendChild(wrap);
   }
 
   list.appendChild(fragment);
+  if (status) status.textContent = '';
 }
 
-// ── Post Fullscreen Overlay Controls ─────────────────────────────────────────
-
 function openPostOverlay(post) {
-  const overlay = document.getElementById('postFullscreenOverlay');
-  document.getElementById('postFullscreenDate').textContent = post.date || '';
+  const ov = document.getElementById('postFullscreenOverlay');
+  if (!ov) return;
+
+  let metaText = fmtFull(post.date);
+  if (post.author) metaText += ` • By ${post.author}`;
+  metaText += ` • ${post.readingTime}`;
+  document.getElementById('postFullscreenDate').textContent = metaText;
   document.getElementById('postFullscreenTitle').textContent = post.title;
-  document.getElementById('postFullscreenBody').innerHTML = `<p>${linkify(esc(post.excerpt))}</p>`;
+  document.getElementById('postFullscreenBody').innerHTML = post.bodyHtml;
+
+  if (window.Prism) Prism.highlightAllUnder(document.getElementById('postFullscreenBody'));
 
   const linkContainer = document.getElementById('postFullscreenLinkContainer');
-  if (post.url) {
-    linkContainer.innerHTML = `<a class="project-fullscreen-link" href="${esc(post.url)}" target="_blank" rel="noopener">Read full post →</a>`;
+  linkContainer.innerHTML = '';
+  const shareBtn = document.createElement('button');
+  shareBtn.className = 'project-fullscreen-link-btn';
+  shareBtn.innerHTML = '<span>🔗</span> SHARE POST';
+  shareBtn.onclick = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('post', post.slug);
+    navigator.clipboard.writeText(url.toString());
+    shareBtn.innerHTML = '<span>✅</span> Copied!';
+    setTimeout(() => { shareBtn.innerHTML = '<span>🔗</span> SHARE POST'; }, 2000);
+  };
+  linkContainer.appendChild(shareBtn);
+
+  const related = getRelatedPosts(post);
+  const relContainer = document.getElementById('relatedPostsContainer');
+  if (related.length) {
+    relContainer.innerHTML = `<div class="related-posts"><h4>Related Posts</h4><div class="related-grid">${related.map(r => `<div class="related-card" onclick="event.stopPropagation(); openPostOverlayBySlug('${r.slug}')"><h5>${esc(r.title)}</h5><p>${fmtShort(r.date)}</p></div>`).join('')}</div></div>`;
   } else {
-    linkContainer.innerHTML = '';
+    relContainer.innerHTML = `<div class="related-posts"><h4>Related Posts</h4><p style="color: #888; font-style: italic;">No more related posts</p></div>`;
   }
 
-  overlay.classList.add('active');
+  const recent = allPosts.filter(p => p.slug !== post.slug).slice(0, 3);
+  const recentContainer = document.getElementById('mostRecentContainer');
+  if (recent.length) {
+    recentContainer.innerHTML = `<div class="related-posts" style="margin-top: 20px; border-top: none;"><h4>Most Recent</h4><div class="related-grid">${recent.map(r => `<div class="related-card" onclick="event.stopPropagation(); openPostOverlayBySlug('${r.slug}')"><h5>${esc(r.title)}</h5><p>${fmtShort(r.date)}</p></div>`).join('')}</div></div>`;
+  } else {
+    recentContainer.innerHTML = '';
+  }
+
+  ov.classList.add('active');
   document.body.style.overflow = 'hidden';
+  ov.querySelector('.project-fullscreen-content').scrollTop = 0;
+}
+
+function openPostOverlayBySlug(slug) {
+  const post = allPosts.find(p => p.slug === slug);
+  if (post) openPostOverlay(post);
 }
 
 function closePostOverlay() {
-  const overlay = document.getElementById('postFullscreenOverlay');
-  if (!overlay) return;
-  overlay.classList.remove('active');
+  const ov = document.getElementById('postFullscreenOverlay');
+  if (ov) ov.classList.remove('active');
   document.body.style.overflow = '';
 }
 
-function truncatePostText(text, maxLen) {
-  if (!text || text.length <= maxLen) return text;
-  const cut = text.lastIndexOf(' ', maxLen);
-  return text.substring(0, cut > 0 ? cut : maxLen);
+function handleSharedPostLink(posts) {
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('post');
+  if (slug) {
+    const post = posts.find(p => p.slug === slug);
+    if (post) openPostOverlay(post);
+  }
 }
-
-// ── Client-Side RSS XML Generator ───────────────────────────────────────────
 
 function setupRSSFeed(posts) {
-  try {
-    let xml = `<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-<channel>
-  <title>Hralmeida's Blog</title>
-  <link>https://HugoAlmeid4.github.io</link>
-  <description>Hralmeida's personal website, blog, and astrophotography portfolio.</description>
-  <language>en-us</language>
-  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-  <atom:link href="https://HugoAlmeid4.github.io/rss.xml" rel="self" type="application/rss+xml" />`;
-
-    posts.forEach(post => {
-      const postUrl = post.url || 'https://HugoAlmeid4.github.io';
-      const pubDate = parseDate(post.date) ? parseDate(post.date).toUTCString() : new Date().toUTCString();
-      
-      xml += `
-  <item>
-    <title>${escXML(post.title)}</title>
-    <link>${escXML(postUrl)}</link>
-    <description>${escXML(post.excerpt)}</description>
-    <pubDate>${pubDate}</pubDate>
-    <guid>${escXML(postUrl)}</guid>
-  </item>`;
-    });
-
-    xml += `
-</channel>
-</rss>`;
-
-    // Compile virtual URL blob
-    const blob = new Blob([xml], { type: 'application/xml' });
-    if (window.rssUrl) {
-      URL.revokeObjectURL(window.rssUrl);
-    }
-    window.rssUrl = URL.createObjectURL(blob);
-    
-    // Register console handle
-    window.downloadRSS = () => {
-      const a = document.createElement('a');
-      a.href = window.rssUrl;
-      a.download = 'rss.xml';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      console.log('%c📥 RSS feed download successfully triggered!', 'color: #00ff00; font-weight: bold;');
-    };
-
-    // Console ASCII info log
-    if (!window.rssBannerPrinted) {
-      console.log(
-        `%c📰 [RSS Generator Active] %cType %cwindow.downloadRSS()%c to download your feed!`,
-        "color: #00ff00; font-weight: bold;",
-        "color: #888;",
-        "color: #ff00ff; font-family: monospace; background: #222; padding: 2px 4px; border: 1px solid #555;",
-        "color: #888;"
-      );
-      window.rssBannerPrinted = true;
-    }
-
-  } catch (e) {
-    console.error('Error generating RSS feed:', e);
-  }
+  const rssLink = document.getElementById('rssLink');
+  if (!rssLink) return;
+  const xml = generateRSS(posts);
+  const blob = new Blob([xml], { type: 'application/rss+xml' });
+  rssLink.href = URL.createObjectURL(blob);
 }
 
-// XML entity escaper
-function escXML(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+function generateRSS(posts) {
+  const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+  let items = '';
+  posts.slice(0, 10).forEach(p => {
+    items += `<item><title>${escXML(p.title)}</title><link>${baseUrl}?post=${p.slug}</link><guid>${baseUrl}?post=${p.slug}</guid><pubDate>${new Date(p.date).toUTCString()}</pubDate><description>${escXML(p.excerpt)}</description></item>`;
+  });
+  return `<?xml version="1.0" encoding="UTF-8" ?><rss version="2.0"><channel><title>My Blog</title><link>${baseUrl}</link><description>Latest blog posts</description>${items}</channel></rss>`;
 }
 
-// ── Date helpers ─────────────────────────────────────────────────────────────
-
-function parseDate(str) {
-  if (!str) return null;
-  str = str.trim();
-
-  // Try MM/DD/YYYY (US Format)
-  let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m) return new Date(+m[3], +m[1] - 1, +m[2]);
-
-  // Try MM/DD (assume current year if missing)
-  m = str.match(/^(\d{1,2})\/(\d{1,2})$/);
-  if (m) return new Date(new Date().getFullYear(), +m[1] - 1, +m[2]);
-
-  // Try YYYY-MM-DD
-  m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
-
-  // Fallback to standard JS parsing
-  const d = new Date(str);
-  if (!isNaN(d)) return d;
-
-  return null;
+function parseDate(s) {
+  if (!s) return null;
+  let dateStr = String(s);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) dateStr += 'T00:00:00';
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d;
 }
 
-// "03/21/2026" → "03/21"
-function formatShort(str) {
-  const d = parseDate(str);
-  if (!d) return str;
-  return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+function fmtShort(s) {
+  const d = parseDate(s);
+  return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s;
 }
 
-// "03/21/2026" → "March 2026"
-function groupLabel(str) {
-  const d = parseDate(str);
-  if (!d) return str || 'Undated';
-  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+function fmtFull(s) {
+  const d = parseDate(s);
+  return d ? d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : s;
 }
 
-// ── CSV parser ───────────────────────────────────────────────────────────────
-
-function parseCSV(text) {
-  const rows = [];
-  let row = [], field = '', inQ = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i], nx = text[i + 1];
-    if (inQ) {
-      if (ch === '"' && nx === '"') { field += '"'; i++; }
-      else if (ch === '"') inQ = false;
-      else field += ch;
-    } else {
-      if (ch === '"') { inQ = true; }
-      else if (ch === ',') { row.push(field.trim()); field = ''; }
-      else if (ch === '\n' || (ch === '\r' && nx === '\n')) {
-        row.push(field.trim()); field = '';
-        rows.push(row); row = [];
-        if (ch === '\r') i++;
-      } else {
-        field += ch;
-      }
-    }
-  }
-
-  if (field || row.length) { row.push(field.trim()); rows.push(row); }
-  return rows;
+function groupLabel(s) {
+  const d = parseDate(s);
+  return d ? d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : (s || 'Undated');
 }
-
-// ── Utility ──────────────────────────────────────────────────────────────────
 
 function esc(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function linkify(text) {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  return text.replace(urlRegex, function (url) {
-    let trailing = '';
-    if (url.match(/[.,;:\)]$/)) {
-      trailing = url.slice(-1);
-      url = url.slice(0, -1);
-    }
-    return `<a href="${url}" target="_blank" rel="noopener" class="post-inline-link">${url}</a>` + trailing;
-  });
+function escXML(s) { return esc(s).replace(/'/g, '&apos;'); }
+
+function truncate(text, max) {
+  if (!text || text.length <= max) return text || '';
+  const cut = text.lastIndexOf(' ', max);
+  return text.slice(0, cut > 0 ? cut : max);
 }

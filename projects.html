@@ -11,7 +11,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="projects.js" defer></script>
-  <script src="player.js" defer></script>
 </head>
 
 <body>
@@ -104,22 +103,6 @@
 
   </main>
 
-  <!-- ── Music Player ── -->
-  <footer class="music-player" id="musicPlayer">
-    <div class="player-controls">
-      <button id="player-prev" class="player-btn" aria-label="Previous track">⟨</button>
-      <button id="player-play" class="player-btn player-btn-play" aria-label="Play">▶</button>
-      <button id="player-next" class="player-btn" aria-label="Next track">⟩</button>
-    </div>
-    <div class="player-info">
-      <div class="player-track" id="player-track">No tracks added</div>
-      <div class="player-progress" id="player-progress">
-        <div class="player-progress-fill" id="player-progress-fill"></div>
-      </div>
-    </div>
-    <div class="player-time" id="player-time">0:00</div>
-    <input type="range" id="player-volume" class="player-volume" min="0" max="100" value="50" aria-label="Volume">
-  </footer>
 
   <script>
     const themeToggleBtn = document.getElementById('theme-toggle');
