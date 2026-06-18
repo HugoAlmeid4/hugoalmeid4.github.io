@@ -27,8 +27,8 @@ async function loadPosts() {
 
   try {
     const posts = await fetchAndParsePosts();
-    if (!posts) {
-      if (status) status.textContent = 'No posts found.';
+    if (!posts || posts.length === 0) {
+      if (status) status.textContent = 'No valid posts found.';
       return;
     }
     allPosts = posts;
@@ -45,7 +45,7 @@ async function loadPosts() {
     if (status) status.textContent = '';
   } catch (e) {
     console.error('Posts load error:', e);
-    const errorMsg = `Error loading posts: ${e.message}. Check if posts/index.json exists and is accessible.`;
+    const errorMsg = `Error: ${e.message}. If you are on GitHub Pages, make sure to add a .nojekyll file to your root folder.`;
     if (status) status.textContent = errorMsg;
     if (!cached && list) {
       list.innerHTML = `<div class="error-notice">${errorMsg}</div>`;
@@ -54,64 +54,74 @@ async function loadPosts() {
 }
 
 async function fetchAndParsePosts() {
-  // Use relative path without leading slash for better compatibility with subfolders
   const indexUrl = 'posts/index.json';
-  console.log('Fetching index from:', indexUrl);
-  
   const idxRes = await fetch(indexUrl);
-  if (!idxRes.ok) throw new Error(`index.json: HTTP ${idxRes.status} at ${indexUrl}`);
+  if (!idxRes.ok) throw new Error(`HTTP ${idxRes.status} fetching index.json`);
   
   const fileList = await idxRes.json();
   if (!Array.isArray(fileList) || !fileList.length) return null;
 
-  const posts = await Promise.all(fileList.map(async (filename) => {
+  const postPromises = fileList.map(async (filename) => {
     const postUrl = `posts/${filename}`;
-    const res = await fetch(postUrl);
-    if (!res.ok) throw new Error(`${filename}: HTTP ${res.status} at ${postUrl}`);
-    const mdText = await res.text();
+    try {
+      const res = await fetch(postUrl);
+      if (!res.ok) {
+        // Log the exact URL that failed to help the user debug
+        const absoluteUrl = new URL(postUrl, window.location.href).href;
+        console.error(`FAILED TO LOAD: ${absoluteUrl} (HTTP ${res.status})`);
+        return null; 
+      }
+      const mdText = await res.text();
 
-    const { metadata, content } = parseFrontmatter(mdText);
-    const bodyHtml = parseMarkdown(content);
-    const slug = filename.replace(/\.md$/, '');
+      const { metadata, content } = parseFrontmatter(mdText);
+      const bodyHtml = parseMarkdown(content);
+      const slug = filename.replace(/\.md$/, '');
 
-    const date = metadata.date || new Date().toISOString().slice(0, 10);
+      const date = metadata.date || new Date().toISOString().slice(0, 10);
 
-    const cleanText = content.replace(/!\[\[[^\]]*\]\]/g, '')
-      .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-      .replace(/\[([^\]) ]*)\]\([^)]*\)/g, '$1')
-      .replace(/[#*`_|~>]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+      const cleanText = content.replace(/!\[\[[^\]]*\]\]/g, '')
+        .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+        .replace(/\[([^\]) ]*)\]\([^)]*\)/g, '$1')
+        .replace(/[#*`_|~>]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
 
-    let readingTime = metadata.readingTime;
-    if (!readingTime) {
-      const words = cleanText.split(/\s+/).filter(w => w.length > 0).length;
-      let totalSeconds = (words / 200) * 60;
-      const imageCount = (content.match(/!\[.*?\]\(.*?\)/g) || []).length + (content.match(/!\[\[.*?\]\]/g) || []).length;
-      for (let i = 0; i < imageCount; i++) totalSeconds += Math.max(12 - i, 3);
-      const codeBlockCount = (content.match(/```/g) || []).length / 2;
-      totalSeconds += codeBlockCount * 15;
-      const mins = Math.ceil(totalSeconds / 60);
-      readingTime = `${mins} min read`;
+      let readingTime = metadata.readingTime;
+      if (!readingTime) {
+        const words = cleanText.split(/\s+/).filter(w => w.length > 0).length;
+        let totalSeconds = (words / 200) * 60;
+        const imageCount = (content.match(/!\[.*?\]\(.*?\)/g) || []).length + (content.match(/!\[\[.*?\]\]/g) || []).length;
+        for (let i = 0; i < imageCount; i++) totalSeconds += Math.max(12 - i, 3);
+        const codeBlockCount = (content.match(/```/g) || []).length / 2;
+        totalSeconds += codeBlockCount * 15;
+        const mins = Math.ceil(totalSeconds / 60);
+        readingTime = `${mins} min read`;
+      }
+
+      const excerpt = metadata.excerpt || (cleanText.slice(0, 180) + (cleanText.length > 180 ? '...' : ''));
+      const tags = metadata.tags ? metadata.tags.split(',').map(t => t.trim()) : [];
+
+      return {
+        slug,
+        title: metadata.title || slug.replace(/-/g, ' '),
+        date,
+        excerpt,
+        readingTime,
+        author: metadata.author || '',
+        tags,
+        bodyHtml,
+        filename,
+      };
+    } catch (err) {
+      console.warn(`Error loading ${filename}:`, err);
+      return null;
     }
+  });
 
-    const excerpt = metadata.excerpt || (cleanText.slice(0, 180) + (cleanText.length > 180 ? '...' : ''));
-    const tags = metadata.tags ? metadata.tags.split(',').map(t => t.trim()) : [];
+  const results = await Promise.all(postPromises);
+  const validPosts = results.filter(p => p !== null);
 
-    return {
-      slug,
-      title: metadata.title || slug.replace(/-/g, ' '),
-      date,
-      excerpt,
-      readingTime,
-      author: metadata.author || '',
-      tags,
-      bodyHtml,
-      filename,
-    };
-  }));
-
-  posts.sort((a, b) => {
+  validPosts.sort((a, b) => {
     const da = parseDate(a.date), db = parseDate(b.date);
     if (!da && !db) return 0;
     if (!da) return 1;
@@ -119,7 +129,7 @@ async function fetchAndParsePosts() {
     return db - da;
   });
 
-  return posts;
+  return validPosts;
 }
 
 function parseFrontmatter(mdContent) {
