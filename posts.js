@@ -59,7 +59,7 @@ const translations = {
     loadingPosts: 'Cargando posts...',
     noPostsFound: 'No se encontraron posts válidos.',
     errorLoading: 'Error al cargar posts. Verifica si posts/index.json existe.',
-    jekyllError: 'Si estás en GitHub Pages, asegúrate de agregar un archivo .nojekyll en la carpeta raíz.',
+    jekyllError: 'Si estás en GitHub Pages, asegúrate de agregar un archivo .nojekyll en la barra raíz.',
     searchPlaceholder: 'Buscar posts...',
     filterBtn: 'Filtros',
     filterByTags: 'Filtrar por Etiquetas',
@@ -142,6 +142,14 @@ function executeLanguageChange(lang) {
   if (searchInput) searchInput.placeholder = t('searchPlaceholder');
   if (filterBtn && !activeFilterTag) filterBtn.textContent = t('filterBtn');
   
+  // ─── ADD THESE LINES TO FIX THE POPUP TRANSLATIONS ───────────────────
+  const popupTitle = document.querySelector('#postTagPopup h4');
+  const popupCloseBtn = document.getElementById('closeTagPopup');
+  
+  if (popupTitle) popupTitle.textContent = t('filterByTags');
+  if (popupCloseBtn) popupCloseBtn.textContent = t('done');
+  // ─────────────────────────────────────────────────────────────────────
+  
   renderPosts(allPosts, list, status);
   
   const params = new URLSearchParams(window.location.search);
@@ -157,7 +165,6 @@ function showTranslationWarning(targetLang) {
   overlay.id = 'translationWarningOverlay';
   overlay.className = 'tag-popup';
   overlay.style.zIndex = '5000';
-  overlay.style.display = 'flex';
   overlay.innerHTML = `
     <div class="tag-popup-content" style="max-width: 400px;">
       <h4 style="margin-bottom: 15px;">${t('accuracyWarningTitle')}</h4>
@@ -386,19 +393,16 @@ function injectSearchUI() {
   const section = document.querySelector('.Posts-Section');
   if (section) { const h2 = section.querySelector('h2'); if (h2) h2.after(container); }
   document.getElementById('postSearchInput').addEventListener('input', () => filterAndRender(activeFilterTag));
+  
   const popup = document.getElementById('postTagPopup');
   document.getElementById('postFilterBtn').onclick = () => { 
     updateTagFilters(activeFilterTag); 
-    popup.style.display = 'flex';
-    requestAnimationFrame(() => popup.classList.add('active'));
+    popup.classList.add('active');
     document.body.style.overflow = 'hidden'; 
   };
   document.getElementById('closeTagPopup').onclick = () => { 
     popup.classList.remove('active'); 
-    setTimeout(() => {
-      popup.style.display = 'none';
-      document.body.style.overflow = ''; 
-    }, 300);
+    document.body.style.overflow = ''; 
   };
 }
 
@@ -605,12 +609,24 @@ if (!document.getElementById('postCustomStyles')) {
     .search-bar-wrapper input:focus { border-color: #ededed; outline: none; }
     .filter-toggle-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 10px 15px; border-radius: 0; cursor: pointer; transition: all 0.2s; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; white-space: nowrap; font-family: 'Lilex', monospace; }
     
-    .tag-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; align-items: center; justify-content: center; z-index: 2000; pointer-events: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
-    .tag-popup.active { pointer-events: auto; opacity: 1; }
-    .tag-popup-content { background: rgb(237, 231, 220); padding: 40px; border: 1.5px solid #333; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); transform: translateY(30px) scale(0.95); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease; box-sizing: border-box !important; }
-    .tag-popup.active .tag-popup-content { transform: translateY(0) scale(1); }
-    .dark-mode .tag-popup-content { background: #1a1a1a; border-color: #555; color: #fff; }
+    /* Invisible layer handling layout without disrupting animation sequences */
+    .tag-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 2000; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; }
+    .tag-popup.active { pointer-events: auto; opacity: 1; visibility: visible; }
     
+    /* Crisp drop shadow styling to isolate container from content background */
+    .tag-popup-content { background: rgb(237, 231, 220); padding: 35px; border: 1.5px solid #333; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25), 0 10px 20px rgba(0, 0, 0, 0.15); transform: translateY(30px) scale(0.95); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease; box-sizing: border-box !important; }
+    .tag-popup.active .tag-popup-content { transform: translateY(0) scale(1); }
+    .dark-mode .tag-popup-content { background: #1a1a1a; border-color: #555; color: #fff; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.65), 0 15px 30px rgba(0, 0, 0, 0.45); }
+    
+    /* Architecture configuration for internal tag button arrays */
+    .tag-filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 24px 0 28px 0; padding: 0; width: 100%; box-sizing: border-box; }
+    .tag-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 8px 14px; border-radius: 0; cursor: pointer; font-weight: 600; font-size: 11px; letter-spacing: 0.05em; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); text-transform: uppercase; font-family: 'Lilex', monospace; margin: 0 !important; }
+    .dark-mode .tag-btn { border-color: #555; }
+    .tag-btn:hover { background: rgba(0,0,0,0.05); }
+    .dark-mode .tag-btn:hover { background: rgba(255,255,255,0.05); }
+    .tag-btn.active { background: #333 !important; color: #fff !important; border-color: #333 !important; transform: scale(1.03); }
+    .dark-mode .tag-btn.active { background: #ededed !important; color: #1a1a1a !important; border-color: #ededed !important; }
+
     /* Share Button Animation */
     .share-btn-animated { position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; }
     .share-btn-animated.clicked { background: white !important; color: black !important; transform: scale(0.95); }
@@ -618,13 +634,19 @@ if (!document.getElementById('postCustomStyles')) {
     
     .project-fullscreen-link-btn { background: transparent !important; border: 1.5px solid currentColor !important; color: inherit !important; padding: 8px 16px !important; font-family: 'Lilex', monospace !important; font-size: 14px !important; letter-spacing: 2px !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 10px !important; transition: all 0.2s ease !important; text-transform: uppercase !important; margin: 40px auto !important; width: fit-content !important; max-width: 100% !important; box-sizing: border-box !important; border-radius: 0 !important; }
     
+    /* Close Popup Button Style */
+    .close-popup-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 8px 20px; border-radius: 0; cursor: pointer; font-family: 'Lilex', monospace; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; margin-top: 5px; }
+    .dark-mode .close-popup-btn { border-color: #555; }
+    .close-popup-btn:hover { background: #333; color: #fff; }
+    .dark-mode .close-popup-btn:hover { background: #ededed; color: #1a1a1a; border-color: #ededed; }
+
     @media (prefers-color-scheme: light) { 
       .project-fullscreen-overlay { background: rgba(255, 255, 255, 0.98) !important; } 
       .project-fullscreen-link-btn { border-color: #333 !important; color: #333 !important; } 
       .project-fullscreen-body a { color: #333 !important; }
       .spinner { border-top-color: #333; border-bottom-color: rgba(0,0,0,0.05); }
       .tag-popup-content { background: rgb(237, 231, 220); color: #333; border-color: #333; }
-      .tag-popup { background: rgba(255, 255, 255, 0.6); }
+      .tag-popup { background: transparent; }
       .project-fullscreen-close, .image-zoom-close { color: black !important; border-color: black !important; }
       .project-fullscreen-close:hover, .image-zoom-close:hover { background: black !important; color: white !important; }
     }
@@ -636,7 +658,7 @@ if (!document.getElementById('postCustomStyles')) {
       .search-bar-wrapper { flex-direction: column; width: 100% !important; }
       .search-bar-wrapper input, .filter-toggle-btn { width: 100% !important; box-sizing: border-box !important; }
       .project-fullscreen-close, .image-zoom-close { top: 15px !important; right: 15px !important; width: 35px !important; height: 35px !important; font-size: 16px !important; }
-      .tag-popup-content { padding: 20px !important; width: 95% !important; }
+      .tag-popup-content { padding: 25px 20px !important; width: 95% !important; }
     }
   `;
   document.head.appendChild(style);
