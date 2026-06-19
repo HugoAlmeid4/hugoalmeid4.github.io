@@ -33,10 +33,10 @@ const translations = {
     gotIt: 'Got it'
   },
   pt: {
-    loadingPosts: 'Carregando posts...',
+    loadingPosts: 'A carregar posts...',
     noPostsFound: 'Nenhum post válido encontrado.',
     errorLoading: 'Erro ao carregar posts. Verifique se posts/index.json existe.',
-    jekyllError: 'Se você está no GitHub Pages, certifique-se de adicionar um arquivo .nojekyll na pasta raiz.',
+    jekyllError: 'Se estiver no GitHub Pages, certifique-se de adicionar um ficheiro .nojekyll na pasta raiz.',
     searchPlaceholder: 'Pesquisar posts...',
     filterBtn: 'Filtros',
     filterByTags: 'Filtrar por Tags',
@@ -45,12 +45,12 @@ const translations = {
     relatedPosts: 'Posts Relacionados',
     noMoreRelated: 'Nenhum post relacionado',
     mostRecent: 'Mais Recentes',
-    sharePost: 'COMPARTILHAR POST',
+    sharePost: 'PARTILHAR POST',
     copied: 'Copiado!',
     minRead: 'min de leitura',
     readFullPost: 'Ler post completo →',
     showMore: 'Mostrar mais',
-    translating: 'Traduzindo...',
+    translating: 'A traduzir...',
     accuracyWarningTitle: 'Precisão da Tradução',
     accuracyWarningText: 'Por favor, note que as traduções são geradas automaticamente e podem não ser 100% precisas em comparação com o conteúdo original em inglês.',
     gotIt: 'Entendi'
@@ -97,9 +97,9 @@ function setupLanguageSwitcher(containerId = 'languageSwitcher') {
   
   const langHTML = `
     <div class="language-switcher">
-      <button class="lang-btn lang-btn-en ${currentLanguage === 'en' ? 'active' : ''}" data-lang="en">EN</button>
-      <button class="lang-btn lang-btn-pt ${currentLanguage === 'pt' ? 'active' : ''}" data-lang="pt">PT</button>
-      <button class="lang-btn lang-btn-es ${currentLanguage === 'es' ? 'active' : ''}" data-lang="es">ES</button>
+      <button class="lang-btn lang-btn-en ${currentLanguage === 'en' ? 'active' : ''}" onclick="changeLanguage('en')">EN</button>
+      <button class="lang-btn lang-btn-pt ${currentLanguage === 'pt' ? 'active' : ''}" onclick="changeLanguage('pt')">PT</button>
+      <button class="lang-btn lang-btn-es ${currentLanguage === 'es' ? 'active' : ''}" onclick="changeLanguage('es')">ES</button>
     </div>
   `;
   
@@ -115,24 +115,14 @@ function setupLanguageSwitcher(containerId = 'languageSwitcher') {
   } else {
     target.innerHTML = langHTML;
   }
-  
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      changeLanguage(e.target.dataset.lang);
-    };
-  });
 }
 
 async function changeLanguage(lang) {
   if (currentLanguage === lang) return;
-
-  // Show warning if switching from English and hasn't seen it before
   if (lang !== 'en' && !localStorage.getItem('translationWarningSeen')) {
     showTranslationWarning(lang);
     return;
   }
-
   executeLanguageChange(lang);
 }
 
@@ -141,7 +131,7 @@ function executeLanguageChange(lang) {
   localStorage.setItem('blogLanguage', lang);
   
   document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.lang === lang);
+    btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === lang);
   });
   
   const list = document.getElementById('postsList');
@@ -164,8 +154,10 @@ function executeLanguageChange(lang) {
 
 function showTranslationWarning(targetLang) {
   const overlay = document.createElement('div');
-  overlay.className = 'tag-popup active'; // Reuse tag-popup styles
+  overlay.id = 'translationWarningOverlay';
+  overlay.className = 'tag-popup';
   overlay.style.zIndex = '5000';
+  overlay.style.display = 'flex';
   overlay.innerHTML = `
     <div class="tag-popup-content" style="max-width: 400px;">
       <h4 style="margin-bottom: 15px;">${t('accuracyWarningTitle')}</h4>
@@ -174,21 +166,27 @@ function showTranslationWarning(targetLang) {
     </div>
   `;
   document.body.appendChild(overlay);
+  
+  requestAnimationFrame(() => overlay.classList.add('active'));
   document.body.style.overflow = 'hidden';
 
   document.getElementById('confirmWarningBtn').onclick = () => {
     localStorage.setItem('translationWarningSeen', 'true');
-    overlay.remove();
-    document.body.style.overflow = '';
-    executeLanguageChange(targetLang);
+    overlay.classList.remove('active');
+    setTimeout(() => {
+      overlay.remove();
+      document.body.style.overflow = '';
+      executeLanguageChange(targetLang);
+    }, 300);
   };
 }
 
-// ── Translation Logic (Google Translate Engine) ──────────────────────────────
+// ── Translation Logic (Google Translate Engine - PT-PT Optimized) ────────────
 
 async function translateText(text, targetLang) {
   if (targetLang === 'en' || !text.trim()) return text;
-  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+  const targetCode = targetLang === 'pt' ? 'pt-PT' : targetLang;
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetCode}&dt=t&q=${encodeURIComponent(text)}`;
   try {
     const res = await fetch(url);
     const data = await res.json();
@@ -235,18 +233,13 @@ async function loadPosts() {
   const status = document.getElementById('postsStatus');
   if (status) status.textContent = t('loadingPosts');
   injectSearchUI();
-
-  const cached = (() => { try { return JSON.parse(localStorage.getItem('posts_cache')); } catch { return null; } })();
-  if (cached && Array.isArray(cached.data)) {
-    allPosts = cached.data;
-    renderPosts(allPosts, list, status);
-    handleSharedPostLink(allPosts);
-  }
-
+  
   try {
     const res = await fetch('posts/index.json');
     const fileList = await res.json();
-    const postPromises = fileList.map(async (filename) => {
+    const uniqueFileList = [...new Set(fileList)];
+    
+    const postPromises = uniqueFileList.map(async (filename) => {
       try {
         const res = await fetch(`posts/${filename}`);
         if (!res.ok) return null;
@@ -260,7 +253,14 @@ async function loadPosts() {
       } catch { return null; }
     });
     const results = await Promise.all(postPromises);
-    allPosts = results.filter(p => p !== null).sort((a, b) => parseDate(b.date) - parseDate(a.date));
+    
+    const seenSlugs = new Set();
+    allPosts = results.filter(p => {
+      if (p === null || seenSlugs.has(p.slug)) return false;
+      seenSlugs.add(p.slug);
+      return true;
+    }).sort((a, b) => parseDate(b.date) - parseDate(a.date));
+    
     localStorage.setItem('posts_cache', JSON.stringify({ data: allPosts }));
     setupRSSFeed(allPosts);
     renderPosts(allPosts, list, status);
@@ -310,14 +310,14 @@ function parseLines(lines) {
     if (hMatch) { flushList(); out.push(`<h${hMatch[1].length}>${parseInline(hMatch[2])}</h${hMatch[1].length}>`); continue; }
     const liMatch = line.match(/^[ \t]*[-*+]\s+(.*)/);
     if (liMatch) { if (!inUL) { out.push('<ul>'); inUL = true; } out.push(`<li>${parseInline(liMatch[1])}</li>`); continue; }
-    flushList(); out.push(`<p>${parseInline(line)}</p>`);
+    flushList(); out.push(`<p class="scroll-reveal">${parseInline(line)}</p>`);
   }
   flushList(); flushTable();
   return out.join('\n');
 }
 
 function renderTable(headers, rows) {
-  let h = '<div class="data-log-container"><table class="data-log-table"><thead><tr>';
+  let h = '<div class="data-log-container scroll-reveal"><table class="data-log-table"><thead><tr>';
   headers.forEach(c => { h += `<th>${parseInline(c)}</th>`; });
   h += '</tr></thead><tbody>';
   rows.forEach(row => { h += '<tr>'; row.forEach(c => { h += `<td>${parseInline(c)}</td>`; }); h += '</tr>'; });
@@ -332,7 +332,7 @@ function parseInline(text) {
     const id = `\uFFFC${placeholders.length}\uFFFC`;
     const lSrc = (light.trim().startsWith('http') ? light.trim() : `posts/${light.trim()}`).split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
     const dSrc = (dark.trim().startsWith('http') ? dark.trim() : `posts/${dark.trim()}`).split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
-    placeholders.push(`<picture class="theme-aware-img"><source srcset="${dSrc}" media="(prefers-color-scheme: dark)"><img src="${lSrc}" class="zoomable-img" style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"></picture>`);
+    placeholders.push(`<picture class="theme-aware-img scroll-reveal"><source srcset="${dSrc}" media="(prefers-color-scheme: dark)"><img src="${lSrc}" class="zoomable-img" style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"></picture>`);
     return id;
   });
   text = text.replace(/!\[\[([^\]|]+?)(?:\|(\d+))?\]\]/g, (_, fname, w) => {
@@ -340,14 +340,14 @@ function parseInline(text) {
     const src = /^https?:\/\//.test(fname.trim()) ? fname.trim() : `posts/${fname.trim()}`;
     const enc = src.split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
     const dims = w ? `width="${w}" style="max-width:${w}px;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"` : `style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"`;
-    placeholders.push(`<img src="${enc}" class="zoomable-img" ${dims} alt="${esc(fname.trim())}">`);
+    placeholders.push(`<img src="${enc}" class="zoomable-img scroll-reveal" ${dims} alt="${esc(fname.trim())}">`);
     return id;
   });
-  text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, url) => {
+  text = text.replace(/!\[([^\]) ]*)\]\(([^)]+)\)/g, (_, alt, url) => {
     const id = `\uFFFC${placeholders.length}\uFFFC`;
     const src = /^https?:\/\//.test(url.trim()) || url.trim().startsWith('/') ? url.trim() : `posts/${url.trim()}`;
     const enc = src.split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
-    placeholders.push(`<img src="${enc}" class="zoomable-img" style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;" alt="${esc(alt)}">`);
+    placeholders.push(`<img src="${enc}" class="zoomable-img scroll-reveal" style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;" alt="${esc(alt)}">`);
     return id;
   });
   text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+(?:\([^\s)]*\)[^\s)]*)*)\)/g, (_, linkText, url) => {
@@ -387,8 +387,19 @@ function injectSearchUI() {
   if (section) { const h2 = section.querySelector('h2'); if (h2) h2.after(container); }
   document.getElementById('postSearchInput').addEventListener('input', () => filterAndRender(activeFilterTag));
   const popup = document.getElementById('postTagPopup');
-  document.getElementById('postFilterBtn').onclick = () => { updateTagFilters(activeFilterTag); popup.classList.add('active'); document.body.style.overflow = 'hidden'; };
-  document.getElementById('closeTagPopup').onclick = () => { popup.classList.remove('active'); document.body.style.overflow = ''; };
+  document.getElementById('postFilterBtn').onclick = () => { 
+    updateTagFilters(activeFilterTag); 
+    popup.style.display = 'flex';
+    requestAnimationFrame(() => popup.classList.add('active'));
+    document.body.style.overflow = 'hidden'; 
+  };
+  document.getElementById('closeTagPopup').onclick = () => { 
+    popup.classList.remove('active'); 
+    setTimeout(() => {
+      popup.style.display = 'none';
+      document.body.style.overflow = ''; 
+    }, 300);
+  };
 }
 
 function filterAndRender(tag) {
@@ -439,17 +450,27 @@ async function renderPosts(posts, list, status, visibleCount = 3) {
     ov.className = 'project-fullscreen-overlay';
     ov.innerHTML = `<div class="reading-progress-container"><div id="readingProgressBar"></div></div><div class="project-fullscreen-content"><button class="project-fullscreen-close" id="postFullscreenClose" aria-label="Close">✕</button><div id="overlayLangSwitcher"></div><div class="project-fullscreen-type" id="postFullscreenDate"></div><h2 class="project-fullscreen-title" id="postFullscreenTitle"></h2><div class="project-fullscreen-body" id="postFullscreenBody"></div><div id="translationLoader" class="translation-loader" style="display:none;"><div class="spinner"></div><p id="translationLoaderText"></p></div><div class="project-fullscreen-link-container" id="postFullscreenLinkContainer"></div><div id="relatedPostsContainer"></div><div id="mostRecentContainer"></div></div>`;
     document.body.appendChild(ov);
-    document.getElementById('postFullscreenClose').onclick = closePostOverlay;
+    document.getElementById('postFullscreenClose').onclick = (e) => { e.preventDefault(); e.stopPropagation(); closePostOverlay(); };
     ov.onclick = e => { if (e.target === ov) closePostOverlay(); };
     const content = ov.querySelector('.project-fullscreen-content');
-    content.onscroll = () => { document.getElementById('readingProgressBar').style.width = (content.scrollTop / (content.scrollHeight - content.clientHeight)) * 100 + "%"; };
+    content.onscroll = () => { 
+      document.getElementById('readingProgressBar').style.width = (content.scrollTop / (content.scrollHeight - content.clientHeight)) * 100 + "%"; 
+      handleScrollReveal(content);
+    };
   }
+  
   const fragment = document.createDocumentFragment();
   let currentGroup = null;
   for (const post of posts.slice(0, visibleCount)) {
     const tp = await getTranslatedPost(post, currentLanguage);
     const group = groupLabel(post.date);
-    if (group !== currentGroup) { currentGroup = group; const lbl = document.createElement('div'); lbl.className = 'date-group-label'; lbl.textContent = group; fragment.appendChild(lbl); }
+    if (group !== currentGroup) { 
+      currentGroup = group; 
+      const lbl = document.createElement('div'); 
+      lbl.className = 'date-group-label'; 
+      lbl.textContent = group; 
+      fragment.appendChild(lbl); 
+    }
     const card = document.createElement('div');
     card.className = 'post-card';
     card.innerHTML = `<div class="post-header"><div class="post-header-left"><div class="post-title">${esc(tp.title)} <span class="post-date">• ${fmtShort(post.date)}</span></div><div class="post-excerpt-preview">${esc(truncate(tp.excerpt, 80))}</div></div><span class="post-arrow">▼</span></div><div class="post-body"><div class="post-body-inner"><p>${esc(truncate(tp.excerpt, 160))}</p><button class="read-full-doc-btn">${t('readFullPost')}</button></div></div>`;
@@ -459,6 +480,15 @@ async function renderPosts(posts, list, status, visibleCount = 3) {
   }
   if (posts.length > visibleCount) { const btn = document.createElement('button'); btn.className = 'show-more-btn'; btn.textContent = t('showMore'); btn.onclick = () => renderPosts(posts, list, status, visibleCount + 5); const wrap = document.createElement('div'); wrap.className = 'show-more-container'; wrap.appendChild(btn); fragment.appendChild(wrap); }
   list.appendChild(fragment);
+}
+
+function handleScrollReveal(container) {
+  const elements = container.querySelectorAll('.scroll-reveal');
+  const triggerBottom = container.clientHeight * 0.9;
+  elements.forEach(el => {
+    const elTop = el.getBoundingClientRect().top - container.getBoundingClientRect().top;
+    if (elTop < triggerBottom) el.classList.add('active');
+  });
 }
 
 async function openPostOverlay(post) {
@@ -480,16 +510,35 @@ async function openPostOverlay(post) {
   } else { loader.style.display = 'none'; bodyEl.style.opacity = '1'; }
   setupImageZoom(); if (window.Prism) Prism.highlightAllUnder(bodyEl);
   const linkContainer = document.getElementById('postFullscreenLinkContainer'); linkContainer.innerHTML = '';
-  const shareBtn = document.createElement('button'); shareBtn.className = 'project-fullscreen-link-btn'; shareBtn.innerHTML = `<span>🔗</span> ${t('sharePost')}`;
-  shareBtn.onclick = () => { navigator.clipboard.writeText(window.location.href); shareBtn.innerHTML = `<span>✅</span> ${t('copied')}`; setTimeout(() => { shareBtn.innerHTML = `<span>🔗</span> ${t('sharePost')}`; }, 2000); };
+  const shareBtn = document.createElement('button'); shareBtn.className = 'project-fullscreen-link-btn share-btn-animated'; shareBtn.innerHTML = `<span>🔗</span> ${t('sharePost')}`;
+  shareBtn.onclick = () => { 
+    navigator.clipboard.writeText(window.location.href); 
+    shareBtn.classList.add('clicked');
+    shareBtn.innerHTML = `<span>✅</span> ${t('copied')}`; 
+    setTimeout(() => { 
+      shareBtn.classList.remove('clicked');
+      shareBtn.innerHTML = `<span>🔗</span> ${t('sharePost')}`; 
+    }, 2000); 
+  };
   linkContainer.appendChild(shareBtn);
   const related = getRelatedPosts(post);
   document.getElementById('relatedPostsContainer').innerHTML = `<div class="related-posts"><h4>${t('relatedPosts')}</h4><div class="related-grid">${related.length ? related.map(r => `<div class="related-card" onclick="event.stopPropagation(); openPostOverlayBySlug('${r.slug}')"><h5>${esc(r.title)}</h5><p>${fmtShort(r.date)}</p></div>`).join('') : `<p style="color: #888; font-style: italic;">${t('noMoreRelated')}</p>`}</div></div>`;
   const recent = allPosts.filter(p => p.slug !== post.slug).slice(0, 3);
   document.getElementById('mostRecentContainer').innerHTML = recent.length ? `<div class="related-posts" style="margin-top: 20px; border-top: none;"><h4>${t('mostRecent')}</h4><div class="related-grid">${recent.map(r => `<div class="related-card" onclick="event.stopPropagation(); openPostOverlayBySlug('${r.slug}')"><h5>${esc(r.title)}</h5><p>${fmtShort(r.date)}</p></div>`).join('')}</div></div>` : '';
+  
+  // Initial reveal check
+  setTimeout(() => handleScrollReveal(ov.querySelector('.project-fullscreen-content')), 100);
 }
 
-function closePostOverlay() { const ov = document.getElementById('postFullscreenOverlay'); if (ov) ov.classList.remove('active'); document.body.style.overflow = ''; const url = new URL(window.location.href); url.searchParams.delete('post'); window.history.replaceState({}, '', url); }
+function closePostOverlay() { 
+  const ov = document.getElementById('postFullscreenOverlay'); 
+  if (ov) ov.classList.remove('active'); 
+  document.body.style.overflow = ''; 
+  const url = new URL(window.location.href); 
+  url.searchParams.delete('post'); 
+  window.history.replaceState({}, '', url); 
+}
+
 function openPostOverlayBySlug(slug) { const post = allPosts.find(p => p.slug === slug); if (post) openPostOverlay(post); }
 function handleSharedPostLink(posts) { const slug = new URLSearchParams(window.location.search).get('post'); if (slug) { const post = posts.find(p => p.slug === slug); if (post) openPostOverlay(post); } }
 function setupRSSFeed(posts) { const rssLink = document.getElementById('rssLink'); if (!rssLink) return; const xml = `<?xml version="1.0" encoding="UTF-8" ?><rss version="2.0"><channel><title>My Blog</title><link>${window.location.origin}</link><description>Latest posts</description>${posts.slice(0, 10).map(p => `<item><title>${esc(p.title)}</title><link>${window.location.origin}?post=${p.slug}</link><pubDate>${new Date(p.date).toUTCString()}</pubDate></item>`).join('')}</channel></rss>`; rssLink.href = URL.createObjectURL(new Blob([xml], { type: 'application/rss+xml' })); }
@@ -511,67 +560,83 @@ if (!document.getElementById('postCustomStyles')) {
   const style = document.createElement('style');
   style.id = 'postCustomStyles';
   style.textContent = `
-    .language-switcher { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; }
-    .lang-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 6px 12px; border-radius: 0; cursor: pointer; font-weight: 600; font-size: 11px; letter-spacing: 0.05em; transition: all 0.2s; text-transform: uppercase; }
+    html, body { overflow-x: hidden !important; width: 100% !important; position: relative !important; margin: 0 !important; padding: 0 !important; scroll-behavior: smooth; }
+    
+    /* JetBrains Styled Buttons */
+    .project-fullscreen-close, .image-zoom-close { 
+      position: fixed !important; top: 20px !important; right: 20px !important; z-index: 1100 !important; 
+      background: transparent !important; color: white !important; border: 1.5px solid white !important; 
+      width: 40px !important; height: 40px !important; border-radius: 0 !important; cursor: pointer !important; 
+      font-size: 18px !important; display: flex !important; align-items: center !important; justify-content: center !important; 
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important; font-family: 'Lilex', monospace !important; 
+    }
+    .project-fullscreen-close:hover, .image-zoom-close:hover { background: white !important; color: black !important; transform: scale(1.05); }
+    
+    .language-switcher { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; position: relative; z-index: 100; }
+    .lang-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 6px 12px; border-radius: 0; cursor: pointer; font-weight: 600; font-size: 11px; letter-spacing: 0.05em; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); text-transform: uppercase; position: relative; z-index: 101; font-family: 'Lilex', monospace; }
     .dark-mode .lang-btn { border-color: #555; }
-    .lang-btn.active { background: #ededed !important; color: #1a1a1a !important; border-color: #ededed !important; }
-    .dark-mode .lang-btn.active { background: #ededed !important; color: #1a1a1a !important; border-color: #ededed !important; }
+    .lang-btn.active { background: #ededed !important; color: #1a1a1a !important; border-color: #ededed !important; transform: scale(1.05); }
     
-    .image-zoom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); display: flex; align-items: center; justify-content: center; z-index: 3000; }
-    .image-zoom-container { position: relative; max-width: 95vw; max-height: 95vh; display: flex; align-items: center; justify-content: center; }
+    .image-zoom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); display: flex; align-items: center; justify-content: center; z-index: 3000; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .image-zoom-container { position: relative; max-width: 95vw; max-height: 95vh; display: flex; align-items: center; justify-content: center; animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .image-zoom-full { max-width: 100%; max-height: 100%; object-fit: contain; }
-    .image-zoom-close { position: absolute; top: -40px; right: 0; background: transparent; border: none; color: white; font-size: 32px; cursor: pointer; font-family: monospace; transition: transform 0.2s; }
-    .image-zoom-close:hover { transform: scale(1.2); }
     
-    .project-fullscreen-overlay { background: rgba(18, 18, 18, 0.98) !important; width: 100vw !important; height: 100vh !important; top: 0 !important; left: 0 !important; z-index: 1000 !important; overflow-y: auto !important; }
-    .project-fullscreen-content { width: 100% !important; max-width: 100% !important; padding: 40px 20px !important; box-sizing: border-box !important; position: relative !important; min-height: 100% !important; }
-    .project-fullscreen-body { width: 100% !important; max-width: 800px !important; margin: 0 auto !important; transition: opacity 0.4s ease-in-out; }
+    .project-fullscreen-overlay { background: rgba(18, 18, 18, 0.98) !important; width: 100% !important; height: 100% !important; position: fixed !important; top: 0 !important; left: 0 !important; z-index: 1000 !important; overflow-y: auto !important; overflow-x: hidden !important; transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease; transform: translateY(100%); opacity: 0; }
+    .project-fullscreen-overlay.active { transform: translateY(0); opacity: 1; }
+    .project-fullscreen-content { width: 100% !important; max-width: 100% !important; padding: 60px 20px !important; box-sizing: border-box !important; position: relative !important; min-height: 100% !important; overflow-x: hidden !important; }
+    
+    /* Scroll Reveal Animation */
+    .scroll-reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1), transform 0.8s cubic-bezier(0.23, 1, 0.32, 1); }
+    .scroll-reveal.active { opacity: 1; transform: translateY(0); }
+    
+    .project-fullscreen-body { width: 100% !important; max-width: 800px !important; margin: 0 auto !important; transition: opacity 0.4s ease-in-out; overflow-wrap: break-word !important; word-wrap: break-word !important; }
     .project-fullscreen-body a { color: #fff !important; text-decoration: underline !important; }
     
-    .translation-loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10; pointer-events: none; }
-    .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+    /* Satisfying Loader */
+    .translation-loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 10; pointer-events: none; }
+    .spinner { width: 50px; height: 50px; border: 2px solid rgba(255,255,255,0.05); border-top-color: #fff; border-radius: 0; animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     
-    .search-container { margin: 20px 0; }
-    .search-bar-wrapper { display: flex; gap: 10px; align-items: center; }
-    .search-bar-wrapper input { flex: 1; padding: 10px; background: transparent; border: 1.5px solid #333; color: inherit; font-family: inherit; border-radius: 0; }
-    .dark-mode .search-bar-wrapper input { border-color: #555; }
-    .filter-toggle-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 10px 15px; border-radius: 0; cursor: pointer; transition: all 0.2s; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
-    .dark-mode .filter-toggle-btn { border-color: #555; }
-    .filter-toggle-btn.filtering { border-color: #fff; color: #fff; }
+    .search-container { margin: 20px 0; max-width: 100% !important; box-sizing: border-box !important; }
+    .search-bar-wrapper { display: flex; gap: 10px; align-items: center; max-width: 100% !important; }
+    .search-bar-wrapper input { flex: 1; padding: 10px; background: transparent; border: 1.5px solid #333; color: inherit; font-family: 'Lilex', monospace; border-radius: 0; min-width: 0 !important; transition: border-color 0.2s; }
+    .search-bar-wrapper input:focus { border-color: #ededed; outline: none; }
+    .filter-toggle-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 10px 15px; border-radius: 0; cursor: pointer; transition: all 0.2s; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; white-space: nowrap; font-family: 'Lilex', monospace; }
     
-    .tag-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; display: none; align-items: center; justify-content: center; z-index: 2000; pointer-events: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
-    .tag-popup.active { display: flex; pointer-events: auto; opacity: 1; }
-    .tag-popup-content { background: rgb(237, 231, 220); padding: 40px; border: 1.5px solid #333; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); transform: translateY(20px); transition: transform 0.3s ease-out; }
-    .tag-popup.active .tag-popup-content { transform: translateY(0); }
-    .dark-mode .tag-popup-content { background: #1a1a1a; border-color: #555; }
-    .tag-filters { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; justify-content: center; }
-    .tag-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 8px 16px; border-radius: 0; cursor: pointer; font-size: 12px; transition: all 0.2s; text-transform: uppercase; font-weight: 600; }
-    .dark-mode .tag-btn { border-color: #555; }
-    .tag-btn.active { background: #ededed !important; color: #1a1a1a !important; border-color: #ededed !important; }
-    .close-popup-btn { background: #333; color: rgb(237, 231, 220); border: none; padding: 12px 30px; cursor: pointer; margin-top: 20px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; transition: background 0.2s; }
-    .dark-mode .close-popup-btn { background: #ededed; color: #1a1a1a; }
+    .tag-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; align-items: center; justify-content: center; z-index: 2000; pointer-events: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
+    .tag-popup.active { pointer-events: auto; opacity: 1; }
+    .tag-popup-content { background: rgb(237, 231, 220); padding: 40px; border: 1.5px solid #333; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); transform: translateY(30px) scale(0.95); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease; box-sizing: border-box !important; }
+    .tag-popup.active .tag-popup-content { transform: translateY(0) scale(1); }
+    .dark-mode .tag-popup-content { background: #1a1a1a; border-color: #555; color: #fff; }
     
-    .project-fullscreen-link-btn { background: transparent !important; border: 1.5px solid currentColor !important; color: inherit !important; padding: 8px 16px !important; font-family: monospace !important; font-size: 14px !important; letter-spacing: 2px !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 10px !important; transition: all 0.2s ease !important; text-transform: uppercase !important; margin: 40px auto !important; width: fit-content !important; }
-    .project-fullscreen-link-btn:hover { background: rgba(255, 255, 255, 0.1) !important; }
+    /* Share Button Animation */
+    .share-btn-animated { position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+    .share-btn-animated.clicked { background: white !important; color: black !important; transform: scale(0.95); }
+    .share-btn-animated:active { transform: scale(0.9); }
+    
+    .project-fullscreen-link-btn { background: transparent !important; border: 1.5px solid currentColor !important; color: inherit !important; padding: 8px 16px !important; font-family: 'Lilex', monospace !important; font-size: 14px !important; letter-spacing: 2px !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 10px !important; transition: all 0.2s ease !important; text-transform: uppercase !important; margin: 40px auto !important; width: fit-content !important; max-width: 100% !important; box-sizing: border-box !important; border-radius: 0 !important; }
+    
     @media (prefers-color-scheme: light) { 
       .project-fullscreen-overlay { background: rgba(255, 255, 255, 0.98) !important; } 
       .project-fullscreen-link-btn { border-color: #333 !important; color: #333 !important; } 
       .project-fullscreen-body a { color: #333 !important; }
-      .spinner { border-top-color: #333; border-bottom-color: rgba(0,0,0,0.1); }
-      .tag-popup-content { background: rgb(237, 231, 220); }
+      .spinner { border-top-color: #333; border-bottom-color: rgba(0,0,0,0.05); }
+      .tag-popup-content { background: rgb(237, 231, 220); color: #333; border-color: #333; }
+      .tag-popup { background: rgba(255, 255, 255, 0.6); }
+      .project-fullscreen-close, .image-zoom-close { color: black !important; border-color: black !important; }
+      .project-fullscreen-close:hover, .image-zoom-close:hover { background: black !important; color: white !important; }
     }
-    .light-mode .project-fullscreen-overlay { background: rgba(255, 255, 255, 0.98) !important; }
-    .light-mode .project-fullscreen-link-btn { border-color: #333 !important; color: #333 !important; }
-    .light-mode .project-fullscreen-body a { color: #333 !important; }
 
     @media (max-width: 768px) {
-      .project-fullscreen-content { padding: 60px 15px 20px !important; }
-      .project-fullscreen-title { font-size: 28px !important; line-height: 1.2 !important; }
-      .project-fullscreen-body { font-size: 16px !important; }
-      .search-bar-wrapper { flex-direction: column; }
-      .search-bar-wrapper input, .filter-toggle-btn { width: 100%; }
-      .image-zoom-close { top: 10px; right: 10px; }
+      .project-fullscreen-content { padding: 80px 15px 20px !important; width: 100% !important; overflow-x: hidden !important; }
+      .project-fullscreen-title { font-size: 28px !important; line-height: 1.2 !important; width: 100% !important; }
+      .project-fullscreen-body { font-size: 16px !important; width: 100% !important; padding: 0 !important; }
+      .search-bar-wrapper { flex-direction: column; width: 100% !important; }
+      .search-bar-wrapper input, .filter-toggle-btn { width: 100% !important; box-sizing: border-box !important; }
+      .project-fullscreen-close, .image-zoom-close { top: 15px !important; right: 15px !important; width: 35px !important; height: 35px !important; font-size: 16px !important; }
+      .tag-popup-content { padding: 20px !important; width: 95% !important; }
     }
   `;
   document.head.appendChild(style);
