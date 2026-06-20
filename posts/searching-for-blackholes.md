@@ -8,7 +8,7 @@ tags: "black holes, relativity, einstein"
 
 ###### This article is intended for educational purposes and summarize current scientific understating, while this article was made to ensure accuracy, you should not use this as your only source of information.
 
-#### How can we know that blackholes existed before really seeing one?
+### How can we know that blackholes existed before really seeing one?
  
  In Einstein's Theory of Relativity published in the 20th century, describes gravity as the curve in space time that is caused by energy and mass. While in the trenches of WWI a soldier, already a physicist and an astronomer now known as Karl Schwarzschild solved the equations and found the first exact solution to Einstein's field equations, he proved that any spherical mass curves spacetime, and this laid for the foundation of the theoretical discovery of modern theories about black holes, they thought that existed a singularity inside an object which was extremely dense and massive, which in physics is theoretically possible, but infinite results tend to mean that they did not consider all variables or was just a error on the calculation, (which is still debated if it really has infinity density, or physics just stops working or does not work as we know in it) and that object that has that type of mass and extremely dense is now called Schwarzchild black hole.
  
@@ -16,7 +16,7 @@ tags: "black holes, relativity, einstein"
 
 ###### Credits: ResearchGate and physics Stack Exchange
 
-#### How can we find one?
+### How can we find one?
 
 Black holes are pretty much invisible to conventional telescopes, because they do not reflect or emit light, which is needed to do those type of observations. But astronomers can still see the effect on nearby matter and light. So how can we find one?
 
@@ -45,7 +45,7 @@ This photo was actually taken not by one telescope but by eight telescopes from 
 - ST
 - SPT
 ###### Their Website: https://eventhorizontelescope.org/
-#### Conclusion:
+### Conclusion:
 
 Astronomers and physics already had strong evidences that they existed for decades. So here is a timeline of events, of what was explained in this article.
 
@@ -57,7 +57,7 @@ Astronomers and physics already had strong evidences that they existed for decad
 | Discovered ripples in space time fabric              | 2015 |
 | First Black Hole photo was taken                     | 2019 |
 
-#### Credits:
+### Credits:
 
 [https://www.reddit.com/r/explainlikeimfive/comments/1dnoahd/eli5_how_did_einstein_see_in_his_equations_that/](https://www.reddit.com/r/explainlikeimfive/comments/1dnoahd/eli5_how_did_einstein_see_in_his_equations_that/)
 

@@ -6,6 +6,17 @@ let allPosts = []; // Global store for filtering
 let activeFilterTag = null;
 let currentLanguage = 'en'; // 'en', 'pt', 'es'
 let translatedCache = {}; // Cache for translated posts: { slug_lang: { title, excerpt, bodyHtml } }
+let translatedTagsCache = {}; // Cache for translated tags: { tag_lang: translatedTag }
+
+async function getTranslatedTag(tag, targetLang) {
+  if (targetLang === 'en' || !tag) return tag;
+  const cacheKey = `${tag}_${targetLang}`;
+  if (translatedTagsCache[cacheKey]) return translatedTagsCache[cacheKey];
+  const translated = await translateText(tag, targetLang);
+  translatedTagsCache[cacheKey] = translated;
+  return translated;
+}
+
 
 // Translation strings for UI
 const translations = {
@@ -123,10 +134,10 @@ async function changeLanguage(lang) {
     showTranslationWarning(lang);
     return;
   }
-  executeLanguageChange(lang);
+  await executeLanguageChange(lang);
 }
 
-function executeLanguageChange(lang) {
+async function executeLanguageChange(lang) {
   currentLanguage = lang;
   localStorage.setItem('blogLanguage', lang);
   
@@ -140,7 +151,6 @@ function executeLanguageChange(lang) {
   const filterBtn = document.getElementById('postFilterBtn');
   
   if (searchInput) searchInput.placeholder = t('searchPlaceholder');
-  if (filterBtn && !activeFilterTag) filterBtn.textContent = t('filterBtn');
   
   // ─── ADD THESE LINES TO FIX THE POPUP TRANSLATIONS ───────────────────
   const popupTitle = document.querySelector('#postTagPopup h4');
@@ -150,7 +160,7 @@ function executeLanguageChange(lang) {
   if (popupCloseBtn) popupCloseBtn.textContent = t('done');
   // ─────────────────────────────────────────────────────────────────────
   
-  renderPosts(allPosts, list, status);
+  await filterAndRender(activeFilterTag);
   
   const params = new URLSearchParams(window.location.search);
   const openPostSlug = params.get('post');
@@ -406,7 +416,7 @@ function injectSearchUI() {
   };
 }
 
-function filterAndRender(tag) {
+async function filterAndRender(tag) {
   activeFilterTag = tag;
   const query = document.getElementById('postSearchInput').value.toLowerCase();
   const list = document.getElementById('postsList');
@@ -418,11 +428,17 @@ function filterAndRender(tag) {
   });
   renderPosts(filtered, list, status, 100);
   const filterBtn = document.getElementById('postFilterBtn');
-  if (activeFilterTag) { filterBtn.classList.add('filtering'); filterBtn.textContent = `Tag: ${activeFilterTag}`; }
-  else { filterBtn.classList.remove('filtering'); filterBtn.textContent = t('filterBtn'); }
+  if (activeFilterTag) {
+    filterBtn.classList.add('filtering');
+    const transTag = await getTranslatedTag(activeFilterTag, currentLanguage);
+    filterBtn.textContent = `Tag: ${transTag}`;
+  } else {
+    filterBtn.classList.remove('filtering');
+    filterBtn.textContent = t('filterBtn');
+  }
 }
 
-function updateTagFilters(activeTag) {
+async function updateTagFilters(activeTag) {
   const tagContainer = document.getElementById('postTagFilters');
   const allTags = [...new Set(allPosts.flatMap(p => p.tags))];
   tagContainer.innerHTML = '';
@@ -431,13 +447,15 @@ function updateTagFilters(activeTag) {
   allBtn.textContent = t('allPosts');
   allBtn.onclick = () => { filterAndRender(null); updateTagFilters(null); };
   tagContainer.appendChild(allBtn);
-  allTags.forEach(tag => {
+  
+  for (const tag of allTags) {
     const btn = document.createElement('button');
     btn.className = `tag-btn ${tag === activeTag ? 'active' : ''}`;
-    btn.textContent = tag;
+    const transTag = await getTranslatedTag(tag, currentLanguage);
+    btn.textContent = transTag;
     btn.onclick = () => { filterAndRender(tag); updateTagFilters(tag); };
     tagContainer.appendChild(btn);
-  });
+  }
 }
 
 function getRelatedPosts(currentPost) {
@@ -495,6 +513,27 @@ function handleScrollReveal(container) {
   });
 }
 
+function setupRollerScroll(containerEl) {
+  const roller = containerEl.querySelector('.recent-posts-roller');
+  const leftArrow = containerEl.querySelector('.roller-arrow-left');
+  const rightArrow = containerEl.querySelector('.roller-arrow-right');
+  if (!roller || !leftArrow || !rightArrow) return;
+  
+  leftArrow.onclick = (e) => {
+    e.stopPropagation();
+    const card = roller.querySelector('.recent-post-card');
+    const scrollAmount = card ? card.offsetWidth + 16 : roller.clientWidth / 3;
+    roller.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+  };
+  
+  rightArrow.onclick = (e) => {
+    e.stopPropagation();
+    const card = roller.querySelector('.recent-post-card');
+    const scrollAmount = card ? card.offsetWidth + 16 : roller.clientWidth / 3;
+    roller.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  };
+}
+
 async function openPostOverlay(post) {
   const ov = document.getElementById('postFullscreenOverlay');
   if (!ov) return;
@@ -525,10 +564,49 @@ async function openPostOverlay(post) {
     }, 2000); 
   };
   linkContainer.appendChild(shareBtn);
+  
   const related = getRelatedPosts(post);
-  document.getElementById('relatedPostsContainer').innerHTML = `<div class="related-posts"><h4>${t('relatedPosts')}</h4><div class="related-grid">${related.length ? related.map(r => `<div class="related-card" onclick="event.stopPropagation(); openPostOverlayBySlug('${r.slug}')"><h5>${esc(r.title)}</h5><p>${fmtShort(r.date)}</p></div>`).join('') : `<p style="color: #888; font-style: italic;">${t('noMoreRelated')}</p>`}</div></div>`;
-  const recent = allPosts.filter(p => p.slug !== post.slug).slice(0, 3);
-  document.getElementById('mostRecentContainer').innerHTML = recent.length ? `<div class="related-posts" style="margin-top: 20px; border-top: none;"><h4>${t('mostRecent')}</h4><div class="related-grid">${recent.map(r => `<div class="related-card" onclick="event.stopPropagation(); openPostOverlayBySlug('${r.slug}')"><h5>${esc(r.title)}</h5><p>${fmtShort(r.date)}</p></div>`).join('')}</div></div>` : '';
+  const relatedPromises = related.map(async (r) => {
+    const tp = await getTranslatedPost(r, currentLanguage);
+    return `<div class="related-card" onclick="event.stopPropagation(); openPostOverlayBySlug('${r.slug}')"><h5>${esc(tp.title)}</h5><p>${fmtShort(r.date)}</p></div>`;
+  });
+  const relatedCards = await Promise.all(relatedPromises);
+  document.getElementById('relatedPostsContainer').innerHTML = `<div class="related-posts"><h4>${t('relatedPosts')}</h4><div class="related-grid">${relatedCards.length ? relatedCards.join('') : `<p style="color: #888; font-style: italic;">${t('noMoreRelated')}</p>`}</div></div>`;
+  
+  const recent = allPosts.filter(p => p.slug !== post.slug);
+  const recentPromises = recent.map(async (r) => {
+    const tp = await getTranslatedPost(r, currentLanguage);
+    return `
+      <div class="recent-post-card" onclick="event.stopPropagation(); openPostOverlayBySlug('${r.slug}')">
+        <div class="recent-card-header">
+          <span class="recent-card-date">${fmtShort(r.date)}</span>
+          <h5 class="recent-card-title">${esc(tp.title)}</h5>
+        </div>
+        <p class="recent-card-excerpt">${esc(truncate(tp.excerpt, 100))}</p>
+      </div>
+    `;
+  });
+  const recentCards = await Promise.all(recentPromises);
+  
+  const showArrows = recent.length > 3;
+  const rollerHtml = recent.length ? `
+    <div class="related-posts" style="margin-top: 20px; border-top: none;">
+      <h4>${t('mostRecent')}</h4>
+      <div class="recent-posts-roller-container ${showArrows ? 'has-arrows' : ''}">
+        ${showArrows ? `<button class="roller-arrow roller-arrow-left" aria-label="Previous posts">◀</button>` : ''}
+        <div class="recent-posts-roller">
+          ${recentCards.join('')}
+        </div>
+        ${showArrows ? `<button class="roller-arrow roller-arrow-right" aria-label="Next posts">▶</button>` : ''}
+      </div>
+    </div>
+  ` : '';
+  
+  const recentContainer = document.getElementById('mostRecentContainer');
+  recentContainer.innerHTML = rollerHtml;
+  if (showArrows) {
+    setupRollerScroll(recentContainer);
+  }
   
   // Initial reveal check
   setTimeout(() => handleScrollReveal(ov.querySelector('.project-fullscreen-content')), 100);
@@ -558,8 +636,6 @@ function truncate(text, max) { if (!text || text.length <= max) return text || '
 function setupImageZoom() { document.querySelectorAll('.zoomable-img').forEach(img => { img.addEventListener('click', (e) => { e.stopPropagation(); openImageZoom(img.src, img.alt); }); }); }
 function openImageZoom(src, alt) { const modal = document.createElement('div'); modal.className = 'image-zoom-modal'; modal.innerHTML = `<div class="image-zoom-container"><button class="image-zoom-close">✕</button><img src="${src}" alt="${alt}" class="image-zoom-full"></div>`; document.body.appendChild(modal); modal.querySelector('.image-zoom-close').onclick = () => modal.remove(); modal.onclick = (e) => { if (e.target === modal) modal.remove(); }; }
 
-// ── Styles ───────────────────────────────────────────────────────────────────
-
 if (!document.getElementById('postCustomStyles')) {
   const style = document.createElement('style');
   style.id = 'postCustomStyles';
@@ -569,12 +645,12 @@ if (!document.getElementById('postCustomStyles')) {
     /* JetBrains Styled Buttons */
     .project-fullscreen-close, .image-zoom-close { 
       position: fixed !important; top: 20px !important; right: 20px !important; z-index: 1100 !important; 
-      background: transparent !important; color: white !important; border: 1.5px solid white !important; 
+      background: transparent !important; color: black !important; border: 1.5px solid black !important; 
       width: 40px !important; height: 40px !important; border-radius: 0 !important; cursor: pointer !important; 
       font-size: 18px !important; display: flex !important; align-items: center !important; justify-content: center !important; 
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important; font-family: 'Lilex', monospace !important; 
     }
-    .project-fullscreen-close:hover, .image-zoom-close:hover { background: white !important; color: black !important; transform: scale(1.05); }
+    .project-fullscreen-close:hover, .image-zoom-close:hover { background: black !important; color: white !important; transform: scale(1.05); }
     
     .language-switcher { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; position: relative; z-index: 100; }
     .lang-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 6px 12px; border-radius: 0; cursor: pointer; font-weight: 600; font-size: 11px; letter-spacing: 0.05em; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); text-transform: uppercase; position: relative; z-index: 101; font-family: 'Lilex', monospace; }
@@ -587,7 +663,7 @@ if (!document.getElementById('postCustomStyles')) {
     @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .image-zoom-full { max-width: 100%; max-height: 100%; object-fit: contain; }
     
-    .project-fullscreen-overlay { background: rgba(18, 18, 18, 0.98) !important; width: 100% !important; height: 100% !important; position: fixed !important; top: 0 !important; left: 0 !important; z-index: 1000 !important; overflow-y: auto !important; overflow-x: hidden !important; transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease; transform: translateY(100%); opacity: 0; }
+    .project-fullscreen-overlay { background: rgba(255, 255, 255, 0.98) !important; width: 100% !important; height: 100% !important; position: fixed !important; top: 0 !important; left: 0 !important; z-index: 1000 !important; overflow-y: auto !important; overflow-x: hidden !important; transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease; transform: translateY(100%); opacity: 0; }
     .project-fullscreen-overlay.active { transform: translateY(0); opacity: 1; }
     .project-fullscreen-content { width: 100% !important; max-width: 100% !important; padding: 60px 20px !important; box-sizing: border-box !important; position: relative !important; min-height: 100% !important; overflow-x: hidden !important; }
     
@@ -596,11 +672,11 @@ if (!document.getElementById('postCustomStyles')) {
     .scroll-reveal.active { opacity: 1; transform: translateY(0); }
     
     .project-fullscreen-body { width: 100% !important; max-width: 800px !important; margin: 0 auto !important; transition: opacity 0.4s ease-in-out; overflow-wrap: break-word !important; word-wrap: break-word !important; }
-    .project-fullscreen-body a { color: #fff !important; text-decoration: underline !important; }
+    .project-fullscreen-body a { color: #0056b3 !important; text-decoration: underline !important; }
     
     /* Satisfying Loader */
     .translation-loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 10; pointer-events: none; }
-    .spinner { width: 50px; height: 50px; border: 2px solid rgba(255,255,255,0.05); border-top-color: #fff; border-radius: 0; animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; }
+    .spinner { width: 50px; height: 50px; border: 2px solid rgba(0,0,0,0.05); border-top-color: #333; border-radius: 0; animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     
     .search-container { margin: 20px 0; max-width: 100% !important; box-sizing: border-box !important; }
@@ -614,41 +690,166 @@ if (!document.getElementById('postCustomStyles')) {
     .tag-popup.active { pointer-events: auto; opacity: 1; visibility: visible; }
     
     /* Crisp drop shadow styling to isolate container from content background */
-    .tag-popup-content { background: rgb(237, 231, 220); padding: 35px; border: 1.5px solid #333; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25), 0 10px 20px rgba(0, 0, 0, 0.15); transform: translateY(30px) scale(0.95); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease; box-sizing: border-box !important; }
+    .tag-popup-content { background: rgb(237, 231, 220); padding: 35px; border: 1.5px solid #333; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25), 0 10px 20px rgba(0, 0, 0, 0.15); transform: translateY(30px) scale(0.95); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease; box-sizing: border-box !important; color: #333; border-color: #333; }
     .tag-popup.active .tag-popup-content { transform: translateY(0) scale(1); }
-    .dark-mode .tag-popup-content { background: #1a1a1a; border-color: #555; color: #fff; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.65), 0 15px 30px rgba(0, 0, 0, 0.45); }
     
     /* Architecture configuration for internal tag button arrays */
     .tag-filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 24px 0 28px 0; padding: 0; width: 100%; box-sizing: border-box; }
     .tag-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 8px 14px; border-radius: 0; cursor: pointer; font-weight: 600; font-size: 11px; letter-spacing: 0.05em; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); text-transform: uppercase; font-family: 'Lilex', monospace; margin: 0 !important; }
-    .dark-mode .tag-btn { border-color: #555; }
     .tag-btn:hover { background: rgba(0,0,0,0.05); }
-    .dark-mode .tag-btn:hover { background: rgba(255,255,255,0.05); }
     .tag-btn.active { background: #333 !important; color: #fff !important; border-color: #333 !important; transform: scale(1.03); }
-    .dark-mode .tag-btn.active { background: #ededed !important; color: #1a1a1a !important; border-color: #ededed !important; }
 
     /* Share Button Animation */
     .share-btn-animated { position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; }
     .share-btn-animated.clicked { background: white !important; color: black !important; transform: scale(0.95); }
     .share-btn-animated:active { transform: scale(0.9); }
     
-    .project-fullscreen-link-btn { background: transparent !important; border: 1.5px solid currentColor !important; color: inherit !important; padding: 8px 16px !important; font-family: 'Lilex', monospace !important; font-size: 14px !important; letter-spacing: 2px !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 10px !important; transition: all 0.2s ease !important; text-transform: uppercase !important; margin: 40px auto !important; width: fit-content !important; max-width: 100% !important; box-sizing: border-box !important; border-radius: 0 !important; }
+    .project-fullscreen-link-btn { background: transparent !important; border: 1.5px solid #333 !important; color: #333 !important; padding: 8px 16px !important; font-family: 'Lilex', monospace !important; font-size: 14px !important; letter-spacing: 2px !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 10px !important; transition: all 0.2s ease !important; text-transform: uppercase !important; margin: 40px auto !important; width: fit-content !important; max-width: 100% !important; box-sizing: border-box !important; border-radius: 0 !important; }
     
     /* Close Popup Button Style */
     .close-popup-btn { background: transparent; border: 1.5px solid #333; color: inherit; padding: 8px 20px; border-radius: 0; cursor: pointer; font-family: 'Lilex', monospace; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s; margin-top: 5px; }
-    .dark-mode .close-popup-btn { border-color: #555; }
     .close-popup-btn:hover { background: #333; color: #fff; }
+
+    /* Dark Mode specific overrides */
+    .dark-mode .project-fullscreen-overlay { background: rgba(18, 18, 18, 0.98) !important; }
+    .dark-mode .project-fullscreen-close, .dark-mode .image-zoom-close { color: white !important; border-color: white !important; }
+    .dark-mode .project-fullscreen-close:hover, .dark-mode .image-zoom-close:hover { background: white !important; color: black !important; }
+    .dark-mode .project-fullscreen-body a { color: #66b3ff !important; }
+    .dark-mode .spinner { border-top-color: #fff; border-bottom-color: rgba(255,255,255,0.05); }
+    .dark-mode .tag-popup-content { background: #1a1a1a; border-color: #555; color: #fff; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.65), 0 15px 30px rgba(0, 0, 0, 0.45); }
+    .dark-mode .tag-btn { border-color: #555; }
+    .dark-mode .tag-btn:hover { background: rgba(255,255,255,0.05); }
+    .dark-mode .tag-btn.active { background: #ededed !important; color: #1a1a1a !important; border-color: #ededed !important; }
+    .dark-mode .project-fullscreen-link-btn { border-color: currentColor !important; color: inherit !important; }
+    .dark-mode .close-popup-btn { border-color: #555; }
     .dark-mode .close-popup-btn:hover { background: #ededed; color: #1a1a1a; border-color: #ededed; }
 
-    @media (prefers-color-scheme: light) { 
-      .project-fullscreen-overlay { background: rgba(255, 255, 255, 0.98) !important; } 
-      .project-fullscreen-link-btn { border-color: #333 !important; color: #333 !important; } 
-      .project-fullscreen-body a { color: #333 !important; }
-      .spinner { border-top-color: #333; border-bottom-color: rgba(0,0,0,0.05); }
-      .tag-popup-content { background: rgb(237, 231, 220); color: #333; border-color: #333; }
-      .tag-popup { background: transparent; }
-      .project-fullscreen-close, .image-zoom-close { color: black !important; border-color: black !important; }
-      .project-fullscreen-close:hover, .image-zoom-close:hover { background: black !important; color: white !important; }
+    /* Roller & Cards Styling */
+    .recent-posts-roller-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      margin-top: 15px;
+      transition: padding 0.3s ease;
+    }
+    .recent-posts-roller-container.has-arrows {
+      padding: 0 45px;
+    }
+    .recent-posts-roller {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      width: 100%;
+      scrollbar-width: none; /* Firefox */
+      padding: 5px 0;
+    }
+    .recent-posts-roller::-webkit-scrollbar {
+      display: none; /* Safari and Chrome */
+    }
+    .recent-post-card {
+      flex: 0 0 calc(33.333% - 11px);
+      min-width: 240px;
+      border: 1.5px solid #333;
+      background: rgb(237, 231, 220);
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-sizing: border-box;
+      text-align: left;
+    }
+    .dark-mode .recent-post-card {
+      background: #1a1a1a;
+      border-color: #555;
+      color: #ededed;
+    }
+    .recent-post-card:hover {
+      background: #e0d8c8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .dark-mode .recent-post-card:hover {
+      background: #2a2a2a;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .recent-card-header {
+      margin-bottom: 12px;
+    }
+    .recent-card-date {
+      font-size: 10px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .dark-mode .recent-card-date {
+      color: #aaa;
+    }
+    .recent-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.4;
+      margin: 0;
+      color: #111;
+    }
+    .dark-mode .recent-card-title {
+      color: #ededed;
+    }
+    .recent-card-excerpt {
+      font-size: 11px;
+      line-height: 1.5;
+      color: #555;
+      margin: 0;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+    .dark-mode .recent-card-excerpt {
+      color: #ccc;
+    }
+    .roller-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgb(237, 231, 220);
+      border: 1.5px solid #333;
+      color: #333;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      font-size: 12px;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .dark-mode .roller-arrow {
+      background: #1a1a1a;
+      border-color: #555;
+      color: #ededed;
+    }
+    .roller-arrow:hover {
+      background: #333;
+      color: rgb(237, 231, 220);
+    }
+    .dark-mode .roller-arrow:hover {
+      background: #ededed;
+      color: #1a1a1a;
+    }
+    .roller-arrow-left {
+      left: 0;
+    }
+    .roller-arrow-right {
+      right: 0;
     }
 
     @media (max-width: 768px) {
@@ -659,6 +860,14 @@ if (!document.getElementById('postCustomStyles')) {
       .search-bar-wrapper input, .filter-toggle-btn { width: 100% !important; box-sizing: border-box !important; }
       .project-fullscreen-close, .image-zoom-close { top: 15px !important; right: 15px !important; width: 35px !important; height: 35px !important; font-size: 16px !important; }
       .tag-popup-content { padding: 25px 20px !important; width: 95% !important; }
+      .recent-post-card {
+        flex: 0 0 calc(50% - 8px);
+      }
+    }
+    @media (max-width: 480px) {
+      .recent-post-card {
+        flex: 0 0 100%;
+      }
     }
   `;
   document.head.appendChild(style);
