@@ -356,7 +356,7 @@ function parseInline(text) {
     const id = `\uFFFC${placeholders.length}\uFFFC`;
     const src = /^https?:\/\//.test(fname.trim()) ? fname.trim() : `posts/${fname.trim()}`;
     const enc = src.split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
-    const dims = w ? `width="${w}" style="max-width:${w}px;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"` : `style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"`;
+    const dims = w ? `style="max-width:min(100%, ${w}px);width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"` : `style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"`;
     placeholders.push(`<img src="${enc}" class="zoomable-img scroll-reveal" ${dims} alt="${esc(fname.trim())}">`);
     return id;
   });
