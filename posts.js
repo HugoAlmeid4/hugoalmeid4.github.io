@@ -682,10 +682,17 @@ async function renderPosts(posts, list, status, visibleCount = 3) {
     ov.onclick = e => { if (e.target === ov) closePostOverlay(); };
     const content = ov.querySelector('.project-fullscreen-content');
     if (content) {
+      let ticking = false;
       content.onscroll = () => {
-        const bar = document.getElementById('readingProgressBar');
-        if (bar) bar.style.width = (content.scrollTop / (content.scrollHeight - content.clientHeight)) * 100 + '%';
-        handleScrollReveal(content);
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            const bar = document.getElementById('readingProgressBar');
+            if (bar) bar.style.width = (content.scrollTop / (content.scrollHeight - content.clientHeight)) * 100 + '%';
+            handleScrollReveal(content);
+            ticking = false;
+          });
+          ticking = true;
+        }
       };
     }
   }

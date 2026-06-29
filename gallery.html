@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Astrophotography gallery by Hralmeida — galaxies, star clusters, and deep-sky objects captured through a telescope.">
+  <title>Gallery | Hralmeida</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <script>
+    try {
+      if (localStorage.getItem('theme') !== 'light') { document.body.classList.add('dark-mode'); }
+    } catch (e) { document.body.classList.add('dark-mode'); }
+  </script>
+
+  <header class="Name-Photo">
+    <img src="imgs/imgs.jpg" alt="Hralmeida profile picture" fetchpriority="high">
+    <h3>Hralmeida</h3>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html" class="nav-link">Home</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="gallery.html" class="nav-link active" aria-current="page">Gallery</a>
+    </nav>
+    <button id="theme-toggle" class="theme-toggle">Dark Mode</button>
+  </header>
+
+  <main>
+    <section class="gallery-section" aria-label="Astrophotography gallery">
+      <div class="gallery-section-header">
+        <h2>Gallery</h2>
+        <p class="gallery-section-subtitle">Capturing light that traveled millions of years.</p>
+      </div>
+
+      <!-- One-time disclaimer banner about image compression -->
+      <div id="gallery-disclaimer" class="gallery-disclaimer" style="display: none;">
+        <span class="disclaimer-text">Note: Gallery images are slightly compressed for optimal load performance.</span>
+        <button id="dismiss-disclaimer" class="close-disclaimer" aria-label="Dismiss disclaimer">&#10005;</button>
+      </div>
+
+      <div class="gallery-tabs" role="tablist" aria-label="Filter by category">
+        <button class="gallery-tab active" role="tab" aria-selected="true" data-category="all" id="tab-all" aria-controls="gallery-grid">All</button>
+        <button class="gallery-tab" role="tab" aria-selected="false" data-category="galaxies" id="tab-galaxies" aria-controls="gallery-grid">Galaxies</button>
+        <button class="gallery-tab" role="tab" aria-selected="false" data-category="star-clusters" id="tab-star-clusters" aria-controls="gallery-grid">Star Clusters</button>
+      </div>
+      <div class="gallery-grid" id="gallery-grid" role="tabpanel" aria-labelledby="tab-all"></div>
+      <div class="gallery-status" id="gallery-status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div class="gallery-lightbox" id="gallery-lightbox" role="dialog" aria-modal="true" aria-label="Image viewer" aria-hidden="true">
+    <div class="gallery-lightbox-inner">
+      <div class="gallery-lightbox-topbar">
+        <span class="gallery-lightbox-counter" id="lightbox-counter" aria-live="polite"></span>
+        <button class="gallery-lightbox-close" id="lightbox-close" aria-label="Close image viewer">&#10005;</button>
+      </div>
+      <div class="gallery-lightbox-spinner" id="lightbox-spinner" aria-hidden="true"></div>
+      <div class="gallery-lightbox-img-wrap">
+        <img id="lightbox-img" src="" alt="" draggable="false">
+      </div>
+      <button class="gallery-lightbox-nav prev" id="lightbox-prev" aria-label="Previous image">&#8592;</button>
+      <button class="gallery-lightbox-nav next" id="lightbox-next" aria-label="Next image">&#8594;</button>
+      <div class="gallery-lightbox-bottombar">
+        <span class="gallery-lightbox-caption" id="lightbox-caption"></span>
+        <button class="gallery-lightbox-download" id="lightbox-download" aria-label="Download image with watermark">&#8595; Download</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="watermark-canvas" style="display:none;" aria-hidden="true"></canvas>
+
+  <script>
+    var GALLERY_ITEMS = [
+      {
+        src: 'gallery/star clusters/m5/m5final.jpg',
+        alt: 'M5 globular star cluster, thousands of ancient stars densely packed in a sphere',
+        title: 'M5 — Globular Cluster',
+        category: 'star-clusters'
+      },
+      {
+        src: 'gallery/galaxies/m81m82.jpg',
+        alt: 'M81 and M82, Bodes Galaxy and the Cigar Galaxy photographed together',
+        title: 'M81 & M82 — Bodes & Cigar Galaxies',
+        category: 'galaxies'
+      }
+    ];
+
+    var filteredItems = [];
+    var lightboxIndex = 0;
+    var lightboxOpen  = false;
+
+    var grid            = document.getElementById('gallery-grid');
+    var statusEl        = document.getElementById('gallery-status');
+    var lightboxEl      = document.getElementById('gallery-lightbox');
+    var lightboxImg     = document.getElementById('lightbox-img');
+    var lightboxCounter = document.getElementById('lightbox-counter');
+    var lightboxCaption = document.getElementById('lightbox-caption');
+    var lightboxClose   = document.getElementById('lightbox-close');
+    var lightboxPrev    = document.getElementById('lightbox-prev');
+    var lightboxNext    = document.getElementById('lightbox-next');
+    var lightboxDl      = document.getElementById('lightbox-download');
+    var lightboxSpinner = document.getElementById('lightbox-spinner');
+    var canvas          = document.getElementById('watermark-canvas');
+    var tabs            = document.querySelectorAll('.gallery-tab');
+
+    /* Intersection Observer for lazy loading.
+       NOTE: We do NOT use the native loading="lazy" attribute on these imgs
+       because it conflicts with display:none (the browser stops fetching).
+       Our IntersectionObserver is the sole lazy-loading mechanism. */
+    var imgObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var item = entry.target;
+        var img  = item.querySelector('img[data-src]');
+        if (!img) return;
+
+        /* Register load/error listeners BEFORE setting src.
+           If the image is already cached it can fire synchronously on src set,
+           so the listener must exist before that happens. */
+        img.addEventListener('load', function() {
+          item.classList.add('img-loaded');
+        }, { once: true });
+        img.addEventListener('error', function() {
+          /* On error still mark as loaded so shimmer stops */
+          item.classList.add('img-loaded');
+        }, { once: true });
+
+        img.src = img.dataset.src;
+        img.removeAttribute('data-src');
+
+        /* Catch images already in cache (complete before listener fires) */
+        if (img.complete && img.naturalWidth > 0) {
+          item.classList.add('img-loaded');
+        }
+
+        imgObserver.unobserve(item);
+      });
+    }, { rootMargin: '300px 0px', threshold: 0 });
+
+    function renderGrid(category) {
+      filteredItems = category === 'all'
+        ? GALLERY_ITEMS
+        : GALLERY_ITEMS.filter(function(it) { return it.category === category; });
+
+      grid.querySelectorAll('.gallery-item').forEach(function(el) { imgObserver.unobserve(el); });
+      grid.innerHTML = '';
+
+      if (filteredItems.length === 0) {
+        grid.innerHTML = '<p class="gallery-empty">No images in this category yet.</p>';
+        statusEl.textContent = '';
+        return;
+      }
+
+      filteredItems.forEach(function(item, idx) {
+        var article = document.createElement('article');
+        article.className = 'gallery-item';  /* no 'loading' class — CSS shimmer is always-on until img-loaded */
+        article.setAttribute('role', 'button');
+        article.setAttribute('tabindex', '0');
+        article.setAttribute('aria-label', 'Open ' + item.title);
+        article.dataset.index = idx;
+
+        var placeholder = document.createElement('div');
+        placeholder.className = 'gallery-item-placeholder';
+        placeholder.setAttribute('aria-hidden', 'true');
+        placeholder.innerHTML = '<div class="gallery-item-spinner"></div>';
+
+        var img = document.createElement('img');
+        img.dataset.src = item.src;  /* real src set by observer, not here */
+        img.alt = item.alt;
+        /* No loading="lazy" — it conflicts with IntersectionObserver when the
+           image has opacity:0 (browser thinks it's off-screen and pauses fetch) */
+        img.setAttribute('decoding', 'async');
+
+        var badge = document.createElement('span');
+        badge.className = 'gallery-item-badge';
+        badge.textContent = item.category.replace('-', ' ');
+        badge.setAttribute('aria-hidden', 'true');
+
+        var overlay = document.createElement('div');
+        overlay.className = 'gallery-item-overlay';
+        overlay.setAttribute('aria-hidden', 'true');
+
+        var actions = document.createElement('div');
+        actions.className = 'gallery-item-actions';
+
+        var viewBtn = document.createElement('button');
+        viewBtn.className = 'gallery-action-btn';
+        viewBtn.setAttribute('tabindex', '-1');
+        viewBtn.setAttribute('title', 'View fullscreen');
+        viewBtn.setAttribute('aria-label', 'Open ' + item.title + ' in lightbox');
+        viewBtn.innerHTML = '&#128269;';
+
+        var dlBtn = document.createElement('button');
+        dlBtn.className = 'gallery-action-btn gallery-item-dl-btn';
+        dlBtn.setAttribute('tabindex', '-1');
+        dlBtn.setAttribute('title', 'Download with watermark');
+        dlBtn.setAttribute('aria-label', 'Download ' + item.title);
+        dlBtn.innerHTML = '&#8595;';
+
+        actions.appendChild(viewBtn);
+        actions.appendChild(dlBtn);
+        overlay.appendChild(actions);
+        article.appendChild(placeholder);
+        article.appendChild(img);
+        article.appendChild(badge);
+        article.appendChild(overlay);
+        grid.appendChild(article);
+
+        article.addEventListener('click', function(e) {
+          if (e.target.closest('.gallery-item-dl-btn')) {
+            downloadWithWatermark(item.src, item.title);
+            return;
+          }
+          openLightbox(idx);
+        });
+
+        article.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(idx); }
+        });
+
+        imgObserver.observe(article);
+      });
+
+      var n = filteredItems.length;
+      statusEl.textContent = n + ' image' + (n !== 1 ? 's' : '');
+    }
+
+    function openLightbox(idx) {
+      lightboxIndex = idx;
+      lightboxOpen  = true;
+      lightboxEl.classList.add('active');
+      lightboxEl.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      showLightboxImage(idx);
+      lightboxClose.focus();
+    }
+
+    function closeLightbox() {
+      lightboxOpen = false;
+      lightboxEl.classList.remove('active');
+      lightboxEl.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      var card = grid.querySelector('[data-index="' + lightboxIndex + '"]');
+      if (card) card.focus();
+    }
+
+    function showLightboxImage(idx) {
+      var item = filteredItems[idx];
+      if (!item) return;
+      lightboxCounter.textContent = (idx + 1) + ' / ' + filteredItems.length;
+      lightboxCaption.textContent = item.title;
+      lightboxPrev.disabled = idx === 0;
+      lightboxNext.disabled = idx === filteredItems.length - 1;
+      lightboxImg.classList.remove('loaded');
+      lightboxSpinner.classList.add('visible');
+      lightboxDl.disabled = true;
+      lightboxImg.alt = item.alt;
+      lightboxImg.src = item.src;
+
+      function onReady() {
+        lightboxSpinner.classList.remove('visible');
+        lightboxImg.classList.add('loaded');
+        lightboxDl.disabled = false;
+      }
+      if (lightboxImg.complete && lightboxImg.naturalWidth > 0) {
+        onReady();
+      } else {
+        lightboxImg.addEventListener('load',  onReady, { once: true });
+        lightboxImg.addEventListener('error', function() {
+          lightboxSpinner.classList.remove('visible');
+          lightboxImg.classList.add('loaded');
+        }, { once: true });
+      }
+    }
+
+    function navigate(dir) {
+      var next = lightboxIndex + dir;
+      if (next < 0 || next >= filteredItems.length) return;
+      lightboxIndex = next;
+      showLightboxImage(next);
+    }
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightboxPrev.addEventListener('click',  function() { navigate(-1); });
+    lightboxNext.addEventListener('click',  function() { navigate(1);  });
+    lightboxEl.addEventListener('click', function(e) { if (e.target === lightboxEl) closeLightbox(); });
+    lightboxDl.addEventListener('click', function() {
+      var item = filteredItems[lightboxIndex];
+      if (item) downloadWithWatermark(item.src, item.title);
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (!lightboxOpen) return;
+      if (e.key === 'Escape')      closeLightbox();
+      if (e.key === 'ArrowLeft')   navigate(-1);
+      if (e.key === 'ArrowRight')  navigate(1);
+    });
+
+    var touchStartX = 0;
+    lightboxEl.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
+    lightboxEl.addEventListener('touchend',   function(e) {
+      var dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 50) navigate(dx < 0 ? 1 : -1);
+    }, { passive: true });
+
+    function downloadWithWatermark(src, title) {
+      var originalLabel = lightboxDl.innerHTML;
+      lightboxDl.disabled = true;
+      lightboxDl.innerHTML = '&#8987; Processing...';
+
+      var offscreen = new Image();
+      offscreen.crossOrigin = 'anonymous';
+
+      offscreen.onload = function() {
+        try {
+          var ctx = canvas.getContext('2d');
+          canvas.width  = offscreen.naturalWidth;
+          canvas.height = offscreen.naturalHeight;
+          ctx.drawImage(offscreen, 0, 0);
+
+          var w = canvas.width;
+          var h = canvas.height;
+          var text     = 'HRALMEIDA';
+          
+          // Calculate font size proportional to image size, but not too big
+          var fontSize = Math.max(16, Math.floor(Math.min(w, h) * 0.03));
+
+          ctx.save();
+          ctx.font         = 'bold ' + fontSize + 'px "Lilex", monospace';
+          ctx.fillStyle    = 'rgba(255, 255, 255, 0.4)';  /* readable corner watermark */
+          ctx.textAlign    = 'right';
+          ctx.textBaseline = 'bottom';
+
+          // Margin proportional to image size (2% of minimum dimension)
+          var margin = Math.max(12, Math.floor(Math.min(w, h) * 0.02));
+          ctx.fillText(text, w - margin, h - margin);
+          ctx.restore();
+
+          /* JPEG at 0.88 quality: ~5-10x smaller than PNG, visually identical for photos */
+          canvas.toBlob(function(blob) {
+            if (!blob) { resetBtn(); return; }
+            var url  = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            var slug = title.replace(/[^a-z0-9]/gi, '-').toLowerCase().replace(/-+/g, '-');
+            link.href     = url;
+            link.download = 'hralmeida-' + slug + '.jpg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(function() { URL.revokeObjectURL(url); }, 15000);
+            resetBtn();
+          }, 'image/jpeg', 0.88);
+
+        } catch(err) {
+          console.error('Watermark error:', err);
+          alert('Download failed. If running locally, open via a local server (e.g. npx serve).');
+          resetBtn();
+        }
+      };
+
+      offscreen.onerror = function() {
+        alert('Could not load image for processing.');
+        resetBtn();
+      };
+
+      offscreen.src = src + (src.indexOf('?') === -1 ? '?' : '&') + '_t=' + Date.now();
+
+      function resetBtn() {
+        lightboxDl.disabled = false;
+        lightboxDl.innerHTML = originalLabel;
+      }
+    }
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        tabs.forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        renderGrid(tab.dataset.category);
+      });
+    });
+
+    var themeToggleBtn = document.getElementById('theme-toggle');
+    function updateBtnText() {
+      themeToggleBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+    }
+    updateBtnText();
+    themeToggleBtn.addEventListener('click', function() {
+      document.body.classList.toggle('dark-mode');
+      updateBtnText();
+      try { localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch(e) {}
+    });
+
+    // ── Disclaimer show/dismiss logic ──
+    var disclaimerEl = document.getElementById('gallery-disclaimer');
+    var dismissBtn = document.getElementById('dismiss-disclaimer');
+    if (disclaimerEl && localStorage.getItem('gallery_disclaimer_seen') !== 'true') {
+      disclaimerEl.style.display = 'flex';
+    }
+    if (dismissBtn && disclaimerEl) {
+      dismissBtn.addEventListener('click', function() {
+        localStorage.setItem('gallery_disclaimer_seen', 'true');
+        disclaimerEl.style.display = 'none';
+      });
+    }
+
+    renderGrid('all');
+  </script>
+</body>
+</html>
