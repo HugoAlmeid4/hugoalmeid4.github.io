@@ -63,10 +63,24 @@
       <div class="Newsletter">
         <h2>Newsletter</h2>
         <p>Subscribe to get an email whenever I publish new astrophotography images or articles.</p>
-        <form action="https://api.follow.it/subscription-form/VU1HMHpxOXhQM3hCL3pTYzhOVDlySHBJVnNGUlMwRDE3NHVmaFV2elBxS0VMSTJJaTdqcTFVbzV5NHVFcFlFUllMTUsxdFJQQ0FmWTBxcnZadDhQRkw3bmgrdmpMM041Q1c5Y3VLVVM4RUljT3JiOWl2MkZxUXdiOG9EUDROcWl8ZnFCemxZNDlNRnJRQ2VMRWh4UE1sYW8rMXZZMzd4TEc5YW5FUjBMRmVqND0=/8" method="post" target="_blank" class="newsletter-form">
+        <iframe name="hidden_newsletter_iframe" id="hidden_newsletter_iframe" style="display:none;"></iframe>
+        <form action="https://api.follow.it/subscription-form/VU1HMHpxOXhQM3hCL3pTYzhOVDlySHBJVnNGUlMwRDE3NHVmaFV2elBxS0VMSTJJaTdqcTFVbzV5NHVFcFlFUllMTUsxdFJQQ0FmWTBxcnZadDhQRkw3bmgrdmpMM041Q1c5Y3VLVVM4RUljT3JiOWl2MkZxUXdiOG9EUDROcWl8ZnFCemxZNDlNRnJRQ2VMRWh4UE1sYW8rMXZZMzd4TEc5YW5FUjBMRmVqND0=/8" method="post" target="hidden_newsletter_iframe" class="newsletter-form" id="homeNewsletterForm">
           <input type="email" name="email" id="bd-email" placeholder="email@example.com" required aria-label="Email address">
-          <button type="submit" class="newsletter-btn">Subscribe</button>
+          <button type="submit" class="newsletter-btn" id="homeNewsletterBtn">Subscribe</button>
         </form>
+        <p id="homeNewsletterSuccess" style="display:none; color: #4CAF50; font-size: 13px; font-weight: 600; margin-top: 8px;">✅ Subscribed! Check your inbox to confirm.</p>
+        <script>
+          document.getElementById('homeNewsletterForm').addEventListener('submit', function() {
+            var btn = document.getElementById('homeNewsletterBtn');
+            var input = document.getElementById('bd-email');
+            btn.textContent = 'Subscribing...';
+            btn.disabled = true;
+            setTimeout(function() {
+              document.getElementById('homeNewsletterForm').style.display = 'none';
+              document.getElementById('homeNewsletterSuccess').style.display = 'block';
+            }, 1000);
+          });
+        </script>
       </div>
     </section>
 

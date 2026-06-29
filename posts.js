@@ -675,16 +675,30 @@ async function renderPosts(posts, list, status, visibleCount = 3) {
         <div class="post-newsletter-container">
           <h4>Subscribe to the Newsletter</h4>
           <p>Get notified when new astrophotography captures or articles are published.</p>
-          <form action="https://api.follow.it/subscription-form/VU1HMHpxOXhQM3hCL3pTYzhOVDlySHBJVnNGUlMwRDE3NHVmaFV2elBxS0VMSTJJaTdqcTFVbzV5NHVFcFlFUllMTUsxdFJQQ0FmWTBxcnZadDhQRkw3bmgrdmpMM041Q1c5Y3VLVVM4RUljT3JiOWl2MkZxUXdiOG9EUDROcWl8ZnFCemxZNDlNRnJRQ2VMRWh4UE1sYW8rMXZZMzd4TEc5YW5FUjBMRmVqND0=/8" method="post" target="_blank" class="newsletter-form">
-            <input type="email" name="email" placeholder="email@example.com" required aria-label="Email address">
-            <button type="submit" class="newsletter-btn">Subscribe</button>
+          <iframe name="hidden_overlay_newsletter_iframe" id="hidden_overlay_newsletter_iframe" style="display:none;"></iframe>
+          <form action="https://api.follow.it/subscription-form/VU1HMHpxOXhQM3hCL3pTYzhOVDlySHBJVnNGUlMwRDE3NHVmaFV2elBxS0VMSTJJaTdqcTFVbzV5NHVFcFlFUllMTUsxdFJQQ0FmWTBxcnZadDhQRkw3bmgrdmpMM041Q1c5Y3VLVVM4RUljT3JiOWl2MkZxUXdiOG9EUDROcWl8ZnFCemxZNDlNRnJRQ2VMRWh4UE1sYW8rMXZZMzd4TEc5YW5FUjBMRmVqND0=/8" method="post" target="hidden_overlay_newsletter_iframe" class="newsletter-form" id="overlayNewsletterForm">
+            <input type="email" name="email" id="overlayNewsletterEmail" placeholder="email@example.com" required aria-label="Email address">
+            <button type="submit" class="newsletter-btn" id="overlayNewsletterBtn">Subscribe</button>
           </form>
+          <p id="overlayNewsletterSuccess" style="display:none; color: #4CAF50; font-size: 13px; font-weight: 600; margin-top: 12px;">✅ Subscribed! Check your inbox to confirm.</p>
         </div>
         <div id="relatedPostsContainer"></div>
         <div id="mostRecentContainer"></div>
       </div>
     `;
     document.body.appendChild(ov);
+    const overlayForm = document.getElementById('overlayNewsletterForm');
+    if (overlayForm) {
+      overlayForm.addEventListener('submit', function() {
+        var btn = document.getElementById('overlayNewsletterBtn');
+        btn.textContent = 'Subscribing...';
+        btn.disabled = true;
+        setTimeout(function() {
+          overlayForm.style.display = 'none';
+          document.getElementById('overlayNewsletterSuccess').style.display = 'block';
+        }, 1000);
+      });
+    }
     const closeBtn = document.getElementById('postFullscreenClose');
     if (closeBtn) closeBtn.onclick = e => { e.preventDefault(); e.stopPropagation(); closePostOverlay(); };
     ov.onclick = e => { if (e.target === ov) closePostOverlay(); };
