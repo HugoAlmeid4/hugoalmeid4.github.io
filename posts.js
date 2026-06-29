@@ -675,7 +675,7 @@ async function renderPosts(posts, list, status, visibleCount = 3) {
         <div class="post-newsletter-container">
           <h4>Subscribe to the Newsletter</h4>
           <p>Get notified when new astrophotography captures or articles are published.</p>
-          <form action="https://buttondown.email/api/emails/embed-subscribe/hralmeida" method="post" target="popupwindow" onsubmit="window.open('https://buttondown.email/hralmeida', 'popupwindow')" class="newsletter-form">
+          <form action="https://api.follow.it/subscription-form/VU1HMHpxOXhQM3hCL3pTYzhOVDlySHBJVnNGUlMwRDE3NHVmaFV2elBxS0VMSTJJaTdqcTFVbzV5NHVFcFlFUllMTUsxdFJQQ0FmWTBxcnZadDhQRkw3bmgrdmpMM041Q1c5Y3VLVVM4RUljT3JiOWl2MkZxUXdiOG9EUDROcWl8ZnFCemxZNDlNRnJRQ2VMRWh4UE1sYW8rMXZZMzd4TEc5YW5FUjBMRmVqND0=/8" method="post" target="_blank" class="newsletter-form">
             <input type="email" name="email" placeholder="email@example.com" required aria-label="Email address">
             <button type="submit" class="newsletter-btn">Subscribe</button>
           </form>
