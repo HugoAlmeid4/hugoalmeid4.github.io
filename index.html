@@ -63,22 +63,37 @@
       <div class="Newsletter">
         <h2>Newsletter</h2>
         <p>Subscribe to get an email whenever I publish new astrophotography images or articles.</p>
-        <iframe name="hidden_newsletter_iframe" id="hidden_newsletter_iframe" style="display:none;"></iframe>
-        <form action="https://api.follow.it/subscription-form/VU1HMHpxOXhQM3hCL3pTYzhOVDlySHBJVnNGUlMwRDE3NHVmaFV2elBxS0VMSTJJaTdqcTFVbzV5NHVFcFlFUllMTUsxdFJQQ0FmWTBxcnZadDhQRkw3bmgrdmpMM041Q1c5Y3VLVVM4RUljT3JiOWl2MkZxUXdiOG9EUDROcWl8ZnFCemxZNDlNRnJRQ2VMRWh4UE1sYW8rMXZZMzd4TEc5YW5FUjBMRmVqND0=/8" method="post" target="hidden_newsletter_iframe" class="newsletter-form" id="homeNewsletterForm">
+        <form class="newsletter-form" id="homeNewsletterForm">
           <input type="email" name="email" id="bd-email" placeholder="email@example.com" required aria-label="Email address">
           <button type="submit" class="newsletter-btn" id="homeNewsletterBtn">Subscribe</button>
         </form>
-        <p id="homeNewsletterSuccess" style="display:none; color: #4CAF50; font-size: 13px; font-weight: 600; margin-top: 8px;">✅ Subscribed! Check your inbox to confirm.</p>
+        <p id="homeNewsletterMsg" style="display:none; font-size: 13px; font-weight: 600; margin-top: 8px;"></p>
         <script>
-          document.getElementById('homeNewsletterForm').addEventListener('submit', function() {
+          document.getElementById('homeNewsletterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var email = document.getElementById('bd-email').value;
             var btn = document.getElementById('homeNewsletterBtn');
-            var input = document.getElementById('bd-email');
+            var msg = document.getElementById('homeNewsletterMsg');
             btn.textContent = 'Subscribing...';
             btn.disabled = true;
-            setTimeout(function() {
+            var formData = new FormData();
+            formData.append('email', email);
+            fetch('https://api.follow.it/subscription-form/VU1HMHpxOXhQM3hCL3pTYzhOVDlySHBJVnNGUlMwRDE3NHVmaFV2elBxS0VMSTJJaTdqcTFVbzV5NHVFcFlFUllMTUsxdFJQQ0FmWTBxcnZadDhQRkw3bmgrdmpMM041Q1c5Y3VLVVM4RUljT3JiOWl2MkZxUXdiOG9EUDROcWl8ZnFCemxZNDlNRnJRQ2VMRWh4UE1sYW8rMXZZMzd4TEc5YW5FUjBMRmVqND0=/8', {
+              method: 'POST',
+              body: formData,
+              mode: 'no-cors'
+            }).then(function() {
               document.getElementById('homeNewsletterForm').style.display = 'none';
-              document.getElementById('homeNewsletterSuccess').style.display = 'block';
-            }, 1000);
+              msg.style.color = '#4CAF50';
+              msg.textContent = '✅ Subscribed! Check your inbox to confirm.';
+              msg.style.display = 'block';
+            }).catch(function() {
+              btn.textContent = 'Subscribe';
+              btn.disabled = false;
+              msg.style.color = '#e53935';
+              msg.textContent = '⚠️ Something went wrong. Please try again.';
+              msg.style.display = 'block';
+            });
           });
         </script>
       </div>
