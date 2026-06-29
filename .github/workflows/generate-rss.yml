@@ -6,32 +6,40 @@ on:
       - main
       - master
     paths:
-      - 'posts/**'
+      - 'posts/**.md'
       - 'generate-rss.js'
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  generate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
+          # Use the built-in token so the push triggers pages deploy
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: Run RSS and index generator
+      - name: Generate RSS and index
         run: node generate-rss.js
 
-      - name: Commit and push changes
+      - name: Commit generated files
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add posts/index.json rss.xml
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: auto-generate RSS and posts/index.json" && git push)
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add rss.xml posts/index.json
+          # Only commit if there are actual changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: regenerate rss.xml and posts/index.json [skip ci]"
+            git push
+          fi

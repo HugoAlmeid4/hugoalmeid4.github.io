@@ -695,11 +695,12 @@ async function renderPosts(posts, list, status, visibleCount = 3) {
         var msg = document.getElementById('overlayNewsletterMsg');
         btn.textContent = 'Subscribing...';
         btn.disabled = true;
-        var formData = new FormData();
-        formData.append('email', email);
         fetch('https://api.follow.it/subscription-form/VU1HMHpxOXhQM3hCL3pTYzhOVDlySHBJVnNGUlMwRDE3NHVmaFV2elBxS0VMSTJJaTdqcTFVbzV5NHVFcFlFUllMTUsxdFJQQ0FmWTBxcnZadDhQRkw3bmgrdmpMM041Q1c5Y3VLVVM4RUljT3JiOWl2MkZxUXdiOG9EUDROcWl8ZnFCemxZNDlNRnJRQ2VMRWh4UE1sYW8rMXZZMzd4TEc5YW5FUjBMRmVqND0=/8', {
           method: 'POST',
-          body: formData,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: 'email=' + encodeURIComponent(email),
           mode: 'no-cors'
         }).then(function() {
           overlayForm.style.display = 'none';
