@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>Hralmeida</title>
+  <link>https://hugoalmeid4.github.io</link>
+  <description>Hralmeida's personal website and blog.</description>
+  <language>en-us</language>
+  <lastBuildDate>Mon, 29 Jun 2026 19:11:51 GMT</lastBuildDate>
+  <atom:link href="https://hugoalmeid4.github.io/rss.xml" rel="self" type="application/rss+xml" />
+  <item>
+    <title>Dark Matter, the unknown matter of the universe</title>
+    <link>https://hugoalmeid4.github.io/?post=dark-matter-explanation</link>
+    <guid>https://hugoalmeid4.github.io/?post=dark-matter-explanation</guid>
+    <pubDate>Fri, 19 Jun 2026 23:00:00 GMT</pubDate>
+    <description>How was dark matter discovered? Dark matter existence was suspected for now over 90 years, when a Swiss-American astronomer Fritz Zwicky noticed that galaxies in the Coma cluster w...</description>
+  </item>
+  <item>
+    <title>The search for black holes, the impossible space object</title>
+    <link>https://hugoalmeid4.github.io/?post=searching-for-blackholes</link>
+    <guid>https://hugoalmeid4.github.io/?post=searching-for-blackholes</guid>
+    <pubDate>Wed, 17 Jun 2026 23:00:00 GMT</pubDate>
+    <description>This article is intended for educational purposes and summarize current scientific understating, while this article was made to ensure accuracy, you should not use this as your onl...</description>
+  </item>
+</channel>
+</rss>

@@ -672,6 +672,14 @@ async function renderPosts(posts, list, status, visibleCount = 3) {
           <p id="translationLoaderText"></p>
         </div>
         <div class="project-fullscreen-link-container" id="postFullscreenLinkContainer"></div>
+        <div class="post-newsletter-container">
+          <h4>Subscribe to the Newsletter</h4>
+          <p>Get notified when new astrophotography captures or articles are published.</p>
+          <form action="https://buttondown.email/api/emails/embed-subscribe/hralmeida" method="post" target="popupwindow" onsubmit="window.open('https://buttondown.email/hralmeida', 'popupwindow')" class="newsletter-form">
+            <input type="email" name="email" placeholder="email@example.com" required aria-label="Email address">
+            <button type="submit" class="newsletter-btn">Subscribe</button>
+          </form>
+        </div>
         <div id="relatedPostsContainer"></div>
         <div id="mostRecentContainer"></div>
       </div>
@@ -922,8 +930,7 @@ function handleSharedPostLink(posts) {
 function setupRSSFeed(posts) {
   const rssLink = document.getElementById('rssLink');
   if (!rssLink) return;
-  const xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>My Blog</title><link>${window.location.origin}</link><description>Latest posts</description>${posts.slice(0, 10).map(p => `<item><title>${esc(p.title)}</title><link>${window.location.origin}?post=${p.slug}</link><pubDate>${new Date(p.date).toUTCString()}</pubDate></item>`).join('')}</channel></rss>`;
-  rssLink.href = URL.createObjectURL(new Blob([xml], { type: 'application/rss+xml' }));
+  rssLink.href = 'rss.xml';
 }
 
 function parseDate(s) {

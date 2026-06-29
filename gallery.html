@@ -48,6 +48,9 @@
         <button class="gallery-tab" role="tab" aria-selected="false" data-category="galaxies" id="tab-galaxies" aria-controls="gallery-grid">Galaxies</button>
         <button class="gallery-tab" role="tab" aria-selected="false" data-category="star-clusters" id="tab-star-clusters" aria-controls="gallery-grid">Star Clusters</button>
       </div>
+      <div class="gallery-search-container">
+        <input type="text" id="gallery-search-input" placeholder="Search gallery by target, cluster name, or description..." aria-label="Search gallery items">
+      </div>
       <div class="gallery-grid" id="gallery-grid" role="tabpanel" aria-labelledby="tab-all"></div>
       <div class="gallery-status" id="gallery-status" aria-live="polite"></div>
     </section>
@@ -93,6 +96,8 @@
     var filteredItems = [];
     var lightboxIndex = 0;
     var lightboxOpen  = false;
+    var activeCategory = 'all';
+    var searchQuery = '';
 
     var grid            = document.getElementById('gallery-grid');
     var statusEl        = document.getElementById('gallery-status');
@@ -107,6 +112,7 @@
     var lightboxSpinner = document.getElementById('lightbox-spinner');
     var canvas          = document.getElementById('watermark-canvas');
     var tabs            = document.querySelectorAll('.gallery-tab');
+    var searchInput     = document.getElementById('gallery-search-input');
 
     /* Intersection Observer for lazy loading.
        NOTE: We do NOT use the native loading="lazy" attribute on these imgs
@@ -142,17 +148,30 @@
       });
     }, { rootMargin: '300px 0px', threshold: 0 });
 
-    function renderGrid(category) {
-      filteredItems = category === 'all'
+    function renderGrid() {
+      // Filter by category first
+      var items = activeCategory === 'all'
         ? GALLERY_ITEMS
-        : GALLERY_ITEMS.filter(function(it) { return it.category === category; });
+        : GALLERY_ITEMS.filter(function(it) { return it.category === activeCategory; });
+
+      // Then filter by search query
+      if (searchQuery.trim() !== '') {
+        var query = searchQuery.toLowerCase().trim();
+        items = items.filter(function(it) {
+          return it.title.toLowerCase().indexOf(query) !== -1 ||
+                 it.alt.toLowerCase().indexOf(query) !== -1 ||
+                 it.category.replace('-', ' ').toLowerCase().indexOf(query) !== -1;
+        });
+      }
+
+      filteredItems = items;
 
       grid.querySelectorAll('.gallery-item').forEach(function(el) { imgObserver.unobserve(el); });
       grid.innerHTML = '';
 
       if (filteredItems.length === 0) {
-        grid.innerHTML = '<p class="gallery-empty">No images in this category yet.</p>';
-        statusEl.textContent = '';
+        grid.innerHTML = '<p class="gallery-empty">No matching images found.</p>';
+        statusEl.textContent = '0 images';
         return;
       }
 
@@ -381,9 +400,17 @@
         tabs.forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
         tab.classList.add('active');
         tab.setAttribute('aria-selected', 'true');
-        renderGrid(tab.dataset.category);
+        activeCategory = tab.dataset.category;
+        renderGrid();
       });
     });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        searchQuery = searchInput.value;
+        renderGrid();
+      });
+    }
 
     var themeToggleBtn = document.getElementById('theme-toggle');
     function updateBtnText() {
@@ -409,7 +436,7 @@
       });
     }
 
-    renderGrid('all');
+    renderGrid();
   </script>
 </body>
 </html>
