@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Professional certifications and credentials held by Hralmeida.">
+  <title>Certificates | Hralmeida</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <script>
+    try {
+      if (localStorage.getItem('theme') !== 'light') { document.body.classList.add('dark-mode'); }
+    } catch (e) { document.body.classList.add('dark-mode'); }
+  </script>
+
+  <header class="Name-Photo">
+    <img src="imgs/imgs.jpg" alt="Hralmeida profile picture" fetchpriority="high">
+    <h3>Hralmeida</h3>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html" class="nav-link">Home</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="gallery.html" class="nav-link">Gallery</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="certificates.html" class="nav-link active" aria-current="page">Certificates</a>
+    </nav>
+    <button id="theme-toggle" class="theme-toggle">Dark Mode</button>
+  </header>
+
+  <main>
+    <section class="certificates-section" aria-label="Certificates list">
+      <div class="certificates-section-header">
+        <h2>Certificates</h2>
+        <p class="certificates-section-subtitle">Verified professional credentials and course certifications.</p>
+      </div>
+
+      <div class="certificates-grid" id="certificates-grid">
+        </div>
+    </section>
+  </main>
+
+  <script>
+    function parseFrontmatter(mdText) {
+      var metadata = {};
+      var fmMatch = mdText.match(/^---\r?\n([\s\S]+?)\r?\n---[ \t]*\r?\n?/);
+      if (fmMatch) {
+        var lines = fmMatch[1].split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          var colon = line.indexOf(':');
+          if (colon > 0) {
+            var key = line.slice(0, colon).trim();
+            var val = line.slice(colon + 1).trim().replace(/^['"]|['"]$/g, '');
+            metadata[key] = val;
+          }
+        }
+      }
+      return metadata;
+    }
+
+    async function loadCertificates() {
+      var grid = document.getElementById('certificates-grid');
+      if (!grid) return;
+      grid.innerHTML = '<p class="gallery-status">Loading certificates...</p>';
+
+      try {
+        var res = await fetch('certificates/index.json');
+        if (!res.ok) throw new Error('Could not load certificates/index.json');
+        var files = await res.json();
+
+        var certs = [];
+        for (var i = 0; i < files.length; i++) {
+          try {
+            var r = await fetch('certificates/' + files[i]);
+            if (!r.ok) continue;
+            var mdText = await r.text();
+            var m = parseFrontmatter(mdText);
+            if (m.name) certs.push(m);
+          } catch (e) {
+            console.error('Error parsing certificate:', files[i], e);
+          }
+        }
+
+        renderCertificates(certs);
+      } catch (err) {
+        console.error('Error loading certificates:', err);
+        grid.innerHTML = '<p class="gallery-empty">Error loading certificates. Make sure certificates/index.json exists.</p>';
+      }
+    }
+
+    function renderCertificates(certs) {
+      var grid = document.getElementById('certificates-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      if (certs.length === 0) {
+        grid.innerHTML = '<p class="gallery-empty">No certificates found.</p>';
+        return;
+      }
+
+      certs.forEach(function(cert) {
+        var isPDF = cert.file && cert.file.toLowerCase().endsWith('.pdf');
+
+        // Preview panel logic corrected to embed PDFs via iframe instead of static text placeholders
+        var previewHTML;
+        if (!cert.file) {
+          previewHTML = '<span class="certificate-icon-placeholder">&#128196;</span>';
+        } else if (isPDF) {
+          previewHTML = '<iframe src="' + cert.file + '#toolbar=0&navpanes=0&scrollbar=0" width="100%" height="100%" style="border:none; overflow:hidden; display:block;"></iframe>';
+        } else {
+          previewHTML = '<img src="' + cert.file + '" alt="' + cert.name + ' preview" loading="lazy">';
+        }
+
+        // Meta info row (dates, credential ID)
+        var metaParts = [];
+        if (cert.issue_date) metaParts.push('<span class="meta-item"><strong>Issued:</strong> ' + cert.issue_date + '</span>');
+        if (cert.expiry_date) metaParts.push('<span class="meta-item"><strong>Expires:</strong> ' + cert.expiry_date + '</span>');
+        if (cert.credential_id) metaParts.push('<span class="meta-item"><strong>ID:</strong> ' + cert.credential_id + '</span>');
+        var metaHTML = metaParts.length ? '<div class="certificate-meta-info">' + metaParts.join('') + '</div>' : '';
+
+        // Action buttons
+        var viewBtn = cert.file
+          ? '<a href="' + cert.file + '" target="_blank" rel="noopener" class="certificate-btn">&#128196; View Document</a>'
+          : '';
+        var verifyBtn = cert.credential_url
+          ? '<a href="' + cert.credential_url + '" target="_blank" rel="noopener" class="certificate-btn secondary">&#9654; Verify Credential</a>'
+          : '';
+
+        var card = document.createElement('div');
+        card.className = 'certificate-card';
+        card.innerHTML = `
+          <div class="certificate-preview-container">
+            ${previewHTML}
+          </div>
+          <div class="certificate-details">
+            <div>
+              <div class="certificate-header-row">
+                <h3>${cert.name}</h3>
+                ${cert.issuer ? '<span class="certificate-issuer">' + cert.issuer + '</span>' : ''}
+              </div>
+              <p>${cert.bio || ''}</p>
+              ${metaHTML}
+            </div>
+            <div class="certificate-actions">
+              ${viewBtn}
+              ${verifyBtn}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Theme toggle
+    var themeToggleBtn = document.getElementById('theme-toggle');
+    function updateBtnText() {
+      themeToggleBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+    }
+    updateBtnText();
+    themeToggleBtn.addEventListener('click', function() {
+      document.body.classList.toggle('dark-mode');
+      updateBtnText();
+      try { localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch(e) {}
+    });
+
+    loadCertificates();
+  </script>
+</body>
+</html>
