@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Hralmeida's personal website and blog.">
-  <meta name="follow.it-verification-code" content="uRVsrJtwdYWrqS6MRg2r"/>
   <title>Hralmeida</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,44 +58,6 @@
           <p>-</p>
           <a href="https://www.linkedin.com/in/hugo-almeida-851b84419">LinkedIn</a>
         </span>
-      </div>
-      <div class="Newsletter">
-        <h2>Newsletter</h2>
-        <p>Subscribe to get an email whenever I publish new astrophotography images or articles.</p>
-        <form class="newsletter-form" id="homeNewsletterForm">
-          <input type="email" name="email" id="bd-email" placeholder="email@example.com" required aria-label="Email address">
-          <button type="submit" class="newsletter-btn" id="homeNewsletterBtn">Subscribe</button>
-        </form>
-        <p id="homeNewsletterMsg" style="display:none; font-size: 13px; font-weight: 600; margin-top: 8px;"></p>
-        <script>
-          document.getElementById('homeNewsletterForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            var email = document.getElementById('bd-email').value;
-            var btn = document.getElementById('homeNewsletterBtn');
-            var msg = document.getElementById('homeNewsletterMsg');
-            btn.textContent = 'Subscribing...';
-            btn.disabled = true;
-            fetch('https://api.follow.it/subscription-form/VU1HMHpxOXhQM3hCL3pTYzhOVDlySHBJVnNGUlMwRDE3NHVmaFV2elBxS0VMSTJJaTdqcTFVbzV5NHVFcFlFUllMTUsxdFJQQ0FmWTBxcnZadDhQRkw3bmgrdmpMM041Q1c5Y3VLVVM4RUljT3JiOWl2MkZxUXdiOG9EUDROcWl8ZnFCemxZNDlNRnJRQ2VMRWh4UE1sYW8rMXZZMzd4TEc5YW5FUjBMRmVqND0=/8', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-              },
-              body: 'email=' + encodeURIComponent(email),
-              mode: 'no-cors'
-            }).then(function() {
-              document.getElementById('homeNewsletterForm').style.display = 'none';
-              msg.style.color = '#4CAF50';
-              msg.textContent = '✅ Subscribed! Check your inbox to confirm.';
-              msg.style.display = 'block';
-            }).catch(function() {
-              btn.textContent = 'Subscribe';
-              btn.disabled = false;
-              msg.style.color = '#e53935';
-              msg.textContent = '⚠️ Something went wrong. Please try again.';
-              msg.style.display = 'block';
-            });
-          });
-        </script>
       </div>
     </section>
 

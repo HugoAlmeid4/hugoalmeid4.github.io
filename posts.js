@@ -672,50 +672,11 @@ async function renderPosts(posts, list, status, visibleCount = 3) {
           <p id="translationLoaderText"></p>
         </div>
         <div class="project-fullscreen-link-container" id="postFullscreenLinkContainer"></div>
-        <div class="post-newsletter-container">
-          <h4>Subscribe to the Newsletter</h4>
-          <p>Get notified when new astrophotography captures or articles are published.</p>
-          <form class="newsletter-form" id="overlayNewsletterForm">
-            <input type="email" name="email" id="overlayNewsletterEmail" placeholder="email@example.com" required aria-label="Email address">
-            <button type="submit" class="newsletter-btn" id="overlayNewsletterBtn">Subscribe</button>
-          </form>
-          <p id="overlayNewsletterMsg" style="display:none; font-size: 13px; font-weight: 600; margin-top: 12px;"></p>
-        </div>
         <div id="relatedPostsContainer"></div>
         <div id="mostRecentContainer"></div>
       </div>
     `;
     document.body.appendChild(ov);
-    const overlayForm = document.getElementById('overlayNewsletterForm');
-    if (overlayForm) {
-      overlayForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        var email = document.getElementById('overlayNewsletterEmail').value;
-        var btn = document.getElementById('overlayNewsletterBtn');
-        var msg = document.getElementById('overlayNewsletterMsg');
-        btn.textContent = 'Subscribing...';
-        btn.disabled = true;
-        fetch('https://api.follow.it/subscription-form/VU1HMHpxOXhQM3hCL3pTYzhOVDlySHBJVnNGUlMwRDE3NHVmaFV2elBxS0VMSTJJaTdqcTFVbzV5NHVFcFlFUllMTUsxdFJQQ0FmWTBxcnZadDhQRkw3bmgrdmpMM041Q1c5Y3VLVVM4RUljT3JiOWl2MkZxUXdiOG9EUDROcWl8ZnFCemxZNDlNRnJRQ2VMRWh4UE1sYW8rMXZZMzd4TEc5YW5FUjBMRmVqND0=/8', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: 'email=' + encodeURIComponent(email),
-          mode: 'no-cors'
-        }).then(function() {
-          overlayForm.style.display = 'none';
-          msg.style.color = '#4CAF50';
-          msg.textContent = '✅ Subscribed! Check your inbox to confirm.';
-          msg.style.display = 'block';
-        }).catch(function() {
-          btn.textContent = 'Subscribe';
-          btn.disabled = false;
-          msg.style.color = '#e53935';
-          msg.textContent = '⚠️ Something went wrong. Please try again.';
-          msg.style.display = 'block';
-        });
-      });
-    }
     const closeBtn = document.getElementById('postFullscreenClose');
     if (closeBtn) closeBtn.onclick = e => { e.preventDefault(); e.stopPropagation(); closePostOverlay(); };
     ov.onclick = e => { if (e.target === ov) closePostOverlay(); };
