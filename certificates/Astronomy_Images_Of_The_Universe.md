@@ -9,6 +9,6 @@ credential_url: https://www.open.edu/openlearn/science-maths-technology/astronom
 skills_covered: [Multiwavelength Observation, Astronomical Data Analysis, Sky Mapping, Messier Catalogue Analysis, Multiwavelength Analysis]
 criteria: Completed 6 hours of scientific coursework, interactive tool labs (Chromoscope, Scales tool), and all required assessment modules.
 bio: An introduction to observational and measurement techniques across the electromagnetic spectrum, exploring multiwavelength views of stars, nebulae, and galactic structures.
-file: certificates/Astronomy_Images_Of_The_Universe.pdf
+file: /certificates/Astronomy_Images_Of_The_Universe.pdf
 is_pdf: true
 ---
