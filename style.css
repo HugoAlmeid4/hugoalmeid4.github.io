@@ -91,21 +91,31 @@ body {
 
 .Socials span {
   display: flex;
-  gap: 6px;
+  gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  margin-top: 4px;
 }
 
-.Socials span a,
-.Socials span p {
-  font-size: 15px;
-  color: #111;
+.Socials span a {
+  font-size: 12px;
+  color: #333;
   text-decoration: none;
+  border: 1.5px solid #333;
+  padding: 6px 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
 }
 
 @media (hover: hover) {
   .Socials span a:hover {
-    text-decoration: underline;
+    background: #333;
+    color: rgb(237, 231, 220);
+    border-color: #333;
+    text-decoration: none;
   }
 }
 
@@ -339,21 +349,106 @@ body {
   .Posts-Section h2 {
     font-size: 20px;
   }
+
+  /* Compact Grid Header for Mobile/Tablet */
+  .Name-Photo {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 12px;
+  }
+
+  .Name-Photo img {
+    grid-column: 1;
+    grid-row: 1;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+
+  .Name-Photo h3 {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 16px;
+    margin: 0;
+    justify-self: start;
+  }
+
+  .theme-toggle {
+    grid-column: 3;
+    grid-row: 1;
+    margin-top: 0;
+  }
+
+  .nav-links {
+    grid-column: 1 / span 3;
+    grid-row: 2;
+    justify-content: center;
+    border-top: 1.5px solid rgba(0, 0, 0, 0.08);
+    padding-top: 8px;
+    margin-top: 0;
+    width: 100%;
+  }
+
+  body.dark-mode .nav-links {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Natural height & scroll behavior on mobile */
+  .posts-scroll {
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  /* Fullscreen Overlay Close Clearances */
+  .project-fullscreen-content {
+    padding: 72px 32px 32px;
+  }
+
+  /* swipeable gallery tabs on mobile */
+  .gallery-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+
+  .gallery-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gallery-tab {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+
+  .gallery-grid {
+    columns: 2;
+    column-gap: 8px;
+  }
+
+  .gallery-item {
+    margin-bottom: 8px;
+  }
 }
 
 /* Phone breakpoint */
 @media (max-width: 480px) {
   .Name-Photo {
-    padding: 20px 16px 16px; /* side-pad matches content below */
+    padding: 12px 16px;
+    gap: 10px;
   }
 
   .Name-Photo img {
-    width: 80px;
-    height: 80px;
+    width: 40px;
+    height: 40px;
   }
 
   .Name-Photo h3 {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   /* Single horizontal padding source for everything */
@@ -384,12 +479,12 @@ body {
   }
 
   .Socials span {
-    gap: 4px;
+    gap: 8px;
   }
 
-  .Socials span a,
-  .Socials span p {
-    font-size: 13px;
+  .Socials span a {
+    font-size: 11px;
+    padding: 5px 10px;
   }
 
   .post-header {
@@ -420,6 +515,10 @@ body {
 
   .posts-scroll {
     padding-right: 0;
+  }
+
+  .project-fullscreen-content {
+    padding: 64px 20px 24px;
   }
 
   .data-log-table th,
@@ -477,10 +576,22 @@ body.dark-mode .Name-Photo img {
 
 body.dark-mode h2,
 body.dark-mode h3,
-body.dark-mode .Socials span a,
-body.dark-mode .Socials span p,
 body.dark-mode .post-body a.read-more {
   color: #ededed;
+}
+
+body.dark-mode .Socials span a {
+  color: #ededed;
+  border-color: #555;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+@media (hover: hover) {
+  body.dark-mode .Socials span a:hover {
+    background: #ededed;
+    color: #1a1a1a;
+    border-color: #ededed;
+  }
 }
 
 body.dark-mode .Bio-Socials p,
