@@ -11,52 +11,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Card layout fixes */
-    .certificate-card {
-      display: flex;
-      flex-direction: row;
-      align-items: stretch; /* Ensures children take full height */
-      overflow: hidden;
-      min-height: 200px; /* Adjust based on your design */
+    /* Prevents frames from intercepting pointer/touch gestures over the card layout */
+    .certificate-preview-container iframe {
+      pointer-events: none;
     }
-
-    .certificate-preview-container {
-      flex: 0 0 30%; /* Fixed width for preview */
-      position: relative;
+    
+    /* Forces regular preview images to zoom and scale to fully cover the entire banner area */
+    .certificate-preview-container img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block;
+    }
+    
+    /* Clean fallback wrapper to guarantee the iframe fills the banner box exactly */
+    .pdf-banner-wrapper {
+      width: 100%;
+      height: 100%;
       overflow: hidden;
-      background: #fff;
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .certificate-details {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 1.5rem;
-    }
-
-    /* Image full height fix */
-    .certificate-preview-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* PDF scrollbar and sidebar removal */
-    .certificate-preview-container iframe {
-      pointer-events: none;
-      border: none;
-      width: 140%; /* Oversize to push scrollbars out of view */
-      height: 140%;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.72); /* Scale back down while keeping it centered */
-      display: block;
     }
   </style>
 </head>
@@ -89,7 +65,8 @@
       </div>
 
       <div class="certificates-grid" id="certificates-grid">
-         </div>
+         <!-- Certificates will be rendered here dynamically -->
+      </div>
     </section>
   </main>
 
@@ -159,10 +136,16 @@
         if (!cert.file) {
           previewHTML = '<span class="certificate-icon-placeholder">&#128196;</span>';
         } else if (isPDF) {
-          // Centered scaling to crop native gray sidebars and scrollbars perfectly out of view
           previewHTML = `
-            <div style="width: 100%; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center;">
+            <div class="pdf-banner-wrapper">
               <iframe src="${cert.file}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" 
+                      style="border: none; 
+                             width: 142%; 
+                             height: 142%; 
+                             position: absolute;
+                             transform: scale(0.71);
+                             transform-origin: center center;
+                             display: block;" 
                       scrolling="no" 
                       marginwidth="0" 
                       marginheight="0">
