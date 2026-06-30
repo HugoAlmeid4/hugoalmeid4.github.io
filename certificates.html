@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="description" content="Professional certifications and credentials held by Hralmeida.">
   <title>Certificates | Hralmeida</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,12 +11,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Prevents frames from intercepting pointer/touch gestures over the card layout */
-    .certificate-preview-container iframe {
+    /* Prevents documents from intercepting touch gestures or scrolling bounds */
+    .certificate-preview-container iframe,
+    .certificate-preview-container object,
+    .certificate-preview-container embed {
       pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
     
-    /* Forces regular preview images to zoom and scale to fully cover the entire banner area */
+    /* Forces regular preview images to fill the entire card banner area seamlessly */
     .certificate-preview-container img {
       width: 100% !important;
       height: 100% !important;
@@ -24,7 +28,7 @@
       display: block;
     }
     
-    /* Clean fallback wrapper to guarantee the iframe fills the banner box exactly */
+    /* Strict overflow masking container to completely hide browser toolbars and gray bars */
     .pdf-banner-wrapper {
       width: 100%;
       height: 100%;
@@ -33,6 +37,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      touch-action: none; /* Disables gesture sliding/swiping on mobile previews */
     }
   </style>
 </head>
@@ -65,8 +70,7 @@
       </div>
 
       <div class="certificates-grid" id="certificates-grid">
-         <!-- Certificates will be rendered here dynamically -->
-      </div>
+         </div>
     </section>
   </main>
 
@@ -136,14 +140,15 @@
         if (!cert.file) {
           previewHTML = '<span class="certificate-icon-placeholder">&#128196;</span>';
         } else if (isPDF) {
+          // Deeply padded viewport parameters to eliminate default mobile browser download/open overlay mechanisms
           previewHTML = `
             <div class="pdf-banner-wrapper">
-              <iframe src="${cert.file}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" 
+              <iframe src="${cert.file}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&statusbar=0&messages=0" 
                       style="border: none; 
-                             width: 142%; 
-                             height: 142%; 
+                             width: 146%; 
+                             height: 146%; 
                              position: absolute;
-                             transform: scale(0.71);
+                             transform: scale(0.69);
                              transform-origin: center center;
                              display: block;" 
                       scrolling="no" 
@@ -193,7 +198,7 @@
       });
     }
 
-    // Theme toggle
+    // Theme toggle logic
     var themeToggleBtn = document.getElementById('theme-toggle');
     function updateBtnText() {
       themeToggleBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
