@@ -10,40 +10,40 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
   <style>
-    /* Prevents documents from intercepting touch gestures or scrolling bounds */
-    .certificate-preview-container iframe,
-    .certificate-preview-container object,
-    .certificate-preview-container embed {
-      pointer-events: none;
-      user-select: none;
-      -webkit-user-select: none;
+    /* Absolute containment rule to lock dimensions and stop gesture scrolling/sliding */
+    .certificate-preview-container a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      touch-action: none;
     }
     
-    /* Forces regular preview images to fill the entire card banner area seamlessly */
-    .certificate-preview-container img {
+    /* Forces regular preview images AND the canvas templates to scale flawlessly with no bars */
+    .certificate-preview-container img,
+    .certificate-preview-container canvas {
       width: 100% !important;
       height: 100% !important;
       object-fit: cover !important;
       display: block;
-    }
-    
-    /* Strict overflow masking container to completely hide browser toolbars and gray bars */
-    .pdf-banner-wrapper {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      touch-action: none; /* Disables gesture sliding/swiping on mobile previews */
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
   </style>
 </head>
 
 <body>
   <script>
+    // Initialize PDF.js Worker Configuration
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
     try {
       if (localStorage.getItem('theme') !== 'light') { document.body.classList.add('dark-mode'); }
     } catch (e) { document.body.classList.add('dark-mode'); }
@@ -140,24 +140,15 @@
         if (!cert.file) {
           previewHTML = '<span class="certificate-icon-placeholder">&#128196;</span>';
         } else if (isPDF) {
-          // Deeply padded viewport parameters to eliminate default mobile browser download/open overlay mechanisms
           previewHTML = `
-            <div class="pdf-banner-wrapper">
-              <iframe src="${cert.file}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&statusbar=0&messages=0" 
-                      style="border: none; 
-                             width: 146%; 
-                             height: 146%; 
-                             position: absolute;
-                             transform: scale(0.69);
-                             transform-origin: center center;
-                             display: block;" 
-                      scrolling="no" 
-                      marginwidth="0" 
-                      marginheight="0">
-              </iframe>
-            </div>`;
+            <a href="${cert.file}" target="_blank" rel="noopener" aria-label="Open full ${cert.name} document">
+              <canvas class="pdf-thumbnail" data-src="${cert.file}"></canvas>
+            </a>`;
         } else {
-          previewHTML = '<img src="' + cert.file + '" alt="' + cert.name + ' preview" loading="lazy">';
+          previewHTML = `
+            <a href="${cert.file}" target="_blank" rel="noopener" aria-label="Open full ${cert.name} image">
+              <img src="${cert.file}" alt="${cert.name} preview" loading="lazy">
+            </a>`;
         }
 
         var metaParts = [];
@@ -196,9 +187,34 @@
         `;
         grid.appendChild(card);
       });
+
+      renderPdfThumbnails();
     }
 
-    // Theme toggle logic
+    function renderPdfThumbnails() {
+      var canvases = document.querySelectorAll('.pdf-thumbnail');
+      canvases.forEach(function(canvas) {
+        var url = canvas.getAttribute('data-src');
+        
+        pdfjsLib.getDocument(url).promise.then(function(pdf) {
+          return pdf.getPage(1);
+        }).then(function(page) {
+          var viewport = page.getViewport({ scale: 1.5 });
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          
+          var renderContext = {
+            canvasContext: canvas.getContext('2d'),
+            viewport: viewport
+          };
+          page.render(renderContext);
+        }).catch(function(err) {
+          console.error('Error rendering snapshot for preview:', url, err);
+        });
+      });
+    }
+
+    // Theme toggle
     var themeToggleBtn = document.getElementById('theme-toggle');
     function updateBtnText() {
       themeToggleBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
