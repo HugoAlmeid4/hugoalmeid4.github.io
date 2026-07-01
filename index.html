@@ -38,7 +38,7 @@
       <span class="nav-separator" aria-hidden="true">/</span>
       <a href="certificates.html" class="nav-link">Certificates</a>
     </nav>
-    <button id="theme-toggle" class="theme-toggle">Dark Mode</button>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
   </header>
 
   <main class="Medium-Path">
@@ -51,10 +51,12 @@
       </div>
       <div class="Socials">
         <h2>Socials</h2>
-        <span>
-          <a href="https://github.com/HugoAlmeid4" target="_blank" rel="noopener">Github</a>
-          <a href="https://gitlab.com/hralmeida" target="_blank" rel="noopener">Gitlab</a>
-          <a href="#tally-open=GxkEvO&tally-emoji-text=👋&tally-emoji-animation=wave">Contact Form</a>
+        <span class="social-links">
+          <a href="https://github.com/HugoAlmeid4" target="_blank" rel="noopener"><span class="social-icon">🐙</span>Github</a>
+          <span class="social-separator" aria-hidden="true">-</span>
+          <a href="https://gitlab.com/hralmeida" target="_blank" rel="noopener"><span class="social-icon">🦊</span>Gitlab</a>
+          <span class="social-separator" aria-hidden="true">-</span>
+          <a href="#tally-open=GxkEvO&tally-emoji-text=👋&tally-emoji-animation=wave"><span class="social-icon">✉️</span>Contact Form</a>
         </span>
       </div>
     </section>
@@ -80,11 +82,9 @@
     const themeToggleBtn = document.getElementById('theme-toggle');
 
     function updateBtnText() {
-      if (document.body.classList.contains('dark-mode')) {
-        themeToggleBtn.textContent = 'Light Mode';
-      } else {
-        themeToggleBtn.textContent = 'Dark Mode';
-      }
+      var isDark = document.body.classList.contains('dark-mode');
+      themeToggleBtn.innerHTML = isDark ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5a1 1 0 110-2 1 1 0 010 2zm0 17a1 1 0 110-2 1 1 0 010 2zm9.5-8a1 1 0 110-2 1 1 0 010 2zM4.5 13a1 1 0 110-2 1 1 0 010 2zm12.02-6.78a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zm-10.04 12.02a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zm12.02 1.42a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zM6.46 6.46a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zM12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>';
+      themeToggleBtn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
     }
     updateBtnText();
 
@@ -96,6 +96,7 @@
         localStorage.setItem('theme', theme);
       } catch (e) { }
     });
+
   </script>
 </body>
 

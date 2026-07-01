@@ -108,33 +108,86 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedLang = localStorage.getItem('blogLanguage');
   if (savedLang && translations[savedLang]) currentLanguage = savedLang;
   loadPosts();
-  setupLanguageSwitcher();
 });
 
+function getLanguageName(code) {
+  const map = {
+    en: 'English',
+    pt: 'Português',
+    es: 'Español'
+  };
+  return map[code] || code.toUpperCase();
+}
+
 function setupLanguageSwitcher(containerId = 'languageSwitcher') {
-  const target = document.getElementById(containerId) || document.querySelector('.Posts-Section');
+  const target = document.getElementById(containerId) || (containerId === 'languageSwitcher' ? document.querySelector('.Posts-Section') : null);
   if (!target) return;
 
   const langHTML = `
-    <div class="language-switcher">
-      <button class="lang-btn lang-btn-en ${currentLanguage === 'en' ? 'active' : ''}" onclick="changeLanguage('en')">EN</button>
-      <button class="lang-btn lang-btn-pt ${currentLanguage === 'pt' ? 'active' : ''}" onclick="changeLanguage('pt')">PT</button>
-      <button class="lang-btn lang-btn-es ${currentLanguage === 'es' ? 'active' : ''}" onclick="changeLanguage('es')">ES</button>
+    <div class="language-switcher-dropdown">
+      <button class="lang-menu-toggle" type="button" aria-haspopup="menu" aria-expanded="false">
+        <span class="lang-current-short">${currentLanguage.toUpperCase()}</span>
+        <span class="lang-current-full">${getLanguageName(currentLanguage)}</span>
+        <span class="lang-caret">▾</span>
+      </button>
+      <div class="lang-menu" role="menu">
+        <button class="lang-menu-option ${currentLanguage === 'en' ? 'active' : ''}" data-lang="en" type="button" role="menuitem">English</button>
+        <button class="lang-menu-option ${currentLanguage === 'pt' ? 'active' : ''}" data-lang="pt" type="button" role="menuitem">Português</button>
+        <button class="lang-menu-option ${currentLanguage === 'es' ? 'active' : ''}" data-lang="es" type="button" role="menuitem">Español</button>
+      </div>
     </div>
   `;
 
-  if (containerId === 'languageSwitcher') {
-    const h2 = target.querySelector('h2');
-    if (h2) {
-      const existing = target.querySelector('.language-switcher');
-      if (existing) existing.remove();
-      const div = document.createElement('div');
-      div.innerHTML = langHTML;
-      h2.before(div.firstElementChild);
+  if (containerId === 'languageSwitcher' && target.id !== 'languageSwitcher') {
+    const existing = target.querySelector('.language-switcher-dropdown');
+    if (existing) existing.remove();
+    const div = document.createElement('div');
+    div.innerHTML = langHTML;
+    const firstChild = div.firstElementChild;
+    if (firstChild) {
+      const h2 = target.querySelector('h2');
+      if (h2) h2.before(firstChild);
+      else target.appendChild(firstChild);
     }
   } else {
     target.innerHTML = langHTML;
   }
+
+  const dropdown = target.querySelector('.language-switcher-dropdown');
+  if (!dropdown) return;
+
+  const toggle = dropdown.querySelector('.lang-menu-toggle');
+  const menu = dropdown.querySelector('.lang-menu');
+  if (!toggle || !menu) return;
+
+  if (!window.__langSwitcherBound) {
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.language-switcher-dropdown.open').forEach(item => {
+        item.classList.remove('open');
+        const button = item.querySelector('.lang-menu-toggle');
+        if (button) button.setAttribute('aria-expanded', 'false');
+      });
+    });
+    window.__langSwitcherBound = true;
+  }
+
+  toggle.addEventListener('click', event => {
+    event.stopPropagation();
+    const isOpen = dropdown.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  dropdown.querySelectorAll('.lang-menu-option').forEach(option => {
+    option.addEventListener('click', async event => {
+      event.stopPropagation();
+      dropdown.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      const lang = option.getAttribute('data-lang');
+      if (lang && lang !== currentLanguage) {
+        await changeLanguage(lang);
+      }
+    });
+  });
 }
 
 async function changeLanguage(lang) {
@@ -153,6 +206,9 @@ async function executeLanguageChange(lang) {
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === lang);
   });
+
+  setupLanguageSwitcher('languageSwitcher');
+  setupLanguageSwitcher('overlayLangSwitcher');
 
   const searchInput = document.getElementById('postSearchInput');
   if (searchInput) searchInput.placeholder = t('searchPlaceholder');
@@ -468,7 +524,11 @@ function injectSearchUI() {
   container.innerHTML = `
     <div class="search-bar-wrapper">
       <input type="text" id="postSearchInput" placeholder="${t('searchPlaceholder')}" aria-label="Search posts">
+      <button id="openSearchPopup" class="search-icon-btn" type="button" aria-label="Open search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3a7.5 7.5 0 015.93 12.09l4.74 4.74a1 1 0 01-1.42 1.42l-4.74-4.74A7.5 7.5 0 1110.5 3zm0 2a5.5 5.5 0 100 11 5.5 5.5 0 000-11z"/></svg>
+      </button>
       <button id="postFilterBtn" class="filter-toggle-btn">${t('filterBtn')}</button>
+      <div id="languageSwitcher" class="language-switcher-container"></div>
       <button id="archiveBtn" class="filter-toggle-btn archive-toggle-btn">${t('viewAllArchive')}</button>
     </div>
     <div id="postTagPopup" class="tag-popup">
@@ -478,6 +538,13 @@ function injectSearchUI() {
         <button id="closeTagPopup" class="close-popup-btn">${t('done')}</button>
       </div>
     </div>
+    <div id="searchPopup" class="search-popup" aria-hidden="true">
+      <div class="search-popup-content">
+        <h3>${t('searchPlaceholder')}</h3>
+        <input id="popupSearchInput" type="text" placeholder="${t('searchPlaceholder')}" aria-label="Search posts">
+        <button id="searchPopupDoneBtn" class="filter-toggle-btn">${t('done')}</button>
+      </div>
+    </div>
   `;
 
   const section = document.querySelector('.Posts-Section');
@@ -485,6 +552,8 @@ function injectSearchUI() {
     const h2 = section.querySelector('h2');
     if (h2) h2.after(container);
   }
+
+  setupLanguageSwitcher('languageSwitcher');
 
   const searchInput = document.getElementById('postSearchInput');
   if (searchInput) {
@@ -509,6 +578,45 @@ function injectSearchUI() {
         document.body.style.overflow = 'hidden';
       }
     };
+  }
+
+  const openSearchPopupBtn = document.getElementById('openSearchPopup');
+  const searchPopupDoneBtn = document.getElementById('searchPopupDoneBtn');
+  const searchPopup = document.getElementById('searchPopup');
+  const popupSearchInput = document.getElementById('popupSearchInput');
+
+  if (openSearchPopupBtn && searchPopupDoneBtn && searchPopup && popupSearchInput) {
+    openSearchPopupBtn.addEventListener('click', () => {
+      searchPopup.classList.add('active');
+      searchPopup.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => popupSearchInput.focus(), 100);
+    });
+
+    searchPopupDoneBtn.addEventListener('click', () => {
+      searchPopup.classList.remove('active');
+      searchPopup.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (!popupSearchInput.value.trim()) {
+        openSearchPopupBtn.classList.remove('active-text');
+      }
+    });
+
+    searchPopup.addEventListener('click', e => {
+      if (e.target === searchPopup) {
+        searchPopupDoneBtn.click();
+      }
+    });
+
+    popupSearchInput.addEventListener('input', () => {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => filterAndRender(), 150);
+      if (popupSearchInput.value.trim()) {
+        openSearchPopupBtn.classList.add('active-text');
+      } else {
+        openSearchPopupBtn.classList.remove('active-text');
+      }
+    });
   }
 
   const closeBtn = document.getElementById('closeTagPopup');
@@ -577,7 +685,11 @@ function closeArchive() {
 
 async function filterAndRender() {
   const searchInput = document.getElementById('postSearchInput');
-  const query = searchInput ? searchInput.value.toLowerCase() : '';
+  const popupSearchInput = document.getElementById('popupSearchInput');
+  const activeSearchInput = (searchInput && window.getComputedStyle(searchInput).display !== 'none')
+    ? searchInput
+    : popupSearchInput || searchInput;
+  const query = activeSearchInput ? activeSearchInput.value.toLowerCase() : '';
   const list = document.getElementById('postsList');
   const status = document.getElementById('postsStatus');
 
@@ -969,19 +1081,46 @@ if (!document.getElementById('postCustomStyles')) {
     }
     .project-fullscreen-close:hover, .image-zoom-close:hover { background: black !important; color: white !important; transform: scale(1.05) !important; }
 
-    .language-switcher { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; position: relative; z-index: 100; }
-    .lang-btn {
+    .language-switcher-container { position: relative; display: inline-block; width: auto; }
+    .language-switcher-dropdown { position: relative; display: inline-flex; width: auto; max-width: none; }
+    .lang-menu-toggle {
       background: transparent; border: 1.5px solid #333; color: inherit;
-      padding: 6px 12px; border-radius: 0; cursor: pointer; font-weight: 600;
-      font-size: 11px; letter-spacing: 0.05em;
-      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-      text-transform: uppercase; position: relative; z-index: 101; font-family: 'Lilex', monospace;
+      padding: 10px 14px; border-radius: 0; cursor: pointer; font-weight: 600;
+      font-size: 11px; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+      text-transform: uppercase; font-family: 'Lilex', monospace; white-space: nowrap;
+      width: auto !important; box-sizing: border-box;
+      min-width: 110px;
+      max-width: 100%;
     }
-    .dark-mode .lang-btn { border-color: #555; }
-    .lang-btn:not(.active):hover { background: #333; color: #fff; border-color: #333; transform: scale(1.04); }
-    .dark-mode .lang-btn:not(.active):hover { background: #ededed; color: #1a1a1a; border-color: #ededed; transform: scale(1.04); }
-    .lang-btn.active { background: #ededed !important; color: #1a1a1a !important; border-color: #ededed !important; transform: scale(1.05); }
-    .dark-mode .lang-btn.active { background: #333 !important; color: #ededed !important; border-color: #333 !important; transform: scale(1.05); }
+    .lang-menu-toggle:hover { background: #333; color: #fff; border-color: #333; transform: scale(1.03); }
+    .dark-mode .lang-menu-toggle { border-color: #555; }
+    .dark-mode .lang-menu-toggle:hover { background: #ededed; color: #1a1a1a; border-color: #ededed; transform: scale(1.03); }
+    @media (max-width: 768px) {
+      .language-switcher-container,
+      .language-switcher-dropdown,
+      .lang-menu-toggle { width: 100% !important; }
+      .search-bar-wrapper { flex-direction: column; align-items: stretch; }
+    }
+    .lang-caret { font-size: 10px; line-height: 1; }
+    .lang-menu {
+      position: absolute; top: calc(100% + 6px); right: 0; min-width: 140px;
+      display: flex; flex-direction: column; gap: 0; border: 1.5px solid #333; background: rgb(237, 231, 220);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.16); z-index: 2100; opacity: 0; visibility: hidden;
+      transform: translateY(-6px); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+      pointer-events: none;
+    }
+    .language-switcher-dropdown.open .lang-menu {
+      opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto;
+    }
+    .lang-menu-option {
+      background: transparent; border: 0; color: inherit; text-align: left; padding: 10px 12px;
+      cursor: pointer; font-family: 'Lilex', monospace; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .lang-menu-option:hover, .lang-menu-option.active { background: #333; color: #fff; }
+    .dark-mode .lang-menu { border-color: #555; background: #1a1a1a; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+    .dark-mode .lang-menu-option:hover, .dark-mode .lang-menu-option.active { background: #ededed; color: #1a1a1a; }
 
     .image-zoom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 3000; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -1014,7 +1153,7 @@ if (!document.getElementById('postCustomStyles')) {
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .search-container { margin: 20px 0; max-width: 100% !important; box-sizing: border-box !important; }
-    .search-bar-wrapper { display: flex; gap: 10px; align-items: center; max-width: 100% !important; }
+    .search-bar-wrapper { display: flex; gap: 10px; align-items: center; max-width: 100% !important; flex-wrap: wrap; }
     .search-bar-wrapper input {
       flex: 1; padding: 10px; background: transparent; border: 1.5px solid #333;
       color: inherit; font-family: 'Lilex', monospace; border-radius: 0; min-width: 0 !important;
@@ -1164,7 +1303,10 @@ if (!document.getElementById('postCustomStyles')) {
       .project-fullscreen-title { font-size: 28px !important; line-height: 1.2 !important; width: 100% !important; }
       .project-fullscreen-body { font-size: 16px !important; width: 100% !important; padding: 0 !important; }
       .search-bar-wrapper { flex-direction: column; width: 100% !important; }
-      .search-bar-wrapper input, .filter-toggle-btn { width: 100% !important; box-sizing: border-box !important; }
+      .search-bar-wrapper input, .filter-toggle-btn, .search-bar-wrapper .lang-menu-toggle, .search-bar-wrapper .archive-toggle-btn { width: 100% !important; box-sizing: border-box !important; }
+      .language-switcher-container { width: 100% !important; flex: 1 1 100% !important; }
+      .language-switcher-dropdown { width: 100% !important; }
+      .lang-menu-toggle { width: 100% !important; justify-content: space-between !important; }
       .project-fullscreen-close, .image-zoom-close { top: 15px !important; right: 15px !important; width: 35px !important; height: 35px !important; font-size: 16px !important; }
       .tag-popup-content { padding: 25px 20px !important; width: 95% !important; }
       .recent-post-card { flex: 0 0 calc(50% - 8px); }
