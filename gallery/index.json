@@ -1,0 +1,20 @@
+[
+  {
+    "src": "gallery/star clusters/m5/m5final.jpg",
+    "alt": "M5 globular star cluster, thousands of ancient stars densely packed in a sphere",
+    "title": "M5 — Globular Cluster",
+    "category": "star-clusters"
+  },
+  {
+    "src": "gallery/galaxies/m81m82.jpg",
+    "alt": "M81 and M82, Bodes Galaxy and the Cigar Galaxy photographed together",
+    "title": "M81 & M82 — Bodes & Cigar Galaxies",
+    "category": "galaxies"
+  },
+  {
+    "src": "gallery/moon/Moon.jpg",
+    "alt": "A detailed view of the Moon showing craters and surface texture",
+    "title": "Full Moon",
+    "category": "moon"
+  }
+]
