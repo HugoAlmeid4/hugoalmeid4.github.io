@@ -225,7 +225,10 @@ async function executeLanguageChange(lang) {
   const archiveBtn = document.getElementById('archiveBtn');
   if (archiveBtn) archiveBtn.textContent = t('viewAllArchive');
 
-  await filterAndRender();
+  await Promise.all([
+    filterAndRender(true),
+    renderArchiveList(true)
+  ]);
 
   const params = new URLSearchParams(window.location.search);
   const openPostSlug = params.get('post');
@@ -538,19 +541,30 @@ function injectSearchUI() {
         <button id="closeTagPopup" class="close-popup-btn">${t('done')}</button>
       </div>
     </div>
-    <div id="searchPopup" class="search-popup" aria-hidden="true">
-      <div class="search-popup-content">
-        <h3>${t('searchPlaceholder')}</h3>
-        <input id="popupSearchInput" type="text" placeholder="${t('searchPlaceholder')}" aria-label="Search posts">
-        <button id="searchPopupDoneBtn" class="filter-toggle-btn">${t('done')}</button>
-      </div>
-    </div>
+    
   `;
 
   const section = document.querySelector('.Posts-Section');
   if (section) {
     const h2 = section.querySelector('h2');
     if (h2) h2.after(container);
+  }
+
+  // Ensure the search popup is appended to the document body so it sizes to viewport,
+  // not constrained by posts column width or transformed parents.
+  if (!document.getElementById('searchPopup')) {
+    const popup = document.createElement('div');
+    popup.id = 'searchPopup';
+    popup.className = 'search-popup';
+    popup.setAttribute('aria-hidden', 'true');
+    popup.innerHTML = `
+      <div class="search-popup-content">
+        <h3>${t('searchPlaceholder')}</h3>
+        <input id="popupSearchInput" type="text" placeholder="${t('searchPlaceholder')}" aria-label="Search posts">
+        <button id="searchPopupDoneBtn" class="filter-toggle-btn">${t('done')}</button>
+      </div>
+    `;
+    document.body.appendChild(popup);
   }
 
   setupLanguageSwitcher('languageSwitcher');
@@ -658,23 +672,44 @@ function injectArchiveUI() {
   if (backBtn) backBtn.onclick = closeArchive;
 }
 
-function openArchive() {
+async function renderArchiveList(showLoading = false) {
   const ov = document.getElementById('postArchiveOverlay');
   const list = document.getElementById('archiveList');
-  if (!ov || !list) return;
-  list.innerHTML = '';
+  if (!ov || !list || !ov.classList.contains('active')) return;
+
+  if (showLoading) {
+    list.innerHTML = `
+      <div class="archive-item" style="pointer-events:none; opacity:0.75;">
+        <span class="archive-date">…</span>
+        <span class="archive-post-title">${t('translating')}</span>
+      </div>
+    `;
+  } else {
+    list.innerHTML = '';
+  }
   const fragment = document.createDocumentFragment();
-  allPosts.forEach(post => {
+  const translatedPosts = await Promise.all(allPosts.map(post => getTranslatedPost(post, currentLanguage)));
+
+  translatedPosts.forEach(post => {
     const item = document.createElement('div');
     item.className = 'archive-item scroll-reveal';
     item.innerHTML = `<span class="archive-date">${fmtShort(post.date)}</span><span class="archive-post-title">${esc(post.title)}</span>`;
     item.onclick = () => { closeArchive(); openPostOverlay(post); };
     fragment.appendChild(item);
   });
+
+  // Remove any prior loading placeholder before finalizing the archive list
+  list.innerHTML = '';
   list.appendChild(fragment);
+  setTimeout(() => handleScrollReveal(ov), 100);
+}
+
+async function openArchive() {
+  const ov = document.getElementById('postArchiveOverlay');
+  if (!ov) return;
   ov.classList.add('active');
   document.body.style.overflow = 'hidden';
-  setTimeout(() => handleScrollReveal(ov), 100);
+  await renderArchiveList(true);
 }
 
 function closeArchive() {
@@ -683,7 +718,7 @@ function closeArchive() {
   document.body.style.overflow = '';
 }
 
-async function filterAndRender() {
+async function filterAndRender(showLoading = false) {
   const searchInput = document.getElementById('postSearchInput');
   const popupSearchInput = document.getElementById('popupSearchInput');
   const activeSearchInput = (searchInput && window.getComputedStyle(searchInput).display !== 'none')
@@ -693,13 +728,32 @@ async function filterAndRender() {
   const list = document.getElementById('postsList');
   const status = document.getElementById('postsStatus');
 
-  const filtered = allPosts.filter(p => {
-    const matchesSearch = !query || p.title.toLowerCase().includes(query) || p.excerpt.toLowerCase().includes(query);
+  // First filter by tags
+  const tagFiltered = allPosts.filter(p => {
     const matchesTags = activeFilterTags.length === 0 || activeFilterTags.every(tag => p.tags.includes(tag));
-    return matchesSearch && matchesTags;
+    return matchesTags;
   });
 
-  renderPosts(filtered, list, status, 100);
+  // If there is a search query, filter by title/excerpt. For non-English languages,
+  // translate titles/excerpts first so the user's query (in the selected language)
+  // is matched against translated text.
+  let finalFiltered = tagFiltered;
+  if (query) {
+    const q = query;
+    if (currentLanguage === 'en') {
+      finalFiltered = tagFiltered.filter(p => p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q));
+    } else {
+      const translatedList = await Promise.all(tagFiltered.map(p => getTranslatedPost(p, currentLanguage)));
+      finalFiltered = tagFiltered.filter((p, idx) => {
+        const tp = translatedList[idx];
+        const titleMatch = tp.title && tp.title.toLowerCase().includes(q);
+        const excerptMatch = tp.excerpt && tp.excerpt.toLowerCase().includes(q);
+        return titleMatch || excerptMatch;
+      });
+    }
+  }
+
+  await renderPosts(finalFiltered, list, status, 100, showLoading);
 
   const filterBtn = document.getElementById('postFilterBtn');
   if (filterBtn) {
@@ -763,9 +817,25 @@ function getRelatedPosts(currentPost) {
     .slice(0, 3);
 }
 
-async function renderPosts(posts, list, status, visibleCount = 3) {
+async function renderPosts(posts, list, status, visibleCount = 3, showLoading = false) {
   if (!list) return;
-  list.innerHTML = '';
+
+  if (showLoading) {
+    list.innerHTML = `
+      <div class="post-card skeleton-card">
+        <div class="post-header">
+          <div class="post-header-left" style="width: 100%;">
+            <div class="skeleton-line" style="margin-bottom: 8px; max-width: 180px;"></div>
+            <div class="skeleton-line short"></div>
+          </div>
+        </div>
+      </div>
+      <div class="posts-status">${t('translating')}</div>
+    `;
+    if (status) status.textContent = t('translating');
+  } else {
+    list.innerHTML = '';
+  }
 
   if (!document.getElementById('postFullscreenOverlay')) {
     const ov = document.createElement('div');
@@ -863,6 +933,8 @@ async function renderPosts(posts, list, status, visibleCount = 3) {
     fragment.appendChild(wrap);
   }
 
+  // Remove any prior loading placeholder before finalizing the list
+  list.innerHTML = '';
   list.appendChild(fragment);
   if (status) status.textContent = posts.length === 0 ? t('noPostsFound') : '';
 }

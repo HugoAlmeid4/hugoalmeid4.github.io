@@ -227,6 +227,94 @@ body.dark-mode .search-icon-btn.active-text {
   justify-content: flex-start;
 }
 
+/* Ensure the search container and its controls stay inline by default so
+   empty placeholders don't force vertical stacking before JS initializes. */
+.search-container {
+  width: 100%;
+}
+.search-bar-wrapper .language-switcher-container {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.search-bar-wrapper .filter-toggle-btn,
+.search-bar-wrapper .lang-menu-toggle,
+.search-bar-wrapper .search-icon-btn {
+  flex: 0 0 auto;
+}
+
+/* Keep the archive button visually stable even when the posts area is empty */
+.search-bar-wrapper {
+  min-height: 56px;
+}
+
+.search-bar-wrapper .archive-toggle-btn {
+  margin-left: auto;
+  align-self: center;
+}
+
+/* Keep archive button visually fixed on wider screens to avoid wrapping */
+@media (min-width: 769px) {
+  .search-bar-wrapper {
+    position: relative;
+    padding-right: 160px; /* space for absolute-positioned archive button */
+    flex-wrap: nowrap; /* prevent controls from wrapping to next line */
+    align-items: center;
+  }
+
+  /* Keep the language switcher and control buttons fixed width so they don't push
+     the layout and cause wrapping when the posts area changes height. */
+  .search-bar-wrapper .language-switcher-container,
+  .search-bar-wrapper .filter-toggle-btn,
+  .search-bar-wrapper .lang-menu-toggle,
+  .search-bar-wrapper .archive-toggle-btn,
+  .search-bar-wrapper .search-icon-btn {
+    flex: 0 0 auto;
+  }
+
+  .search-bar-wrapper input#postSearchInput,
+  .search-bar-wrapper input#popupSearchInput {
+    flex: 1 1 auto;
+    min-width: 0; /* allow shrinking without overflowing */
+    max-width: 520px;
+  }
+
+  .search-bar-wrapper .archive-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0;
+    z-index: 5;
+  }
+}
+
+/* Strong desktop override: force header controls into a single inline row
+   to avoid flicker/stacking while JS initializes. Applies on large viewports. */
+@media (min-width: 900px) {
+  .search-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .search-bar-wrapper {
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+  }
+
+  .search-bar-wrapper > * {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex: 0 0 auto !important;
+  }
+
+  .search-bar-wrapper input#postSearchInput {
+    flex: 1 1 320px !important;
+    max-width: 620px !important;
+  }
+}
+
 @media (max-width: 768px) {
   .search-icon-btn {
     display: none;
@@ -235,6 +323,23 @@ body.dark-mode .search-icon-btn.active-text {
     display: block;
     width: 100%;
     margin-bottom: 18px;
+  }
+
+  .Socials .social-links {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    overflow-y: visible;
+    padding-bottom: 0;
+    gap: 8px;
+  }
+
+  .Socials .social-links a {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .Socials .social-separator {
+    display: none;
   }
 }
 
@@ -426,8 +531,21 @@ body.dark-mode #popupSearchInput {
 
 .post-excerpt-preview {
   font-size: 12px;
-  color: #666;
+    
   white-space: nowrap;
+
+  /* Center language button text on phone */
+  .search-bar-wrapper .lang-menu-toggle {
+    justify-content: center;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .search-bar-wrapper .lang-menu-toggle .lang-current-full,
+  .search-bar-wrapper .lang-menu-toggle .lang-current-short {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
   overflow: hidden;
   text-overflow: ellipsis;
   max-height: 20px;
@@ -812,13 +930,32 @@ body.dark-mode #popupSearchInput {
   .lang-menu-toggle {
     width: 100% !important;
     max-width: 100% !important;
-    justify-content: space-between;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: center !important;
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 6px !important;
   }
-  .lang-current-full {
-    display: inline;
-  }
+  .lang-current-full,
   .lang-current-short {
-    display: none;
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    justify-self: center !important;
+  }
+  .lang-caret {
+    display: inline-block !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    justify-self: end !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+
+  /* Hide the short language code (EN/PT/ES) on mobile — show only the full name */
+  .lang-current-short {
+    display: none !important;
   }
 }
 
