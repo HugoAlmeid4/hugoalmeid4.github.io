@@ -875,6 +875,7 @@ async function renderPosts(posts, list, status, visibleCount = 3, showLoading = 
         <div class="project-fullscreen-link-container" id="postFullscreenLinkContainer"></div>
         <div id="relatedPostsContainer"></div>
         <div id="mostRecentContainer"></div>
+        <div id="giscusContainer" class="giscus-comments"></div>
       </div>
     `;
     document.body.appendChild(ov);
@@ -918,7 +919,7 @@ async function renderPosts(posts, list, status, visibleCount = 3, showLoading = 
     card.innerHTML = `
       <div class="post-header">
         <div class="post-header-left">
-          <div class="post-title">${esc(tp.title)} ${draftBadge} <span class="post-date">• ${fmtShort(post.date)}</span></div>
+          <div class="post-title">${esc(tp.title)} ${draftBadge} <span class="post-date">• ${fmtShort(post.date)}</span><span class="post-reading-time"> • ${esc(post.readingTime)}</span></div>
           <div class="post-excerpt-preview">${esc(truncate(tp.excerpt, 80))}</div>
         </div>
         <span class="post-arrow">▼</span>
@@ -1100,6 +1101,7 @@ async function openPostOverlay(post) {
   }
 
   setTimeout(() => handleScrollReveal(ov.querySelector('.project-fullscreen-content')), 100);
+  loadGiscusForPost(post);
 }
 
 function closePostOverlay() {
@@ -1173,4 +1175,56 @@ function openImageZoom(src, alt) {
   const closeBtn = modal.querySelector('.image-zoom-close');
   if (closeBtn) closeBtn.onclick = () => modal.remove();
   modal.onclick = e => { if (e.target === modal) modal.remove(); };
+}
+
+// ── Giscus comments (loaded into #giscusContainer inside the post overlay) ─
+// Reads window globals set by giscus-config.js. If REPO_ID / CATEGORY_ID are
+// blank (site owner hasn't enabled GitHub Discussions yet, or hasn't visited
+// giscus.app), a setup hint replaces the widget so the page still works.
+function loadGiscusForPost(post) {
+  const container = document.getElementById('giscusContainer');
+  if (!container) return;
+  // Always wipe stale widget state — opening a different post on the same
+  // page session should not show comments mapped to the previous slug.
+  container.innerHTML = '';
+
+  const repoId      = window.GISCUS_REPO_ID;
+  const categoryId  = window.GISCUS_CATEGORY_ID;
+  const repo        = window.GISCUS_REPO || 'HugoAlmeid4/hugoalmeid4.github.io';
+  const category    = window.GISCUS_CATEGORY || 'General';
+
+  if (!repoId || !categoryId) {
+    container.innerHTML = `
+      <div class="giscus-setup-hint">
+        <h3>💬 Comments</h3>
+        <p>This post would show reader comments via
+          <a href="https://giscus.app" target="_blank" rel="noopener">giscus</a>
+          — backed by GitHub Discussions, no separate database.</p>
+        <p>To enable, the site owner must:</p>
+        <ol>
+          <li>Enable GitHub Discussions on <code>${repo}</code> (Settings → Features → Discussions).</li>
+          <li>Visit <a href="https://giscus.app" target="_blank" rel="noopener">giscus.app</a> and generate a snippet for <code>${repo}</code>.</li>
+          <li>Copy <code>data-repo-id</code> and <code>data-category-id</code> into <code>giscus-config.js</code> and reload.</li>
+        </ol>
+      </div>`;
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = 'https://giscus.app/client.js';
+  script.async = true;
+  script.crossOrigin = 'anonymous';
+  script.setAttribute('data-repo',              repo);
+  script.setAttribute('data-repo-id',           repoId);
+  script.setAttribute('data-category',          category);
+  script.setAttribute('data-category-id',       categoryId);
+  script.setAttribute('data-mapping',           'specific');
+  script.setAttribute('data-term',              post.slug || '');
+  script.setAttribute('data-reactions-enabled', window.GISCUS_REACTIONS_ENABLED || '1');
+  script.setAttribute('data-emit-metadata',     window.GISCUS_EMIT_METADATA    || '0');
+  script.setAttribute('data-input-position',    window.GISCUS_INPUT_POSITION   || 'top');
+  script.setAttribute('data-theme',             window.GISCUS_THEME            || 'preferred_color_scheme');
+  script.setAttribute('data-lang',              window.GISCUS_LANG             || 'en');
+  script.setAttribute('data-loading',           'lazy');
+  container.appendChild(script);
 }

@@ -2189,6 +2189,11 @@ body.dark-mode .gallery-item-spinner {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  /* Reserve vertical space for the absolutely-positioned bottombar (download
+     button + caption). Without this, an inline capture-info panel can paint
+     over the download button on small screens. 72px covers the bottombar even
+     when its caption wraps to two lines on a narrow phone. */
+  padding-bottom: 72px;
 }
 
 /* ── Lightbox Image Container ── */
@@ -2914,4 +2919,120 @@ body.dark-mode .konami-toast {
   background: #ededed;
   color: #1a1a1a;
   border-color: #ededed;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ── READING TIME (post cards) ──
+   ══════════════════════════════════════════════════════════════════════════════ */
+.post-reading-time {
+  font-weight: 400;
+  color: #888;
+}
+body.dark-mode .post-reading-time {
+  color: #888;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ── GISCUS COMMENTS ──
+   ══════════════════════════════════════════════════════════════════════════════ */
+.giscus-comments {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #ccc;
+}
+body.dark-mode .giscus-comments {
+  border-top-color: #444;
+}
+.giscus-setup-hint {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1.5px dashed #888;
+  padding: 18px 20px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+body.dark-mode .giscus-setup-hint {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: #555;
+}
+.giscus-setup-hint h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.giscus-setup-hint ol {
+  margin-top: 8px;
+  padding-left: 20px;
+  color: #555;
+}
+body.dark-mode .giscus-setup-hint ol {
+  color: #ccc;
+}
+.giscus-setup-hint code {
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 4px;
+}
+body.dark-mode .giscus-setup-hint code {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ── GALLERY LIGHTBOX CAPTURE INFO ──
+   Inline panel inside the existing lightbox showing target / date / equipment /
+   integration / notes set by the CMS on each gallery item. Empty rows are
+   hidden; the entire panel hides itself if no field has data.
+   ══════════════════════════════════════════════════════════════════════════════ */.gallery-lightbox-info {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 24px 22px;
+  background: rgba(0, 0, 0, 0.55);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: 'Lilex', monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.92);
+  text-align: left;
+  /* Soft cap so a photo with very long notes can't shrink the image
+     completely. No overflow needed — notes just wrap normally within the cap. */
+  max-height: 40vh;
+}
+.info-row {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  line-height: 1.5;
+}
+.info-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  min-width: 96px;
+  flex-shrink: 0;
+}
+.info-value {
+  flex: 1;
+  color: rgba(255, 255, 255, 0.95);
+  /* Preserve user-typed line breaks in notes (the CMS field is a textarea). */
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.info-row-notes {
+  align-items: flex-start;
+}
+@media (max-width: 480px) {
+  .gallery-lightbox-info {
+    padding: 12px 16px 18px;
+    font-size: 11px;
+  }
+  .info-label {
+    min-width: 72px;
+    font-size: 9px;
+  }
 }

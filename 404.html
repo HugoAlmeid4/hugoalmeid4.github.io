@@ -4,6 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="404 — Hralmeida">
+    <meta property="og:description" content="Houston, we have a problem. This page has drifted out of orbit.">
+    <meta property="og:url" content="https://hugoalmeid4.github.io/404.html">
+    <meta property="og:image" content="https://hugoalmeid4.github.io/imgs/og-default.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
     <title>404 - Lost in Space | Hralmeida</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +34,15 @@
         <p>Houston, we have a problem. <br> This page has drifted out of orbit.</p>
         <a href="index.html" class="home-btn">Return to Earth</a>
     </div>
+  <!-- Service worker for offline support (PWA). Silently fails on origins
+       where the browser rejects registration (e.g. non-HTTPS). -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(function () { /* disable PWA offline */ });
+      });
+    }
+  </script>
 </body>
 
 </html>

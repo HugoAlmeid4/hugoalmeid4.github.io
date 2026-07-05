@@ -5,6 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="description" content="Professional certifications and credentials held by Hralmeida.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Certificates — Hralmeida">
+  <meta property="og:description" content="Professional certifications and credentials held by Hralmeida.">
+  <meta property="og:url" content="https://hugoalmeid4.github.io/certificates.html">
+  <meta property="og:image" content="https://hugoalmeid4.github.io/imgs/og-default.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a1a1a">
   <title>Certificates | Hralmeida</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -205,6 +214,15 @@
     }
 
     loadCertificates();
+  </script>  <!-- Service worker for offline support (PWA). Silently fails on origins
+       where the browser rejects registration (e.g. non-HTTPS). -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(function () { /* disable PWA offline */ });
+      });
+    }
   </script>
 </body>
+
 </html>

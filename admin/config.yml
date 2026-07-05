@@ -166,6 +166,11 @@ collections:
                 label: Alt text (accessibility)
                 widget: text
                 hint: Describe what's in the image for screen readers.
+              # Capture-info fields shown inside the gallery lightbox. These
+              # are nested per-item (Sveltia renders one row in the CMS for
+              # every entry in `/gallery/index.json` # items[]). Keeping them
+              # at the top level would expose a single file-wide input that
+              # would clobber all entries on save.
               - name: category
                 label: Category slug
                 widget: select
@@ -177,6 +182,33 @@ collections:
                   - { label: Wide field,  value: wide-field }
                   - { label: Other,       value: other }
                 hint: 'Used by the gallery filter tabs. Add new categories here.'
+              - name: target
+                label: 'Target (sky object)'
+                widget: string
+                required: false
+                hint: 'Renders in the gallery lightbox alongside the photo.'
+              - name: date
+                label: 'Date captured'
+                widget: datetime
+                format: YYYY-MM-DD
+                picker_utc: false
+                date_format: 'YYYY-MM-DD'
+                time_format: false
+                required: false
+              - name: equipment
+                label: Equipment
+                widget: string
+                required: false
+                hint: 'Free-text: e.g. "Newtonian 200/1000 + ASI224MC + iOptron CEM40".'
+              - name: exposure_total
+                label: 'Total integration'
+                widget: string
+                required: false
+                hint: 'e.g. "3.2 hours (192 × 60s subs)".'
+              - name: notes
+                label: Notes
+                widget: text
+                required: false
 
   # ── Home page — Bio, socials, skills chips ──
   - name: bio
@@ -317,3 +349,5 @@ collections:
                 label: 'Single paragraph (optional, renders instead of list)'
                 widget: text
                 required: false
+
+
