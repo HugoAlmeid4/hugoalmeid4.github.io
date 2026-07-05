@@ -286,6 +286,15 @@ body.dark-mode .search-icon-btn.active-text {
     margin-left: 0;
     z-index: 5;
   }
+
+  /* Preserve vertical centering on hover — the injected .filter-toggle-btn:hover
+     transform: scale(1.03) from posts.js overrides translateY(-50%) on equal
+     specificity (≤ class order), shifting the button down by half its height.
+     `body` prefix bumps specificity to (0,4,0) so it also beats the dark-mode
+     injected variant `.dark-mode .filter-toggle-btn:hover` ((0,3,0)). */
+  body .search-bar-wrapper .archive-toggle-btn:hover {
+    transform: translateY(-50%) scale(1.03);
+  }
 }
 
 /* Strong desktop override: force header controls into a single inline row
@@ -312,6 +321,16 @@ body.dark-mode .search-icon-btn.active-text {
   .search-bar-wrapper input#postSearchInput {
     flex: 1 1 320px !important;
     max-width: 620px !important;
+  }
+
+  /* On PC, only the search icon should be visible — clicking it opens the
+     popup with #popupSearchInput. Hide the inline input here.
+     ID specificity (1,0,0) + !important beats both:
+       - default rule `#postSearchInput { display: none }` (no !important)
+       - the injected `.search-bar-wrapper > * { display: inline-flex !important }` (0,1,0)
+     Scoped to ≥769px so the mobile @media override (display: block) still works. */
+  #postSearchInput {
+    display: none !important;
   }
 }
 
@@ -2529,15 +2548,6 @@ body.dark-mode .certificate-preview-container {
   height: 100%;
   object-fit: cover;
   display: block;
-}
-
-.certificate-icon-placeholder {
-  font-size: 32px;
-  color: #555;
-}
-
-body.dark-mode .certificate-icon-placeholder {
-  color: #aaa;
 }
 
 .certificate-details {

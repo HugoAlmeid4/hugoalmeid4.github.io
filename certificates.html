@@ -8,10 +8,19 @@
   <title>Certificates | Hralmeida</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="preload" href="style.css" as="style">
   <link rel="stylesheet" href="style.css">
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script defer>
+    /* Set the PDF.js worker source AFTER pdf.min.js loads.
+       defer scripts execute in document order, so pdfjsLib is defined here.
+       (Previously this line was in the inline body script, where it ran before
+       pdf.min.js and threw ReferenceError, which halted the script and prevented
+       the dark-mode class from being applied — light mode flash.) */
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+  </script>
 
   <style>
     /* Absolute containment rule to lock dimensions and stop gesture scrolling/sliding */
@@ -41,16 +50,13 @@
 
 <body>
   <script>
-    // Initialize PDF.js Worker Configuration
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
     try {
       if (localStorage.getItem('theme') !== 'light') { document.body.classList.add('dark-mode'); }
     } catch (e) { document.body.classList.add('dark-mode'); }
   </script>
 
   <header class="Name-Photo">
-    <img src="imgs/imgs.jpg" alt="Hralmeida profile picture" fetchpriority="high">
+    <img src="imgs/imgs.jpg" alt="Hralmeida profile picture" width="100" height="100" fetchpriority="high">
     <h3>Hralmeida</h3>
     <nav class="nav-links" aria-label="Main navigation">
       <a href="index.html" class="nav-link">Home</a>
@@ -104,16 +110,20 @@
         var files = await res.json();
 
         var certs = [];
-        for (var i = 0; i < files.length; i++) {
+        var certResults = await Promise.all(files.map(async function(file) {
           try {
-            var r = await fetch('certificates/' + files[i]);
-            if (!r.ok) continue;
+            var r = await fetch('certificates/' + file);
+            if (!r.ok) return null;
             var mdText = await r.text();
             var m = parseFrontmatter(mdText);
-            if (m.name) certs.push(m);
+            return m.name ? m : null;
           } catch (e) {
-            console.error('Error parsing certificate:', files[i], e);
+            console.error('Error parsing certificate:', file, e);
+            return null;
           }
+        }));
+        for (var j = 0; j < certResults.length; j++) {
+          if (certResults[j]) certs.push(certResults[j]);
         }
 
         renderCertificates(certs);
