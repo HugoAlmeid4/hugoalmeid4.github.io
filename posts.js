@@ -1210,6 +1210,10 @@ function loadGiscusForPost(post) {
     return;
   }
 
+  // Mapping: pulled from giscus-config.js. 'pathname' uses the current URL's
+  // pathname; 'specific' pairs with data-term = post.slug for per-post threads.
+  // data-term is only meaningful when mapping is 'specific'.
+  const mapping = window.GISCUS_MAPPING || 'pathname';
   const script = document.createElement('script');
   script.src = 'https://giscus.app/client.js';
   script.async = true;
@@ -1218,11 +1222,14 @@ function loadGiscusForPost(post) {
   script.setAttribute('data-repo-id',           repoId);
   script.setAttribute('data-category',          category);
   script.setAttribute('data-category-id',       categoryId);
-  script.setAttribute('data-mapping',           'specific');
-  script.setAttribute('data-term',              post.slug || '');
+  script.setAttribute('data-mapping',           mapping);
+  if (mapping === 'specific') {
+    script.setAttribute('data-term', post.slug || '');
+  }
+  script.setAttribute('data-strict',            window.GISCUS_STRICT            || '0');
   script.setAttribute('data-reactions-enabled', window.GISCUS_REACTIONS_ENABLED || '1');
   script.setAttribute('data-emit-metadata',     window.GISCUS_EMIT_METADATA    || '0');
-  script.setAttribute('data-input-position',    window.GISCUS_INPUT_POSITION   || 'top');
+  script.setAttribute('data-input-position',    window.GISCUS_INPUT_POSITION   || 'bottom');
   script.setAttribute('data-theme',             window.GISCUS_THEME            || 'preferred_color_scheme');
   script.setAttribute('data-lang',              window.GISCUS_LANG             || 'en');
   script.setAttribute('data-loading',           'lazy');
