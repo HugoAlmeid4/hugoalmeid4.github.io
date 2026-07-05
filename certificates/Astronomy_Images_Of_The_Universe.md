@@ -1,5 +1,5 @@
 ---
-name: Astronomy: images of the Universe
+name: "Astronomy: images of the Universe"
 issuer: The Open University
 issuer_url: https://www.open.edu/openlearn
 issue_date: 2026-06-29
