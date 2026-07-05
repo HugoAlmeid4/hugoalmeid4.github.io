@@ -352,6 +352,9 @@ async function loadPosts() {
           readingTime: `${mins} min read`,
           author: metadata.author || '',
           tags: metadata.tags ? metadata.tags.split(',').map(s => s.trim()) : [],
+          // Accept both `draft: true` and `draft: "true"` so editors writing
+          // markdown by hand (with quotes) still work in the CMS.
+          draft: metadata.draft === true || metadata.draft === 'true',
           bodyHtml,
           filename
         };
@@ -360,15 +363,31 @@ async function loadPosts() {
 
     const results = await Promise.all(postPromises);
     const seenSlugs = new Set();
-    allPosts = results
+    // Drafts are hidden by default. Add `?preview=drafts` to the URL to see
+    // them with a DRAFT badge — useful when authoring new content.
+    const previewDrafts = new URLSearchParams(window.location.search).get('preview') === 'drafts';
+
+    // Keep a separate list of all loaded posts for search/archive, but only
+    // expose non-draft posts as the public list by default.
+    const visibleResults = results
       .filter(p => {
         if (!p || seenSlugs.has(p.slug)) return false;
+        if (p.draft && !previewDrafts) return false;
         seenSlugs.add(p.slug);
         return true;
       })
       .sort((a, b) => parseDate(b.date) - parseDate(a.date));
 
-    localStorage.setItem('posts_cache', JSON.stringify({ data: allPosts }));
+    allPosts = visibleResults;
+    showDraftPreviewBanner(previewDrafts);
+    // Don't pollute the cache while previewing drafts — the public cache
+    // should never contain unpublished posts.
+    if (!previewDrafts) {
+      localStorage.setItem('posts_cache', JSON.stringify({ data: allPosts }));
+    } else {
+      localStorage.removeItem('posts_cache');
+    }
+
     setupRSSFeed(allPosts);
     renderPosts(allPosts, list, status);
     handleSharedPostLink(allPosts);
@@ -894,10 +913,12 @@ async function renderPosts(posts, list, status, visibleCount = 3, showLoading = 
     }
     const card = document.createElement('div');
     card.className = 'post-card';
+    if (post.draft) card.classList.add('post-card-draft');
+    const draftBadge = post.draft ? '<span class="post-draft-badge">DRAFT</span>' : '';
     card.innerHTML = `
       <div class="post-header">
         <div class="post-header-left">
-          <div class="post-title">${esc(tp.title)} <span class="post-date">• ${fmtShort(post.date)}</span></div>
+          <div class="post-title">${esc(tp.title)} ${draftBadge} <span class="post-date">• ${fmtShort(post.date)}</span></div>
           <div class="post-excerpt-preview">${esc(truncate(tp.excerpt, 80))}</div>
         </div>
         <span class="post-arrow">▼</span>
@@ -981,7 +1002,7 @@ async function openPostOverlay(post) {
   const loader = document.getElementById('translationLoader');
   const loaderText = document.getElementById('translationLoaderText');
 
-  if (dateEl) dateEl.textContent = `${fmtFull(post.date)}${post.author ? ' • By ' + post.author : ''} • ${post.readingTime}`;
+  if (dateEl) dateEl.textContent = `${fmtFull(post.date)}${post.author ? ' • By ' + post.author : ''} • ${post.readingTime}` + (post.draft ? ' • DRAFT' : '');
 
   const tp = await getTranslatedPost(post, currentLanguage);
   if (titleEl) titleEl.textContent = tp.title;
@@ -1101,6 +1122,23 @@ function handleSharedPostLink(posts) {
     const post = posts.find(p => p.slug === slug);
     if (post) openPostOverlay(post);
   }
+}
+
+function showDraftPreviewBanner(active) {
+  if (!document.body) return;
+  let banner = document.getElementById('draftPreviewBanner');
+  if (!active) {
+    if (banner) banner.remove();
+    return;
+  }
+  if (banner) return;
+  banner = document.createElement('div');
+  banner.id = 'draftPreviewBanner';
+  banner.className = 'draft-preview-banner';
+  banner.innerHTML = '<span>Showing drafts — remove <code>?preview=drafts</code> from the URL to hide drafts.</span>';
+  // Insert at the top of .Medium-Path so it's visible above posts.
+  const main = document.querySelector('.Medium-Path') || document.body;
+  main.insertBefore(banner, main.firstChild);
 }
 
 function setupRSSFeed(posts) {

@@ -1,0 +1,316 @@
+# ── Sveltia CMS — Admin Dashboard ──
+# Git-based CMS that runs entirely in the browser.
+# Auth: Personal Access Token (fine-grained, scoped to this repo, Contents: RW only).
+# PAT lives only in browser localStorage — never committed to this config.
+
+backend:
+  name: github
+  repo: HugoAlmeid4/hugoalmeid4.github.io
+  branch: main
+  # PAT auth (Option B) — Sveltia exposes a "Sign In with Token" button by
+  # default for the GitHub backend when no OAuth proxy is configured. The
+  # token is pasted by the user and stored in browser localStorage. Fine-
+  # grained PAT scoped to this repo, Contents: Read+Write only is the
+  # recommended setup. Do NOT add `auth_endpoint` or `base_url` — those are
+  # not standard Sveltia keys and will break config parsing.
+
+# Default upload destination. Per-collection media_folder overrides below.
+media_folder: 'imgs/uploads'
+public_folder: '/imgs/uploads'
+
+# ── Collections ──
+collections:
+  # ── Posts (markdown files in /posts) ──
+  - name: posts
+    label: Posts (Blog)
+    folder: posts
+    extension: md
+    format: frontmatter
+    create: true
+    delete: true
+    # Posts reference images as `posts/...` in markdown (`![[foo.png|166]]`).
+    # The renderer (posts.js) prepends `posts/` when no scheme is given, so
+    # uploaded media must live under `posts/` at the repo root to be reached.
+    media_folder: 'posts'
+    public_folder: '/posts'
+    fields:
+      - name: title
+        label: Title
+        widget: string
+      - name: date
+        label: Date
+        widget: datetime
+        format: YYYY-MM-DD
+        picker_utc: false
+        date_format: 'YYYY-MM-DD'
+        time_format: false
+      - name: excerpt
+        label: Excerpt
+        widget: text
+        hint: Short summary used in card previews.
+      - name: author
+        label: Author
+        widget: string
+        required: false
+      - name: tags
+        label: Tags
+        widget: string
+        required: false
+        hint: Comma-separated (e.g. "dark matter, relativity"). Stored as a single string — the renderer splits it for filtering.
+      - name: draft
+        label: Draft
+        widget: boolean
+        default: false
+        required: false
+        hint: Hidden from public by default. Add ?preview=drafts to URL to view drafts.
+      - name: body
+        label: Body (Markdown)
+        widget: markdown
+
+  # ── Certificates (markdown files in /certificates) ──
+  - name: certificates
+    label: Certificates
+    folder: certificates
+    extension: md
+    format: frontmatter
+    create: true
+    delete: true
+    media_folder: 'certificates'
+    public_folder: '/certificates'
+    fields:
+      - name: name
+        label: Name
+        widget: string
+      - name: issuer
+        label: Issuer
+        widget: string
+      - name: issuer_url
+        label: Issuer URL
+        widget: string
+        required: false
+      - name: issue_date
+        label: Issue date
+        widget: string
+        required: false
+        hint: 'e.g. 2026-06-28 or Jun 28, 2026'
+      - name: expiry_date
+        label: Expiry date
+        widget: string
+        required: false
+        hint: 'e.g. 2027-06-28 or "Does not expire"'
+      - name: credential_id
+        label: Credential ID
+        widget: string
+        required: false
+      - name: credential_url
+        label: Credential verification URL
+        widget: string
+        required: false
+      - name: skills_covered
+        label: Skills covered
+        widget: list
+        field: { label: Skill, widget: string }
+        required: false
+      - name: criteria
+        label: Criteria
+        widget: text
+        required: false
+        hint: Required hours / sections / assessment criteria.
+      - name: bio
+        label: Description
+        widget: text
+        required: false
+      - name: file
+        label: File (image or PDF)
+        widget: image
+        required: false
+        allow_multiple: false
+        hint: Upload the certificate image or PDF. Stored in /certificates/.
+      - name: is_pdf
+        label: 'File is a PDF'
+        widget: boolean
+        default: false
+        required: false
+        hint: 'If true, the certificate page renders a PDF thumbnail.'
+      - name: body
+        label: Body (Markdown, optional)
+        widget: markdown
+        required: false
+
+  # ── Gallery (single JSON file) ──
+  - name: gallery
+    label: Gallery
+    files:
+      - name: gallery-items
+        label: Gallery images
+        file: gallery/index.json
+        format: json
+        media_folder: 'gallery'
+        public_folder: '/gallery'
+        fields:
+          - name: items
+            label: Gallery items
+            widget: list
+            fields:
+              - name: title
+                label: Title
+                widget: string
+              - name: src
+                label: Image file
+                widget: image
+                hint: Drop image here, or paste existing path under /gallery/...
+              - name: alt
+                label: Alt text (accessibility)
+                widget: text
+                hint: Describe what's in the image for screen readers.
+              - name: category
+                label: Category slug
+                widget: select
+                options:
+                  - { label: Galaxies,    value: galaxies }
+                  - { label: Moon,        value: moon }
+                  - { label: 'Star clusters', value: star-clusters }
+                  - { label: Nebula,      value: nebulae }
+                  - { label: Wide field,  value: wide-field }
+                  - { label: Other,       value: other }
+                hint: 'Used by the gallery filter tabs. Add new categories here.'
+
+  # ── Home page — Bio, socials, skills chips ──
+  - name: bio
+    label: 'Home → Bio, Socials, Skills'
+    files:
+      - name: bio
+        label: 'Bio, Socials, Skills'
+        file: data/bio.json
+        format: json
+        fields:
+          - name: bio
+            label: Bio paragraph
+            widget: text
+          - name: socials
+            label: Social links (homepage)
+            widget: list
+            fields:
+              - name: label
+                label: Label
+                widget: string
+              - name: url
+                label: URL
+                widget: string
+              - name: icon
+                label: Icon (emoji)
+                widget: string
+                required: false
+                hint: 'Single emoji, e.g. 🐙 ✉️ 🦊'
+          - name: skills_groups
+            label: Skills & Tools groups
+            widget: list
+            fields:
+              - name: category
+                label: Group name
+                widget: string
+                hint: 'e.g. Astro, Code, Languages.'
+              - name: items
+                label: Items
+                widget: list
+                field: { label: Item, widget: string }
+
+  # ── CV Resume ──
+  - name: cv
+    label: 'CV'
+    files:
+      - name: cv
+        label: 'CV content'
+        file: data/cv.json
+        format: json
+        fields:
+          - name: tagline
+            label: Tagline (under name)
+            widget: string
+          - name: bio
+            label: Bio paragraph
+            widget: text
+          - name: contact
+            label: Contact links
+            widget: list
+            fields:
+              - name: label
+                label: Display label
+                widget: string
+              - name: url
+                label: URL
+                widget: string
+          - name: skills
+            label: Skills categories
+            widget: list
+            fields:
+              - name: category
+                label: Category name
+                widget: string
+              - name: description
+                label: Description
+                widget: text
+          - name: selected_posts
+            label: 'Selected posts (link list)'
+            widget: list
+            fields:
+              - name: title
+                label: Title
+                widget: string
+              - name: url
+                label: URL or path
+                widget: string
+          - name: projects_intro
+            label: Projects intro text
+            widget: string
+            required: false
+          - name: projects
+            label: Projects
+            widget: list
+            fields:
+              - name: description
+                label: Description
+                widget: string
+              - name: url
+                label: URL
+                widget: string
+                required: false
+          - name: interests
+            label: Interests
+            widget: text
+
+  # ── Now page ──
+  - name: now
+    label: 'Now page'
+    files:
+      - name: now
+        label: 'Now page content'
+        file: data/now.json
+        format: json
+        fields:
+          - name: last_updated
+            label: 'Last updated (YYYY-MM)'
+            widget: string
+            hint: 'e.g. 2025-07'
+          - name: blocks
+            label: Sections
+            widget: list
+            summary: '{{fields.title}}'
+            fields:
+              - name: title
+                label: Section title
+                widget: string
+              - name: intro
+                label: Intro paragraph (optional)
+                widget: text
+                required: false
+                hint: 'Renders before the list.'
+              - name: items
+                label: 'List items (HTML allowed for <em>, <a>)'
+                widget: list
+                field: { label: Item, widget: text }
+                required: false
+              - name: text
+                label: 'Single paragraph (optional, renders instead of list)'
+                widget: text
+                required: false

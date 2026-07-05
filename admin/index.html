@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>Admin — Hralmeida</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E✎%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilex:wght@400;700&display=swap" rel="stylesheet">
+  <!-- The CDN path is `dist/sveltia-cms.js` (NOT `sveltia.js` — that 404s).
+       Version pinned to 0.170.0. Update via https://github.com/sveltia/sveltia-cms/releases -->
+  <link rel="preload" href="https://unpkg.com/@sveltia/cms@0.170.0/dist/sveltia-cms.js" as="script">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body { background: rgb(237, 231, 220); color: #333; font-family: "Lilex", monospace; }
+    body.dark-mode { background: #1a1a1a; color: #ededed; }
+    .admin-noscript {
+      max-width: 480px;
+      margin: 60px auto;
+      padding: 24px;
+      border: 1.5px solid #333;
+      background: rgba(0, 0, 0, 0.02);
+      font-size: 14px;
+      line-height: 1.7;
+      text-align: center;
+    }
+    body.dark-mode .admin-noscript {
+      border-color: #ededed;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .admin-error {
+      max-width: 520px;
+      margin: 60px auto;
+      padding: 24px;
+      border: 1.5px solid #c62828;
+      background: rgba(198, 40, 40, 0.05);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+  </style>
+  <script>
+    /* Match the site's theme before Sveltia's UI paints. */
+    try {
+      if (localStorage.getItem('theme') !== 'light') {
+        document.body.classList.add('dark-mode');
+      }
+    } catch (e) {
+      document.body.classList.add('dark-mode');
+    }
+
+    /* CDN-failure backstop: if Sveltia's script doesn't load OR errors out,
+       show a message so the user is never stranded on a blank page.
+       Two paths trigger this: (1) the <script> onerror attribute, (2)
+       any uncaught error that prevents Sveltia from mounting. */
+    window.__sveltiaFailed = false;
+    window.addEventListener('error', function (e) {
+      if (window.__sveltiaFailed) return;
+      // Only catch script load errors from Sveltia's CDN, not user-side issues.
+      var src = (e.target && e.target.src) || '';
+      if (src && src.indexOf('sveltia-cms') !== -1) {
+        window.__sveltiaFailed = true;
+        showCdnError(e.message || 'Sveltia script failed to load.');
+      }
+    }, true);
+    function showCdnError(reason) {
+      var existing = document.getElementById('admin-cdn-error');
+      if (existing) return;
+      var wrap = document.createElement('div');
+      wrap.id = 'admin-cdn-error';
+      wrap.className = 'admin-error';
+      wrap.innerHTML =
+        '<strong>Sveltia CMS failed to load.</strong><br>' +
+        'Reason: <code>' + (reason || 'unknown') + '</code><br><br>' +
+        'Common causes:<br>' +
+        '&middot; <code>unpkg.com</code> unreachable from this network<br>' +
+        '&middot; Ad-blocker or privacy extension blocking the script<br>' +
+        '&middot; Outdated pinned version (check <a href="https://github.com/sveltia/sveltia-cms/releases">releases</a>)<br><br>' +
+        'Try opening the browser console (F12) for the exact error.';
+      document.body.appendChild(wrap);
+    }
+  </script>
+</head>
+<body>
+  <noscript>
+    <div class="admin-noscript">
+      The admin dashboard requires JavaScript. Please enable it and reload.
+    </div>
+  </noscript>
+
+  <!-- Sveltia CMS — git-based. Talks to GitHub API directly when configured
+       with a fine-grained PAT (no Cloudflare Worker / OAuth proxy needed).
+       <script onerror> feeds the same error backstop as the window error
+       listener above. -->
+  <script
+    src="https://unpkg.com/@sveltia/cms@0.170.0/dist/sveltia-cms.js"
+    defer
+    onerror="window.__sveltiaFailed=true;showCdnError('CDN script did not load.');">
+  </script>
+</body>
+</html>

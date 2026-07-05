@@ -1,0 +1,106 @@
+// ─── bio.js ─────────────────────────────────────────────────────────────────
+// Fetches data/bio.json and populates the home page:
+//   - #bio-section     (Bio paragraph)
+//   - #socials-section (Social link buttons)
+//   - #skills-section  (Skills & Tools chips)
+//
+// The static HTML in index.html acts as a fallback visible immediately;
+// this script replaces it once the JSON loads. If the JSON fetch fails,
+// the original static content stays in place — no broken state.
+// ─────────────────────────────────────────────────────────────────────────────
+
+(function () {
+  'use strict';
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderBio(data) {
+    const section = document.getElementById('bio-section');
+    if (!section) return;
+    section.innerHTML =
+      '<h2>Bio</h2>' +
+      '<p>' + esc(data.bio || '') + '</p>';
+  }
+
+  function renderSocials(data) {
+    const section = document.getElementById('socials-section');
+    if (!section || !Array.isArray(data.socials)) return;
+
+    if (data.socials.length === 0) {
+      section.innerHTML = '<h2>Socials</h2><span class="social-links"></span>';
+      return;
+    }
+
+    // Use the same markup shape as the original (for identical styling).
+    // Each link: <a><icon>label</a> separated by " - " between links.
+    const links = data.socials.map(function (s) {
+      const label = esc(s.label || '');
+      const url = esc(s.url || '#');
+      const open = /^https?:\/\//.test(s.url || '');
+      const icon = s.icon ? '<span class="social-icon">' + esc(s.icon) + '</span>' : '';
+      return '<a href="' + url + '"' +
+             (open ? ' target="_blank" rel="noopener"' : '') +
+             '>' + icon + label + '</a>';
+    });
+
+    // Render separators between items, but skip before the first item.
+    // Mimics the original "<a>—</a><a>" pattern.
+    const separator = '<span class="social-separator" aria-hidden="true">-</span>';
+    const html = [];
+    for (let i = 0; i < links.length; i++) {
+      if (i > 0) html.push(separator);
+      html.push(links[i]);
+    }
+
+    section.innerHTML =
+      '<h2>Socials</h2>' +
+      '<span class="social-links">' + html.join('') + '</span>';
+  }
+
+  function renderSkills(data) {
+    const section = document.getElementById('skills-section');
+    if (!section || !Array.isArray(data.skills_groups)) return;
+
+    const groupsHTML = data.skills_groups.map(function (g) {
+      const items = Array.isArray(g.items) ? g.items : [];
+      const chipsHTML = items.map(function (it) {
+        return '<span class="skill-chip">' + esc(it) + '</span>';
+      }).join('');
+      return (
+        '<div class="skill-group">' +
+          '<h3>' + esc(g.category || '') + '</h3>' +
+          '<div class="skill-chips">' + chipsHTML + '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    // Preserve the original h2 and replace only the inline groups that follow it.
+    section.innerHTML = '<h2>Skills &amp; Tools</h2>' + groupsHTML;
+  }
+
+  async function loadBio() {
+    try {
+      const res = await fetch('data/bio.json');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      renderBio(data);
+      renderSocials(data);
+      renderSkills(data);
+    } catch (err) {
+      // Static fallback HTML in index.html stays visible. Log quietly.
+      console.warn('Bio JSON load failed; using fallback:', err.message);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadBio);
+  } else {
+    loadBio();
+  }
+})();

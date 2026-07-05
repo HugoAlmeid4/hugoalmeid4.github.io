@@ -1,0 +1,34 @@
+{
+  "bio": "Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.",
+  "socials": [
+    {
+      "label": "Github",
+      "url": "https://github.com/HugoAlmeid4",
+      "icon": "🐙"
+    },
+    {
+      "label": "Gitlab",
+      "url": "https://gitlab.com/hralmeida",
+      "icon": "🦊"
+    },
+    {
+      "label": "Contact Form",
+      "url": "#tally-open=GxkEvO&tally-emoji-text=👋&tally-emoji-animation=wave",
+      "icon": "✉️"
+    }
+  ],
+  "skills_groups": [
+    {
+      "category": "Astro",
+      "items": ["Siril", "Stellarium", "DeepSkyStacker"]
+    },
+    {
+      "category": "Code",
+      "items": ["Python", "HTML", "CSS", "Git", "Markdown"]
+    },
+    {
+      "category": "Languages",
+      "items": ["English", "Português", "Español"]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "last_updated": "2025-07",
+  "blocks": [
+    {
+      "title": "Learning",
+      "items": [
+        "Long-exposure deep-sky image processing in Siril",
+        "Python for data analysis"
+      ]
+    },
+    {
+      "title": "Working on",
+      "items": [
+        "Creating a small project to learn Python.",
+        "Saving for a dedicated planetary imaging camera"
+      ]
+    },
+    {
+      "title": "Imaging targets",
+      "intro": "The next clear, moonless night I want to try:",
+      "items": [
+        "Lagoon Nebula - Never shot a nebula before."
+      ]
+    },
+    {
+      "title": "Reading",
+      "items": [
+        "Carl Sagan — <em>Cosmos</em>",
+        "Anne Frank — <em>The Diary of a Young Girl</em>",
+        "Ray Bradbury — <em>Fahrenheit 451</em>"
+      ]
+    },
+    {
+      "title": "Outside this site",
+      "items": [
+        "I am on vacation now so more time to study and learn more about astrophysics.."
+      ]
+    }
+  ]
+}

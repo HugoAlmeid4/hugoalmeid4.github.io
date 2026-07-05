@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="posts.css">
   <script src="theme.js" defer></script>
   <script src="easter.js" defer></script>
+  <script src="bio.js" defer></script>
   <script src="posts.js" defer></script>
   <script async src="https://tally.so/widgets/embed.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
@@ -52,12 +53,16 @@
   <main class="Medium-Path">
 
     <section class="Bio-Socials">
-      <div>
+      <!-- Bio + socials + skills are populated from data/bio.json by bio.js
+           (so they can be edited via the admin dashboard on this site).
+           The static fallback below keeps the page usable if the JSON fails
+           to load. -->
+      <div id="bio-section">
         <h2>Bio</h2>
         <p>Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just
           enjoying the view while the world turns, again.</p>
       </div>
-      <div class="Socials">
+      <div class="Socials" id="socials-section">
         <h2>Socials</h2>
         <span class="social-links">
           <a href="https://github.com/HugoAlmeid4" target="_blank" rel="noopener"><span class="social-icon">🐙</span>Github</a>
@@ -68,7 +73,7 @@
         </span>
       </div>
 
-      <div class="Skills" aria-label="Skills and tools">
+      <div class="Skills" aria-label="Skills and tools" id="skills-section">
         <h2>Skills &amp; Tools</h2>
 
         <div class="skill-group">

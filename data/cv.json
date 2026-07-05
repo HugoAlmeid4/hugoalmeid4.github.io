@@ -1,0 +1,46 @@
+{
+  "tagline": "Astrophotographer · Code hobbyist · Lifelong learner",
+  "bio": "Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.",
+  "contact": [
+    {
+      "label": "github.com/HugoAlmeid4",
+      "url": "https://github.com/HugoAlmeid4"
+    },
+    {
+      "label": "gitlab.com/hralmeida",
+      "url": "https://gitlab.com/hralmeida"
+    }
+  ],
+  "skills": [
+    {
+      "category": "Astrophotography",
+      "description": "Image stacking (Siril, DeepSkyStacker), session planning (Stellarium), post-processing (GIMP), equatorial mount operation, polar alignment."
+    },
+    {
+      "category": "Code",
+      "description": "Python, HTML, CSS, Git, Markdown, basic Linux command line."
+    },
+    {
+      "category": "Languages",
+      "description": "English · Portuguese · Spanish."
+    }
+  ],
+  "selected_posts": [
+    {
+      "title": "Dark matter — a simple explanation",
+      "url": "posts/dark-matter-explanation.md"
+    },
+    {
+      "title": "Searching for black holes — what an amateur can actually see",
+      "url": "posts/searching-for-blackholes.md"
+    }
+  ],
+  "projects_intro": "Some projects:",
+  "projects": [
+    {
+      "description": "Python made project for shark coders",
+      "url": "https://gitlab.com/hralmeida/universe-toolkit-pyqt"
+    }
+  ],
+  "interests": "Deep-sky astrophotography · Python · web development · physics & reading · quiet nights under the stars."
+}

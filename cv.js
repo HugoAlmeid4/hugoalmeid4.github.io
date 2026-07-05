@@ -1,0 +1,164 @@
+// ─── cv.js ──────────────────────────────────────────────────────────────────
+// Renders the CV page from data/cv.json. The "Certificates" block in the CV
+// is auto-populated from certificates/index.json so the user doesn't need to
+// duplicate cert names in cv.json — they just edit certificates/*.md.
+// Static HTML in cv.html acts as a fallback if either JSON fails to load.
+// ─────────────────────────────────────────────────────────────────────────────
+
+(function () {
+  'use strict';
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function escAttr(s) {
+    return String(s == null ? '' : s).replace(/"/g, '&quot;');
+  }
+
+  function renderHeader(data) {
+    return (
+      '<header class="cv-header">' +
+        '<h1>Hralmeida</h1>' +
+        '<p class="cv-tagline">' + esc(data.tagline || '') + '</p>' +
+        '<p class="cv-bio">' + esc(data.bio || '') + '</p>' +
+        '<p class="cv-contact">' +
+          (data.contact || []).map(function (c, i) {
+            var link = '<a href="' + escAttr(c.url || '#') + '" target="_blank" rel="noopener">' + esc(c.label || '') + '</a>';
+            return (i > 0 ? ' · ' : '') + link;
+          }).join('') +
+        '</p>' +
+        '<p class="cv-download">' +
+          '<button type="button" class="cv-download-link" onclick="window.print()">⎙ Print / Save as PDF</button>' +
+          '<span class="cv-print-hint">· opens your browser\'s print dialog</span>' +
+        '</p>' +
+      '</header>'
+    );
+  }
+
+  function renderSkills(data) {
+    if (!Array.isArray(data.skills) || data.skills.length === 0) return '';
+    var inner = data.skills.map(function (s) {
+      return '<p><strong>' + esc(s.category || '') + ':</strong> ' + esc(s.description || '') + '</p>';
+    }).join('');
+    return '<section class="cv-block"><h2>Skills &amp; Tools</h2>' + inner + '</section>';
+  }
+
+  function renderSelectedPosts(data) {
+    if (!Array.isArray(data.selected_posts) || data.selected_posts.length === 0) return '';
+    var inner = data.selected_posts.map(function (p) {
+      return '<li><a href="' + escAttr(p.url || '#') + '" target="_blank" rel="noopener">' + esc(p.title || '') + '</a></li>';
+    }).join('');
+    return (
+      '<section class="cv-block">' +
+        '<h2>Selected posts</h2>' +
+        '<ul>' + inner + '</ul>' +
+        '<p class="cv-placeholder">More on the <a href="index.html#posts">home page</a>.</p>' +
+      '</section>'
+    );
+  }
+
+  function renderCertifications(certNames) {
+    // certNames: array of certificate name strings from certificates/*.md frontmatter.
+    if (!Array.isArray(certNames) || certNames.length === 0) {
+      return (
+        '<section class="cv-block">' +
+          '<h2>Certificates</h2>' +
+          '<p>Full list at <a href="certificates.html" target="_blank" rel="noopener">/certificates</a>.</p>' +
+        '</section>'
+      );
+    }
+    var inner = certNames.map(function (n) {
+      return '<li>' + esc(n) + '</li>';
+    }).join('');
+    return (
+      '<section class="cv-block">' +
+        '<h2>Certificates</h2>' +
+        '<ul>' + inner + '</ul>' +
+        '<p>Full list at <a href="certificates.html" target="_blank" rel="noopener">/certificates</a>.</p>' +
+      '</section>'
+    );
+  }
+
+  // Fetch all certificate MD frontmatter in parallel and return [name, ...].
+  async function fetchCertificateNames() {
+    try {
+      var res = await fetch('certificates/index.json');
+      if (!res.ok) return [];
+      var files = await res.json();
+      var results = await Promise.all(files.map(async function (file) {
+        try {
+          var r = await fetch('certificates/' + file);
+          if (!r.ok) return null;
+          var md = await r.text();
+          var m = md.match(/^---\r?\n([\s\S]+?)\r?\n---[ \t]*\r?\n?/);
+          if (!m) return null;
+          var nameLine = m[1].split(/\r?\n/).find(function (l) { return /^name\s*:/.test(l); });
+          if (!nameLine) return null;
+          return nameLine.replace(/^name\s*:\s*/, '').trim().replace(/^['"]|['"]$/g, '');
+        } catch { return null; }
+      }));
+      return results.filter(Boolean);
+    } catch { return []; }
+  }
+
+  function renderProjects(data) {
+    if (!Array.isArray(data.projects) || data.projects.length === 0) return '';
+    var intro = data.projects_intro ? '<p class="cv-placeholder">' + esc(data.projects_intro) + '</p>' : '';
+    var inner = data.projects.map(function (p) {
+      var desc = esc(p.description || '');
+      if (p.url) {
+        desc += ' <a href="' + escAttr(p.url) + '" target="_blank" rel="noopener">check it out.</a>';
+      }
+      return '<li>' + desc + '</li>';
+    }).join('');
+    return (
+      '<section class="cv-block">' +
+        '<h2>Projects</h2>' +
+        intro +
+        '<ul>' + inner + '</ul>' +
+      '</section>'
+    );
+  }
+
+  function renderInterests(data) {
+    if (!data.interests) return '';
+    return '<section class="cv-block"><h2>Interests</h2><p>' + esc(data.interests) + '</p></section>';
+  }
+
+  function renderCV(data, certNames) {
+    var section = document.getElementById('cv-section');
+    if (!section) return;
+
+    section.innerHTML =
+      renderHeader(data) +
+      renderSkills(data) +
+      renderSelectedPosts(data) +
+      renderCertifications(certNames) +
+      renderProjects(data) +
+      renderInterests(data);
+  }
+
+  async function loadCV() {
+    try {
+      var res = await fetch('data/cv.json');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var data = await res.json();
+
+      var certNames = await fetchCertificateNames();
+      renderCV(data, certNames);
+    } catch (err) {
+      console.warn('CV JSON load failed; using fallback:', err.message);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadCV);
+  } else {
+    loadCV();
+  }
+})();
