@@ -5,19 +5,25 @@
    Bump CACHE_VERSION when shipping structural changes so old cached
    responses get evicted automatically next visit.
    ────────────────────────────────────────────────────────────────────────── */
-const CACHE_VERSION = 'hralmeida-v2';
+const CACHE_VERSION = 'hralmeida-v3';
+// Asset URLs include ?v=1 to match the version-busters in HTML. Without the
+// query string, caches.match() keys are unqueried and the network request for
+// `./style.css?v=1` would always miss the precache — defeating the cache. With
+// ?v=1 baked in, offline visits also pull the same version the HTML now asks
+// for. Bump this string + CACHE_VERSION (and the HTML ?v=) together when you
+// ship a new release.
 const PRECACHE = [
   './',
   './index.html',
-  './style.css',
-  './posts.css',
-  './theme.js',
-  './easter.js',
-  './posts.js',
-  './bio.js',
-  './now.js',
-  './cv.js',
-  './giscus-config.js',
+  './style.css?v=1',
+  './posts.css?v=1',
+  './theme.js?v=1',
+  './easter.js?v=1',
+  './posts.js?v=1',
+  './bio.js?v=1',
+  './now.js?v=1',
+  './cv.js?v=1',
+  './giscus-config.js?v=1',
   './manifest.json',
   './imgs/imgs.jpg',
   './imgs/og-default.png',

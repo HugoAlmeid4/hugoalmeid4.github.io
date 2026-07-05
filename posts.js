@@ -488,7 +488,7 @@ function parseInline(text) {
     const enc = s => s.trim().startsWith('http') ? s.trim() : `posts/${s.trim()}`;
     const lSrc = enc(light).split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
     const dSrc = enc(dark).split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
-    placeholders.push(`<picture class="theme-aware-img scroll-reveal"><source srcset="${dSrc}" media="(prefers-color-scheme: dark)"><img src="${lSrc}" class="zoomable-img" style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"></picture>`);
+    placeholders.push(`<picture class="theme-aware-img scroll-reveal"><source srcset="${dSrc}" media="(prefers-color-scheme: dark)"><img src="${lSrc}" class="zoomable-img" loading="lazy" decoding="async" style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"></picture>`);
     return id;
   });
   text = text.replace(/!\[\[([^\]|]+?)(?:\|(\d+))?\]\]/g, (_, fname, w) => {
@@ -498,14 +498,14 @@ function parseInline(text) {
     const dims = w
       ? `style="max-width:min(100%, ${w}px);width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"`
       : `style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;"`;
-    placeholders.push(`<img src="${enc}" class="zoomable-img scroll-reveal" ${dims} alt="${esc(fname.trim())}">`);
+    placeholders.push(`<img src="${enc}" class="zoomable-img scroll-reveal" loading="lazy" decoding="async" ${dims} alt="${esc(fname.trim())}">`);
     return id;
   });
   text = text.replace(/!\[([^\]) ]*)\]\(([^)]+)\)/g, (_, alt, url) => {
     const id = `\uFFFC${placeholders.length}\uFFFC`;
     const src = /^https?:\/\//.test(url.trim()) || url.trim().startsWith('/') ? url.trim() : `posts/${url.trim()}`;
     const enc = src.split('/').map((s, i) => i === 0 ? s : encodeURIComponent(s)).join('/');
-    placeholders.push(`<img src="${enc}" class="zoomable-img scroll-reveal" style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;" alt="${esc(alt)}">`);
+    placeholders.push(`<img src="${enc}" class="zoomable-img scroll-reveal" loading="lazy" decoding="async" style="max-width:100%;height:auto;display:inline-block;vertical-align:middle;margin:6px 4px;cursor:zoom-in;" alt="${esc(alt)}">`);
     return id;
   });
   text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+(?:\([^\s)]*\)[^\s)]*)*)\)/g, (_, linkText, url) => {
@@ -987,6 +987,22 @@ function setupRollerScroll(containerEl) {
   rightArrow.onclick = e => { e.stopPropagation(); roller.scrollBy({ left: getScrollAmount(), behavior: 'smooth' }); };
 }
 
+// Promote the first inline image of a post body to eager + high
+// fetchpriority so it doesn't delay LCP when the user opens a post.
+// Subsequent images stay lazy (set in the parseInline templates above).
+// Called after every bodyEl.innerHTML assignment inside openPostOverlay
+// (both the untranslated and translated paths). Callers are responsible for
+// ensuring `bodyEl` is a real Element; the only check we need here is
+// "is there even a first image?".
+function promoteFirstImage(bodyEl) {
+  if (!bodyEl) return;
+  const firstImg = bodyEl.querySelector('.zoomable-img');
+  if (firstImg) {
+    firstImg.loading = 'eager';
+    firstImg.setAttribute('fetchpriority', 'high');
+  }
+}
+
 async function openPostOverlay(post) {
   const ov = document.getElementById('postFullscreenOverlay');
   if (!ov) return;
@@ -1008,6 +1024,7 @@ async function openPostOverlay(post) {
   const tp = await getTranslatedPost(post, currentLanguage);
   if (titleEl) titleEl.textContent = tp.title;
   if (bodyEl) bodyEl.innerHTML = tp.bodyHtml;
+  promoteFirstImage(bodyEl);
 
   ov.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -1025,6 +1042,7 @@ async function openPostOverlay(post) {
     if (bodyEl) {
       bodyEl.innerHTML = translatedBody;
       bodyEl.style.opacity = '1';
+      promoteFirstImage(bodyEl);
     }
     if (loader) loader.style.display = 'none';
   } else {
@@ -1170,7 +1188,7 @@ function setupImageZoom() {
 function openImageZoom(src, alt) {
   const modal = document.createElement('div');
   modal.className = 'image-zoom-modal';
-  modal.innerHTML = `<div class="image-zoom-container"><button class="image-zoom-close">✕</button><img src="${src}" alt="${alt}" class="image-zoom-full"></div>`;
+  modal.innerHTML = `<div class="image-zoom-container"><button class="image-zoom-close">✕</button><img src="${src}" alt="${alt}" class="image-zoom-full" decoding="async"></div>`;
   document.body.appendChild(modal);
   const closeBtn = modal.querySelector('.image-zoom-close');
   if (closeBtn) closeBtn.onclick = () => modal.remove();
