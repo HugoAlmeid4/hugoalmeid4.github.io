@@ -1,0 +1,215 @@
+/* ── CV / résumé page styles ── */
+
+.cv-section {
+  flex: 1;
+  width: 100%;
+  padding: 20px 0;
+  max-width: 760px;
+}
+
+.cv-header {
+  margin-bottom: 36px;
+}
+
+.cv-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.cv-tagline {
+  font-size: 14px;
+  color: #555;
+  letter-spacing: 0.02em;
+  margin-bottom: 16px;
+}
+
+.cv-bio {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 12px;
+  max-width: 720px;
+}
+
+body.dark-mode .cv-bio {
+  color: #ccc;
+}
+
+.cv-contact {
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.cv-contact a {
+  color: #0056b3;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+body.dark-mode .cv-contact a {
+  color: #66b3ff;
+}
+
+.cv-download {
+  font-size: 12px;
+  margin-top: 14px;
+}
+
+.cv-download-link {
+  display: inline-block;
+  border: 1.5px solid #333;
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  color: #333;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Lilex', monospace;
+  transition: all 0.2s ease;
+}
+
+@media (hover: hover) {
+  .cv-download-link:hover {
+    background: #333;
+    color: rgb(237, 231, 220);
+  }
+}
+
+body.dark-mode .cv-download-link {
+  border-color: #ededed;
+  color: #ededed;
+}
+
+@media (hover: hover) {
+  body.dark-mode .cv-download-link:hover {
+    background: #ededed;
+    color: #1a1a1a;
+  }
+}
+
+.cv-print-hint {
+  margin-left: 8px;
+  color: #888;
+  font-style: italic;
+}
+
+.cv-block {
+  margin-bottom: 28px;
+}
+
+.cv-block h2 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #555;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 6px;
+}
+
+body.dark-mode .cv-block h2 {
+  color: #aaa;
+  border-bottom-color: #444;
+}
+
+.cv-block p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+body.dark-mode .cv-block p {
+  color: #ccc;
+}
+
+.cv-block ul {
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.cv-block li {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+body.dark-mode .cv-block li {
+  color: #ccc;
+}
+
+.cv-block a {
+  color: #0056b3;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+body.dark-mode .cv-block a {
+  color: #66b3ff;
+}
+
+.cv-placeholder {
+  color: #888;
+  font-style: italic;
+}
+
+body.dark-mode .cv-placeholder {
+  color: #777;
+}
+
+@media (max-width: 768px) {
+  .cv-header h1 {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cv-header h1 {
+    font-size: 22px;
+  }
+  .cv-block p,
+  .cv-block li {
+    font-size: 13px;
+  }
+}
+
+/* Print stylesheet: hide nav/theme toggle, force black-on-white, drop the
+   download bar since the user already printed. */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .Name-Photo img,
+  .nav-links,
+  .theme-toggle,
+  .cv-download {
+    display: none !important;
+  }
+  .cv-section {
+    padding: 0;
+  }
+  .cv-bio,
+  .cv-block p,
+  .cv-block li {
+    color: black !important;
+  }
+  .cv-block h2 {
+    color: black !important;
+    border-bottom-color: #999 !important;
+  }
+  .cv-contact a,
+  .cv-block a {
+    color: black !important;
+  }
+  body.konami-active {
+    animation: none !important;
+  }
+}

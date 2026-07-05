@@ -11,6 +11,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
   <link rel="preload" href="style.css" as="style">
   <link rel="stylesheet" href="style.css">
+  <script src="theme.js" defer></script>
+  <script src="easter.js" defer></script>
 </head>
 
 <body>
@@ -29,6 +31,8 @@
       <a href="gallery.html" class="nav-link active" aria-current="page">Gallery</a>
       <span class="nav-separator" aria-hidden="true">/</span>
       <a href="certificates.html" class="nav-link">Certificates</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="now.html" class="nav-link">Now</a>
     </nav>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
   </header>
@@ -442,18 +446,6 @@
       });
     }
 
-    var themeToggleBtn = document.getElementById('theme-toggle');
-    function updateBtnText() {
-      var isDark = document.body.classList.contains('dark-mode');
-      themeToggleBtn.innerHTML = isDark ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5a1 1 0 110-2 1 1 0 010 2zm0 17a1 1 0 110-2 1 1 0 010 2zm9.5-8a1 1 0 110-2 1 1 0 010 2zM4.5 13a1 1 0 110-2 1 1 0 010 2zm12.02-6.78a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zm-10.04 12.02a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zm12.02 1.42a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zM6.46 6.46a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zM12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>';
-      themeToggleBtn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
-    }
-    updateBtnText();
-    themeToggleBtn.addEventListener('click', function() {
-      document.body.classList.toggle('dark-mode');
-      updateBtnText();
-      try { localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch(e) {}
-    });
 
     // ── Disclaimer show/dismiss logic ──
     var disclaimerEl = document.getElementById('gallery-disclaimer');

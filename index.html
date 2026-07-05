@@ -12,6 +12,10 @@
     rel="stylesheet">
   <link rel="preload" href="style.css" as="style">
   <link rel="stylesheet" href="style.css">
+  <link rel="preload" href="posts.css" as="style">
+  <link rel="stylesheet" href="posts.css">
+  <script src="theme.js" defer></script>
+  <script src="easter.js" defer></script>
   <script src="posts.js" defer></script>
   <script async src="https://tally.so/widgets/embed.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
@@ -20,6 +24,7 @@
 
 <body>
   <script>
+    // Apply stored theme before render to prevent FOUC. Mirrored in theme.js.
     try {
       if (localStorage.getItem('theme') !== 'light') {
         document.body.classList.add('dark-mode');
@@ -38,6 +43,8 @@
       <a href="gallery.html" class="nav-link">Gallery</a>
       <span class="nav-separator" aria-hidden="true">/</span>
       <a href="certificates.html" class="nav-link">Certificates</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="now.html" class="nav-link">Now</a>
     </nav>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
   </header>
@@ -60,6 +67,44 @@
           <a href="#tally-open=GxkEvO&tally-emoji-text=👋&tally-emoji-animation=wave"><span class="social-icon">✉️</span>Contact Form</a>
         </span>
       </div>
+
+      <div class="Skills" aria-label="Skills and tools">
+        <h2>Skills &amp; Tools</h2>
+
+        <div class="skill-group">
+          <h3>Astro</h3>
+          <div class="skill-chips">
+            <span class="skill-chip">Siril</span>
+            <span class="skill-chip">Stellarium</span>
+            <span class="skill-chip">DeepSkyStacker</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <h3>Code</h3>
+          <div class="skill-chips">
+            <span class="skill-chip">Python</span>
+            <span class="skill-chip">HTML</span>
+            <span class="skill-chip">CSS</span>
+            <span class="skill-chip">Git</span>
+            <span class="skill-chip">Markdown</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <h3>Languages</h3>
+          <div class="skill-chips">
+            <span class="skill-chip">English</span>
+            <span class="skill-chip">Português</span>
+            <span class="skill-chip">Español</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-mini">
+        <a href="cv.html" class="cv-mini-link">⤓ View / Download CV</a>
+        <span class="cv-mini-hint">Print-friendly résumé</span>
+      </div>
     </section>
 
     <section class="Posts-Section">
@@ -79,26 +124,6 @@
 
   </main>
 
-  <script>
-    const themeToggleBtn = document.getElementById('theme-toggle');
-
-    function updateBtnText() {
-      var isDark = document.body.classList.contains('dark-mode');
-      themeToggleBtn.innerHTML = isDark ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5a1 1 0 110-2 1 1 0 010 2zm0 17a1 1 0 110-2 1 1 0 010 2zm9.5-8a1 1 0 110-2 1 1 0 010 2zM4.5 13a1 1 0 110-2 1 1 0 010 2zm12.02-6.78a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zm-10.04 12.02a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zm12.02 1.42a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zM6.46 6.46a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zM12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>';
-      themeToggleBtn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
-    }
-    updateBtnText();
-
-    themeToggleBtn.addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
-      updateBtnText();
-      try {
-        const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-        localStorage.setItem('theme', theme);
-      } catch (e) { }
-    });
-
-  </script>
 </body>
 
 </html>

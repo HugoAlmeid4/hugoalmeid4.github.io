@@ -318,11 +318,6 @@ body.dark-mode .search-icon-btn.active-text {
     flex: 0 0 auto !important;
   }
 
-  .search-bar-wrapper input#postSearchInput {
-    flex: 1 1 320px !important;
-    max-width: 620px !important;
-  }
-
   /* On PC, only the search icon should be visible — clicking it opens the
      popup with #popupSearchInput. Hide the inline input here.
      ID specificity (1,0,0) + !important beats both:
@@ -2728,4 +2723,184 @@ body.dark-mode .certificate-icon-placeholder span {
     object-fit: contain; /* Prevents heavy cropping when container goes full-width */
     background: rgba(0, 0, 0, 0.05);
   }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ── SKILLS & TOOLS (home page) ──
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.Skills {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.Skills h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+.skill-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skill-group h3 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #888;
+}
+
+.skill-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-chip {
+  display: inline-block;
+  font-size: 11px;
+  padding: 5px 10px;
+  border: 1.5px solid #555;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #333;
+  background: rgba(0, 0, 0, 0.02);
+  transition: all 0.15s ease;
+}
+
+@media (hover: hover) {
+  .skill-chip:hover {
+    background: #333;
+    color: rgb(237, 231, 220);
+    border-color: #333;
+  }
+}
+
+body.dark-mode .skill-chip {
+  color: #ccc;
+  border-color: #555;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+@media (hover: hover) {
+  body.dark-mode .skill-chip:hover {
+    background: #ededed;
+    color: #1a1a1a;
+    border-color: #ededed;
+  }
+}
+
+.cv-mini {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.cv-mini-link {
+  display: inline-block;
+  border: 1.5px solid #333;
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+@media (hover: hover) {
+  .cv-mini-link:hover {
+    background: #333;
+    color: rgb(237, 231, 220);
+  }
+}
+
+body.dark-mode .cv-mini-link {
+  color: #ededed;
+  border-color: #ededed;
+}
+
+@media (hover: hover) {
+  body.dark-mode .cv-mini-link:hover {
+    background: #ededed;
+    color: #1a1a1a;
+  }
+}
+
+.cv-mini-hint {
+  font-size: 11px;
+  color: #888;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .Skills h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .skill-chips {
+    gap: 6px;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ── KONAMI EASTER EGG ──
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+@keyframes konami-invert {
+  0% {
+    filter: none;
+  }
+  50% {
+    filter: invert(1) hue-rotate(180deg);
+  }
+  100% {
+    filter: none;
+  }
+}
+
+body.konami-active {
+  animation: konami-invert 1.2s ease;
+}
+
+.konami-toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: #333;
+  color: rgb(237, 231, 220);
+  padding: 10px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1.5px solid #333;
+  z-index: 9000;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.konami-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+body.dark-mode .konami-toast {
+  background: #ededed;
+  color: #1a1a1a;
+  border-color: #ededed;
 }

@@ -11,6 +11,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
   <link rel="preload" href="style.css" as="style">
   <link rel="stylesheet" href="style.css">
+  <link rel="preload" href="certificates.css" as="style">
+  <link rel="stylesheet" href="certificates.css">
+  <script src="theme.js" defer></script>
+  <script src="easter.js" defer></script>
 
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script defer>
@@ -20,33 +24,7 @@
        pdf.min.js and threw ReferenceError, which halted the script and prevented
        the dark-mode class from being applied — light mode flash.) */
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-  </script>
-
-  <style>
-    /* Absolute containment rule to lock dimensions and stop gesture scrolling/sliding */
-    .certificate-preview-container a {
-      display: block;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      cursor: pointer;
-      position: relative;
-      touch-action: none;
-    }
-    
-    /* Forces regular preview images AND the canvas templates to scale flawlessly with no bars */
-    .certificate-preview-container img,
-    .certificate-preview-container canvas {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      display: block;
-      pointer-events: none;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-  </style>
-</head>
+  </script></head>
 
 <body>
   <script>
@@ -64,6 +42,8 @@
       <a href="gallery.html" class="nav-link">Gallery</a>
       <span class="nav-separator" aria-hidden="true">/</span>
       <a href="certificates.html" class="nav-link active" aria-current="page">Certificates</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="now.html" class="nav-link">Now</a>
     </nav>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
   </header>
@@ -223,20 +203,6 @@
         });
       });
     }
-
-    // Theme toggle
-    var themeToggleBtn = document.getElementById('theme-toggle');
-    function updateBtnText() {
-      var isDark = document.body.classList.contains('dark-mode');
-      themeToggleBtn.innerHTML = isDark ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5a1 1 0 110-2 1 1 0 010 2zm0 17a1 1 0 110-2 1 1 0 010 2zm9.5-8a1 1 0 110-2 1 1 0 010 2zM4.5 13a1 1 0 110-2 1 1 0 010 2zm12.02-6.78a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zm-10.04 12.02a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zm12.02 1.42a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zM6.46 6.46a1 1 0 11-1.42-1.42 1 1 0 011.42 1.42zM12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>';
-      themeToggleBtn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
-    }
-    updateBtnText();
-    themeToggleBtn.addEventListener('click', function() {
-      document.body.classList.toggle('dark-mode');
-      updateBtnText();
-      try { localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); } catch(e) {}
-    });
 
     loadCertificates();
   </script>

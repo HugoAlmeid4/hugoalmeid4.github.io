@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Curriculum vitae / résumé of Hralmeida — astrophotography, code, certificates.">
+  <title>CV — Hralmeida</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap"
+    rel="stylesheet">
+  <link rel="preload" href="style.css" as="style">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preload" href="cv.css" as="style">
+  <link rel="stylesheet" href="cv.css">
+  <script src="theme.js" defer></script>
+  <script src="easter.js" defer></script>
+</head>
+
+<body>
+  <script>
+    try {
+      if (localStorage.getItem('theme') !== 'light') {
+        document.body.classList.add('dark-mode');
+      }
+    } catch (e) {
+      document.body.classList.add('dark-mode');
+    }
+  </script>
+
+  <header class="Name-Photo">
+    <img src="imgs/imgs.jpg" alt="Hralmeida profile picture" width="100" height="100" fetchpriority="high">
+    <h3>Hralmeida</h3>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html" class="nav-link">Home</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="gallery.html" class="nav-link">Gallery</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="certificates.html" class="nav-link">Certificates</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="now.html" class="nav-link">Now</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="cv.html" class="nav-link active" aria-current="page">CV</a>
+    </nav>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
+  </header>
+
+  <main class="Medium-Path">
+    <article class="cv-section" aria-label="Curriculum vitae">
+      <header class="cv-header">
+        <h1>Hralmeida</h1>
+        <p class="cv-tagline">Astrophotographer · Code hobbyist · Lifelong learner</p>
+        <p class="cv-bio">Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.</p>
+        <p class="cv-contact">
+          <a href="https://github.com/HugoAlmeid4" target="_blank" rel="noopener">github.com/HugoAlmeid4</a>
+          ·
+          <a href="https://gitlab.com/hralmeida" target="_blank" rel="noopener">gitlab.com/hralmeida</a>
+        </p>
+        <p class="cv-download">
+          <button type="button" class="cv-download-link" onclick="window.print()">⎙ Print / Save as PDF</button>
+          <span class="cv-print-hint">· opens your browser's print dialog</span>
+        </p>
+      </header>
+
+      <section class="cv-block">
+        <h2>Skills &amp; Tools</h2>
+        <p><strong>Astrophotography:</strong> Image stacking (Siril, DeepSkyStacker), session planning (Stellarium), post-processing (GIMP), equatorial mount operation, polar alignment.</p>
+        <p><strong>Code:</strong> Python, HTML, CSS, Git, Markdown, basic Linux command line.</p>
+        <p><strong>Languages:</strong> English · Portuguese · Spanish.</p>
+      </section>
+
+      <section class="cv-block">
+        <h2>Selected posts</h2>
+        <ul>
+          <li><a href="posts/dark-matter-explanation.md" target="_blank" rel="noopener">Dark matter — a simple explanation</a></li>
+          <li><a href="posts/searching-for-blackholes.md" target="_blank" rel="noopener">Searching for black holes — what an amateur can actually see</a></li>
+        </ul>
+        <p class="cv-placeholder">More on the <a href="index.html#posts">home page</a>.</p>
+      </section>
+
+      <section class="cv-block">
+        <h2>Certificates</h2>
+        <ul>
+          <li>Galaxies, Stars and Planets — open online course</li>
+          <li>Astronomy Images of the Universe — open online course</li>
+          <li>Code Teen Python — Shark Coders</li>
+        </ul>
+        <p>Full list at <a href="certificates.html" target="_blank" rel="noopener">/certificates</a>.</p>
+      </section>
+
+      <section class="cv-block">
+        <h2>Projects</h2>
+        <p class="cv-placeholder">Some projects:</p>
+        <ul>
+          <li>Python made project for shark coders <a href="https://gitlab.com/hralmeida/universe-toolkit-pyqt">check it out.</a></li>
+        </ul>
+      </section>
+
+      <section class="cv-block">
+        <h2>Interests</h2>
+        <p>Deep-sky astrophotography · Python · web development · physics &amp; reading · quiet nights under the stars.</p>
+      </section>
+    </article>
+  </main>
+
+</body>
+
+</html>

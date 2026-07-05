@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="What Hralmeida is currently working on, learning, and reading.">
+  <title>Now | Hralmeida</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap"
+    rel="stylesheet">
+  <link rel="preload" href="style.css" as="style">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preload" href="now.css" as="style">
+  <link rel="stylesheet" href="now.css">
+  <script src="theme.js" defer></script>
+  <script src="easter.js" defer></script>
+</head>
+
+<body>
+  <script>
+    try {
+      if (localStorage.getItem('theme') !== 'light') {
+        document.body.classList.add('dark-mode');
+      }
+    } catch (e) {
+      document.body.classList.add('dark-mode');
+    }
+  </script>
+
+  <header class="Name-Photo">
+    <img src="imgs/imgs.jpg" alt="Hralmeida profile picture" width="100" height="100" fetchpriority="high">
+    <h3>Hralmeida</h3>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html" class="nav-link">Home</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="gallery.html" class="nav-link">Gallery</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="certificates.html" class="nav-link">Certificates</a>
+      <span class="nav-separator" aria-hidden="true">/</span>
+      <a href="now.html" class="nav-link active" aria-current="page">Now</a>
+    </nav>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
+  </header>
+
+  <main class="Medium-Path">
+    <section class="now-section" aria-label="What I'm focused on right now">
+      <h1>Now</h1>
+      <p class="now-disclaimer">
+        Last updated: <time datetime="2025-07">July 2025</time>
+        · inspired by <a href="https://nownownow.com/about" target="_blank" rel="noopener">nownownow.com</a>
+      </p>
+
+      <div class="now-block">
+        <h2>Learning</h2>
+        <ul>
+          <li>Long-exposure deep-sky image processing in Siril</li>
+          <li>Python for data analysis</li>
+        </ul>
+      </div>
+
+      <div class="now-block">
+        <h2>Working on</h2>
+        <ul>
+          <li>Creating a small project to learn Python.</li>
+          <li>Saving for a dedicated planetary imaging camera</li>
+        </ul>
+      </div>
+
+      <div class="now-block">
+        <h2>Imaging targets</h2>
+        <p>The next clear, moonless night I want to try:</p>
+        <ul>
+          <li>Lagoon Nebula - Never shot a nebula before.</li>
+        </ul>
+      </div>
+
+      <div class="now-block">
+        <h2>Reading</h2>
+        <ul>
+          <li>Carl Sagan — <em>Cosmos</em></li>
+          <li>Anne Frank — <em>The Diary of a Young Girl</em></li>
+          <li>Ray Bradbury — <em>Fahrenheit 451</em></li>
+        </ul>
+      </div>
+
+      <div class="now-block">
+        <h2>Outside this site</h2>
+        <p>I am on vacation now so more time to study and learn more about astrophysics..</p>
+      </div>
+    </section>
+  </main>
+
+</body>
+
+</html>

@@ -1,0 +1,24 @@
+
+    /* Absolute containment rule to lock dimensions and stop gesture scrolling/sliding */
+    .certificate-preview-container a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      touch-action: none;
+    }
+    
+    /* Forces regular preview images AND the canvas templates to scale flawlessly with no bars */
+    .certificate-preview-container img,
+    .certificate-preview-container canvas {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  
