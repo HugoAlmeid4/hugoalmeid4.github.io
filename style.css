@@ -2186,24 +2186,23 @@ body.dark-mode .gallery-item-spinner {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  /* Reserve vertical space for the absolutely-positioned bottombar (download
-     button + caption). Without this, an inline capture-info panel can paint
-     over the download button on small screens. 72px covers the bottombar even
-     when its caption wraps to two lines on a narrow phone. */
-  padding-bottom: 72px;
+  gap: 32px;
+  padding: 60px 56px 28px;
 }
 
-/* ── Lightbox Image Container ── */
+/* ── Lightbox Image Container (shares row with the info card on the right) ── */
 .gallery-lightbox-img-wrap {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
   width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 80px 16px;
+  padding: 0;
   overflow: hidden;
 }
 
@@ -2984,55 +2983,90 @@ body.dark-mode .giscus-setup-hint code {
    Inline panel inside the existing lightbox showing target / date / equipment /
    integration / notes set by the CMS on each gallery item. Empty rows are
    hidden; the entire panel hides itself if no field has data.
-   ══════════════════════════════════════════════════════════════════════════════ */.gallery-lightbox-info {
-  width: 100%;
-  max-width: 720px;
+   ══════════════════════════════════════════════════════════════════════════════ *//* ── Lightbox Capture Info (clean monochrome card on the right of the image) ──
+   Mirrors the look of .post-card and .certificate-card: light bg, sharp 1.5px
+   border in light mode (dark-mode flips both bg + border). The panel is a
+   fixed-width flex sibling next to the image; on phones it stacks below. */
+.gallery-lightbox-info {
+  flex: 0 0 300px;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px 24px 22px;
-  background: rgba(0, 0, 0, 0.55);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  gap: 14px;
+  padding: 18px 20px;
+  background: rgb(237, 231, 220);
+  border: 1.5px solid #333;
   font-family: 'Lilex', monospace;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+  color: #333;
   text-align: left;
-  /* Soft cap so a photo with very long notes can't shrink the image
-     completely. No overflow needed — notes just wrap normally within the cap. */
-  max-height: 40vh;
+  /* Cap so the card never overflows the lightbox height; scroll if notes
+     run long (graceful degradation, the download button isn't covered). */
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  -ms-overflow-style: none;
 }
+body.dark-mode .gallery-lightbox-info {
+  background: #1a1a1a;
+  border-color: #555;
+  color: #ccc;
+}
+
+/* Row inside the card: small uppercase label stacked above the value. */
 .info-row {
   display: flex;
-  gap: 14px;
-  align-items: baseline;
+  flex-direction: column;
+  gap: 4px;
   line-height: 1.5;
 }
 .info-label {
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.55);
-  min-width: 96px;
-  flex-shrink: 0;
+  letter-spacing: 0.07em;
+  color: #888;
+}
+body.dark-mode .info-label {
+  color: #aaa;
 }
 .info-value {
-  flex: 1;
-  color: rgba(255, 255, 255, 0.95);
+  font-size: 13px;
+  color: #333;
+  line-height: 1.5;
   /* Preserve user-typed line breaks in notes (the CMS field is a textarea). */
   white-space: pre-wrap;
   word-break: break-word;
 }
-.info-row-notes {
-  align-items: flex-start;
+body.dark-mode .info-value {
+  color: #ededed;
+}
+/* `.info-row-notes` is preserved as a marker in the HTML; in stacked-row
+   layout no special alignment is needed. */
+
+/* Mobile + phone: collapse to a stacked vertical layout. The card sits
+   below the image, with bottom padding on the inner reserved so the
+   absolute bottombar can't paint over the card. */
+@media (max-width: 768px) {
+  .gallery-lightbox-inner {
+    flex-direction: column;
+    gap: 16px;
+    padding: 60px 24px 88px;
+  }
+  .gallery-lightbox-info {
+    flex: 0 1 auto;
+    max-width: 100%;
+    width: 100%;
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 @media (max-width: 480px) {
   .gallery-lightbox-info {
-    padding: 12px 16px 18px;
-    font-size: 11px;
+    padding: 14px 16px;
+    font-size: 12px;
   }
-  .info-label {
-    min-width: 72px;
-    font-size: 9px;
+  .info-value {
+    font-size: 12px;
   }
 }
