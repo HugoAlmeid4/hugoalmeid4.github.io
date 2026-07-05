@@ -124,7 +124,10 @@ collections:
         label: File (image or PDF)
         widget: image
         required: false
-        allow_multiple: false
+        # `multiple` is Sveltia's renamed option (formerly `allow_multiple` in
+        # Decap CMS). Default is false, so this could be omitted — keeping it
+        # explicit to make the intent obvious.
+        multiple: false
         hint: Upload the certificate image or PDF. Stored in /certificates/.
       - name: is_pdf
         label: 'File is a PDF'
