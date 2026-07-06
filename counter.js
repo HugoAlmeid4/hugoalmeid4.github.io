@@ -1,6 +1,7 @@
 // counter.js — Shared visit counter, used by every page that wants to count
-// toward the site-wide total. Loaded with `<script src="counter.js?v=1" defer>`
-// so it runs after the DOM parses.
+// toward the site-wide total. Loaded with `<script src="/counter.js?v=1" defer>`
+// so it runs after the DOM parses. Use leading-slash so any page resolves
+// to /counter.js?v=1 regardless of subdirectory.
 //
 // Each page that wants the visible counter places the following markup
 // anywhere in <body>:
@@ -13,13 +14,15 @@
 // API (counts the visit) but skips the DOM update, so plain "tracking only"
 // pages can include just the <script> tag without any markup.
 //
-// Backend: api.counterapi.dev (free, no signup, wildcard CORS).
-// Endpoint: v1/hralmeida-website/visits — increment via GET /up; on failure
-// fall back to a read-only GET so the page never hangs on "…".
-//
-// Known caveat: certain ad-blockers block api.counterapi.dev. When that
-// happens the meta text becomes "blocked" (more diagnostic than "offline")
-// so the user has a real hint about why the count isn't showing.
+// Backend: api.counterapi.dev (free, no signup).
+// Endpoint split rationale: counterapi.dev's `GET /v1/{ns}/{key}` returns a
+// 301 redirect to `/v1/{ns}/{key}/`. The 301 itself DOES NOT carry the
+// Access-Control-Allow-Origin header — only the final 200 does. Curl
+// doesn't enforce CORS so previous curl tests passed, but browsers abort
+// the entire redirect chain when an interim response lacks ACAO, surfacing
+// as "CORS blocked — status 301". Workaround: hit the trailing-slash URL
+// directly so there is no redirect in the chain. /up is unaffected because
+// it never redirects (single-shot 200 with ACAO).
 (function () {
   var root = document.getElementById('visit-counter');
   var valueEl = document.getElementById('visit-counter-value');
@@ -78,7 +81,12 @@
     return;
   }
 
-  var endpoint = 'https://api.counterapi.dev/v1/hralmeida-website/visits';
+  // Two distinct URLs to avoid the 301 chain:
+  //   - readUrl: hits /v1/.../visits/ (trailing slash, no redirect)
+  //   - upUrl:   increment action, /v1/.../visits/up (no redirect)
+  var base = 'https://api.counterapi.dev/v1/hralmeida-website/visits';
+  var readUrl = base + '/';
+  var upUrl = base + '/up';
   var SIX_S = 6000;
   var FOUR_S = 4000;
 
@@ -123,14 +131,14 @@
 
   // Two paths, branched on whether we've already counted this session:
   //   - already-counted path: skip /up entirely, just read the current
-  //     total. Reloading between Home → Gallery → CV no longer pile-up
-  //     self-inflicted hits.
-  //   - first-time path: try /up, mark counted on success. On failure
-  //     fall back to a read-only GET so we display *something* instead of
-  //     an eternal "…". The fallback path does NOT mark counted — a
-  //     successful read is not the same as a registered visit.
+  //     total via readUrl (no redirect). Reloading between Home → Gallery
+  //     → CV no longer pile-up self-inflicted hits.
+  //   - first-time path: try upUrl. Mark counted on success. On failure
+  //     fall back to a readUrl GET so we display *something* instead of
+  //     an eternal "…". The fallback does NOT mark counted — a successful
+  //     read is not the same as a registered visit.
   if (alreadyCounted) {
-    fetchJSON(endpoint, SIX_S)
+    fetchJSON(readUrl, SIX_S)
       .then(function (data) {
         if (data && typeof data.count === 'number') {
           render(data.count, 'read-only');
@@ -145,7 +153,7 @@
         showError(describeError(err));
       });
   } else {
-    fetchJSON(endpoint + '/up', SIX_S)
+    fetchJSON(upUrl, SIX_S)
       .then(function (data) {
         if (data && typeof data.count === 'number') {
           markCounted();
@@ -158,7 +166,7 @@
         if (typeof console !== 'undefined' && console.warn) {
           console.warn('[visit-counter] increment failed:', err);
         }
-        fetchJSON(endpoint, FOUR_S)
+        fetchJSON(readUrl, FOUR_S)
           .then(function (data) {
             if (data && typeof data.count === 'number') {
               render(data.count, 'read-only');
