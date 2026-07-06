@@ -14,7 +14,7 @@
   <!-- The CDN path is `dist/sveltia-cms.js` (NOT `sveltia.js` — that 404s).
        Version pinned to 0.170.0. Update via https://github.com/sveltia/sveltia-cms/releases -->
   <link rel="preload" href="https://unpkg.com/@sveltia/cms@0.170.0/dist/sveltia-cms.js" as="script">
-  <script src="counter.js?v=1" defer></script>
+  <script src="/counter.js?v=1" defer></script>
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
     body { background: rgb(237, 231, 220); color: #333; font-family: "Lilex", monospace; }
@@ -111,13 +111,16 @@
     }
   </style>
   <script>
-    /* Match the site's theme before Sveltia's UI paints. */
+    /* Match the site's theme before Sveltia's UI paints. Guarded against
+       <head>-parse-time where document.body is still null (would otherwise
+       throw and abort the rest of this script, including the Sveltia
+       error backstop below). */
     try {
-      if (localStorage.getItem('theme') !== 'light') {
+      if (document.body && localStorage.getItem('theme') !== 'light') {
         document.body.classList.add('dark-mode');
       }
     } catch (e) {
-      document.body.classList.add('dark-mode');
+      /* swallow — no-op when document.body is unavailable */
     }
 
     /* CDN-failure backstop: if Sveltia's script doesn't load OR errors out,
@@ -179,6 +182,5 @@
     <span class="visit-counter-value admin-counter-value loading" id="visit-counter-value">…</span>
     <span class="visit-counter-meta admin-counter-meta" id="visit-counter-meta"></span>
   </div>
-  <script src="counter.js?v=1" defer></script>
 </body>
 </html>
