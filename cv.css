@@ -209,7 +209,6 @@ body.dark-mode .cv-placeholder {
   .cv-block a {
     color: black !important;
   }
-  body.konami-active {
     animation: none !important;
   }
 }

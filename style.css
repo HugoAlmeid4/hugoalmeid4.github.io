@@ -2871,57 +2871,6 @@ body.dark-mode .cv-mini-link {
 
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   ── KONAMI EASTER EGG ──
-   ══════════════════════════════════════════════════════════════════════════════ */
-
-@keyframes konami-invert {
-  0% {
-    filter: none;
-  }
-  50% {
-    filter: invert(1) hue-rotate(180deg);
-  }
-  100% {
-    filter: none;
-  }
-}
-
-body.konami-active {
-  animation: konami-invert 1.2s ease;
-}
-
-.konami-toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%) translateY(8px);
-  background: #333;
-  color: rgb(237, 231, 220);
-  padding: 10px 18px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border: 1.5px solid #333;
-  z-index: 9000;
-  opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  pointer-events: none;
-}
-
-.konami-toast.visible {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-body.dark-mode .konami-toast {
-  background: #ededed;
-  color: #1a1a1a;
-  border-color: #ededed;
-}
-
-
-/* ══════════════════════════════════════════════════════════════════════════════
    ── READING TIME (post cards) ──
    ══════════════════════════════════════════════════════════════════════════════ */
 .post-reading-time {

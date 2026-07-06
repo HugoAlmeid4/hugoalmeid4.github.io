@@ -41,6 +41,69 @@
       font-size: 14px;
       line-height: 1.7;
     }
+
+    /* ── Visits counter ──
+       Fixed-position footer strip with the same minimal aesthetic as the
+       rest of the admin page (uppercase Lilex, 1.5px hairline border).
+       Pinned (not flowing) so Sveltia CMS's body mount can't displace it
+       — fixed elements always occupy the viewport regardless of where Sveltia
+       inserts its shadow-DOM UI. z-index 99999 sits above Sveltia modals
+       (its polymer overlays commonly use 10000+). */
+    .admin-counter {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 10px 18px;
+      background: rgb(237, 231, 220);
+      color: #1a1a1a;
+      border: 1.5px solid #333;
+      font-family: "Lilex", monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      z-index: 99999;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      pointer-events: none;
+    }
+    body.dark-mode .admin-counter {
+      background: #1a1a1a;
+      color: #ededed;
+      border-color: #ededed;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    }
+    .admin-counter-label {
+      opacity: 0.7;
+    }
+    .admin-counter-value {
+      font-weight: 700;
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+      /* Reserved width + right-align stops the centered card from
+         shimmering between the loading "…" placeholder and a wider
+         final number like "1,234". */
+      min-width: 3ch;
+      text-align: right;
+      display: inline-block;
+    }
+    .admin-counter-value.loading {
+      opacity: 0.4;
+    }
+    .admin-counter-error .admin-counter-value {
+      color: #c62828;
+    }
+    body.dark-mode .admin-counter-error .admin-counter-value {
+      color: #ef5350;
+    }
+    .admin-counter-meta {
+      opacity: 0.5;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+    }
   </style>
   <script>
     /* Match the site's theme before Sveltia's UI paints. */
@@ -99,6 +162,126 @@
     src="https://unpkg.com/@sveltia/cms@0.170.0/dist/sveltia-cms.js"
     defer
     onerror="window.__sveltiaFailed=true;showCdnError('CDN script did not load.');">
+  </script>
+
+  <!-- ── Visit counter ──
+       Footer-style strip pinned to viewport bottom. Increments via
+       CounterAPI.dev (no signup, CORS-friendly, free tier). Namespace is
+       the repo owner so the same counter is reusable across pages if we
+       later want to track per-page hits from /admin. -->
+  <div id="admin-counter" class="admin-counter" aria-live="polite">
+    <span class="admin-counter-label">Admin visits</span>
+    <span class="admin-counter-value loading" id="admin-counter-value">…</span>
+    <span class="admin-counter-meta" id="admin-counter-meta"></span>
+  </div>
+  <script>
+    /* CounterAPI.dev: GET /v1/{ns}/{key}/up → increments + returns new count.
+       We attempt /up first; if it fails (timeout/4xx) we fall back to a
+       read-only GET so the user still sees *something* instead of an eternal
+       "…". Headless / bot UAs are skipped so automated traffic doesn't
+       pollute the count — the page is noindex so real crawlers shouldn't
+       reach it, but defense in depth. */
+    (function () {
+      var counterEl = document.getElementById('admin-counter-value');
+      var metaEl = document.getElementById('admin-counter-meta');
+      var root = document.getElementById('admin-counter');
+      if (!counterEl || !root || !metaEl) return;
+
+      // Persist the first-render date in localStorage so the "since {date}"
+      // label is stable across visits instead of printing today's date every
+      // time the card re-renders.
+      var FIRST_SEEN_KEY = 'adminCounter.firstSeen';
+      var firstSeen;
+      try {
+        firstSeen = localStorage.getItem(FIRST_SEEN_KEY);
+        if (!firstSeen) {
+          firstSeen = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+          localStorage.setItem(FIRST_SEEN_KEY, firstSeen);
+        }
+      } catch (e) {
+        firstSeen = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      }
+
+      // One-count-per-browser-session dedupe — refreshing /admin while
+      // editing content no longer inflates the count with the admin's own
+      // reloads. Falls back to "always increment" in private-browsing
+      // sessions where sessionStorage throws.
+      var COUNTED_KEY = 'adminCounter.countedThisSession';
+      var alreadyCounted = false;
+      try {
+        alreadyCounted = !!sessionStorage.getItem(COUNTED_KEY);
+        if (!alreadyCounted) sessionStorage.setItem(COUNTED_KEY, '1');
+      } catch (e) { /* private mode — every hit increments */ }
+
+      var ua = (navigator.userAgent || '').toLowerCase();
+      var looksLikeBot =
+        navigator.webdriver === true ||
+        /bot|crawler|spider|headless|lighthouse|gtmetrix|pagespeed/i.test(ua);
+      if (looksLikeBot) {
+        counterEl.classList.remove('loading');
+        counterEl.textContent = '—';
+        metaEl.textContent = 'not counted';
+        return;
+      }
+
+      var endpoint = 'https://api.counterapi.dev/v1/hralmeida-admin/visits';
+      var SIX_S = 6000;
+      var FOUR_S = 4000;
+
+      function render(value, metaOverride) {
+        counterEl.classList.remove('loading');
+        counterEl.textContent = String(value);
+        metaEl.textContent = metaOverride || 'since ' + firstSeen;
+      }
+      function showError() {
+        counterEl.classList.remove('loading');
+        counterEl.textContent = '—';
+        metaEl.textContent = 'counter offline';
+        root.classList.add('admin-counter-error');
+      }
+
+      // If we've already incremented this browser session, skip /up and just
+      // read — the meta label will say "read-only" so the admin can see.
+      var useIncrement = !alreadyCounted;
+      var path = useIncrement ? endpoint + '/up' : endpoint;
+
+      function fetchJSON(url, ms) {
+        var c = new AbortController();
+        var t = setTimeout(function () { c.abort(); }, ms);
+        return fetch(url, { signal: c.signal })
+          .then(function (r) {
+            clearTimeout(t);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+          })
+          .catch(function (err) {
+            clearTimeout(t);
+            throw err;
+          });
+      }
+
+      fetchJSON(path, SIX_S)
+        .then(function (data) {
+          if (data && typeof data.count === 'number') {
+            render(data.count, useIncrement ? null : 'read-only');
+          } else {
+            showError();
+          }
+        })
+        .catch(function () {
+          if (!useIncrement) { showError(); return; }
+          // Increment attempt failed — try a read so we still show *something*.
+          fetchJSON(endpoint, FOUR_S)
+            .then(function (data) {
+              if (data && typeof data.count === 'number') {
+                render(data.count, 'read-only');
+              } else {
+                showError();
+              }
+            })
+            .catch(showError);
+        });
+    })();
   </script>
 </body>
 </html>
