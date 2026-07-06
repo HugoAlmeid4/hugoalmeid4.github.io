@@ -142,17 +142,6 @@
 
   </main>
 
-  <!-- ── Site visit counter ──
-       Inline footer strip, centered, themed. Increments on every page load
-       (with sessionStorage dedupe per browser session) via counter.js →
-       api.counterapi.dev/v1/hralmeida-website/visits. Goes red + shows
-       "blocked" / "timed out" / "counter offline" if the fetch fails. -->
-  <div id="visit-counter" class="visit-counter site-counter" aria-live="polite">
-    <span class="visit-counter-label site-counter-label">Site visits</span>
-    <span class="visit-counter-value site-counter-value loading" id="visit-counter-value">…</span>
-    <span class="visit-counter-meta site-counter-meta" id="visit-counter-meta"></span>
-  </div>
-
   <!-- Service worker for offline support (PWA). Silently fails on origins
        where the browser rejects registration (e.g. non-HTTPS). -->
   <script>
