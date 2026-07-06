@@ -2871,6 +2871,63 @@ body.dark-mode .cv-mini-link {
 
 
 /* ══════════════════════════════════════════════════════════════════════════════
+   ── SITE VISIT COUNTER ──
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Public-site footer strip. Centered, hairline-bordered, matching the same
+   minimal aesthetic as the rest of the page (Lilex, uppercase, 1.5px border).
+   Counter content + live state are managed by /counter.js (the script uses id
+   selectors #visit-counter / #visit-counter-value / #visit-counter-meta and
+   therefore works on any page that includes it — admin or public). */
+.site-counter {
+  display: block;
+  text-align: center;
+  margin: 60px auto 40px;
+  padding: 16px 20px;
+  font-family: "Lilex", monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-top: 1.5px solid #333;
+  border-bottom: 1.5px solid #333;
+  max-width: 600px;
+  color: #333;
+}
+body.dark-mode .site-counter {
+  border-color: #ededed;
+  color: #ededed;
+}
+.site-counter-label {
+  opacity: 0.7;
+}
+.site-counter-value {
+  font-weight: 700;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  /* Reserved width + center-align prevents the strip from shimmer-shifting
+     as the loading "…" gets replaced with a final number like "1,234". */
+  min-width: 3ch;
+  text-align: center;
+  display: inline-block;
+  margin: 0 6px;
+}
+.site-counter-value.loading {
+  opacity: 0.4;
+}
+.site-counter-meta {
+  opacity: 0.5;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.visit-counter-error .site-counter-value {
+  color: #c62828;
+}
+body.dark-mode .visit-counter-error .site-counter-value {
+  color: #ef5350;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
    ── READING TIME (post cards) ──
    ══════════════════════════════════════════════════════════════════════════════ */
 .post-reading-time {

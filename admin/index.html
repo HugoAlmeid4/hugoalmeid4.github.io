@@ -14,6 +14,7 @@
   <!-- The CDN path is `dist/sveltia-cms.js` (NOT `sveltia.js` — that 404s).
        Version pinned to 0.170.0. Update via https://github.com/sveltia/sveltia-cms/releases -->
   <link rel="preload" href="https://unpkg.com/@sveltia/cms@0.170.0/dist/sveltia-cms.js" as="script">
+  <script src="counter.js?v=1" defer></script>
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
     body { background: rgb(237, 231, 220); color: #333; font-family: "Lilex", monospace; }
@@ -93,10 +94,14 @@
     .admin-counter-value.loading {
       opacity: 0.4;
     }
-    .admin-counter-error .admin-counter-value {
+    /* Universal error class — counter.js adds `.visit-counter-error` on the
+       wrapper on fetch failure. Selector matches both the admin-specific
+       `.admin-counter-value` (this page) and the public-site
+       `.site-counter-value` (style.css) so the same script works everywhere. */
+    .visit-counter-error .admin-counter-value {
       color: #c62828;
     }
-    body.dark-mode .admin-counter-error .admin-counter-value {
+    body.dark-mode .visit-counter-error .admin-counter-value {
       color: #ef5350;
     }
     .admin-counter-meta {
@@ -165,123 +170,15 @@
   </script>
 
   <!-- ── Visit counter ──
-       Footer-style strip pinned to viewport bottom. Increments via
-       CounterAPI.dev (no signup, CORS-friendly, free tier). Namespace is
-       the repo owner so the same counter is reusable across pages if we
-       later want to track per-page hits from /admin. -->
-  <div id="admin-counter" class="admin-counter" aria-live="polite">
-    <span class="admin-counter-label">Admin visits</span>
-    <span class="admin-counter-value loading" id="admin-counter-value">…</span>
-    <span class="admin-counter-meta" id="admin-counter-meta"></span>
+       Footer-style strip pinned to viewport bottom. Shares counter.js with
+       the public site, both pages increment the same hralmeida-website
+       counter so this strip reflects total site visits. Uses ad-blocker-
+       friendly ids/classes (.visit-counter-*) so the shared JS finds it. -->
+  <div id="visit-counter" class="visit-counter admin-counter" aria-live="polite">
+    <span class="visit-counter-label admin-counter-label">Site visits</span>
+    <span class="visit-counter-value admin-counter-value loading" id="visit-counter-value">…</span>
+    <span class="visit-counter-meta admin-counter-meta" id="visit-counter-meta"></span>
   </div>
-  <script>
-    /* CounterAPI.dev: GET /v1/{ns}/{key}/up → increments + returns new count.
-       We attempt /up first; if it fails (timeout/4xx) we fall back to a
-       read-only GET so the user still sees *something* instead of an eternal
-       "…". Headless / bot UAs are skipped so automated traffic doesn't
-       pollute the count — the page is noindex so real crawlers shouldn't
-       reach it, but defense in depth. */
-    (function () {
-      var counterEl = document.getElementById('admin-counter-value');
-      var metaEl = document.getElementById('admin-counter-meta');
-      var root = document.getElementById('admin-counter');
-      if (!counterEl || !root || !metaEl) return;
-
-      // Persist the first-render date in localStorage so the "since {date}"
-      // label is stable across visits instead of printing today's date every
-      // time the card re-renders.
-      var FIRST_SEEN_KEY = 'adminCounter.firstSeen';
-      var firstSeen;
-      try {
-        firstSeen = localStorage.getItem(FIRST_SEEN_KEY);
-        if (!firstSeen) {
-          firstSeen = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-          localStorage.setItem(FIRST_SEEN_KEY, firstSeen);
-        }
-      } catch (e) {
-        firstSeen = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      }
-
-      // One-count-per-browser-session dedupe — refreshing /admin while
-      // editing content no longer inflates the count with the admin's own
-      // reloads. Falls back to "always increment" in private-browsing
-      // sessions where sessionStorage throws.
-      var COUNTED_KEY = 'adminCounter.countedThisSession';
-      var alreadyCounted = false;
-      try {
-        alreadyCounted = !!sessionStorage.getItem(COUNTED_KEY);
-        if (!alreadyCounted) sessionStorage.setItem(COUNTED_KEY, '1');
-      } catch (e) { /* private mode — every hit increments */ }
-
-      var ua = (navigator.userAgent || '').toLowerCase();
-      var looksLikeBot =
-        navigator.webdriver === true ||
-        /bot|crawler|spider|headless|lighthouse|gtmetrix|pagespeed/i.test(ua);
-      if (looksLikeBot) {
-        counterEl.classList.remove('loading');
-        counterEl.textContent = '—';
-        metaEl.textContent = 'not counted';
-        return;
-      }
-
-      var endpoint = 'https://api.counterapi.dev/v1/hralmeida-admin/visits';
-      var SIX_S = 6000;
-      var FOUR_S = 4000;
-
-      function render(value, metaOverride) {
-        counterEl.classList.remove('loading');
-        counterEl.textContent = String(value);
-        metaEl.textContent = metaOverride || 'since ' + firstSeen;
-      }
-      function showError() {
-        counterEl.classList.remove('loading');
-        counterEl.textContent = '—';
-        metaEl.textContent = 'counter offline';
-        root.classList.add('admin-counter-error');
-      }
-
-      // If we've already incremented this browser session, skip /up and just
-      // read — the meta label will say "read-only" so the admin can see.
-      var useIncrement = !alreadyCounted;
-      var path = useIncrement ? endpoint + '/up' : endpoint;
-
-      function fetchJSON(url, ms) {
-        var c = new AbortController();
-        var t = setTimeout(function () { c.abort(); }, ms);
-        return fetch(url, { signal: c.signal })
-          .then(function (r) {
-            clearTimeout(t);
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-          })
-          .catch(function (err) {
-            clearTimeout(t);
-            throw err;
-          });
-      }
-
-      fetchJSON(path, SIX_S)
-        .then(function (data) {
-          if (data && typeof data.count === 'number') {
-            render(data.count, useIncrement ? null : 'read-only');
-          } else {
-            showError();
-          }
-        })
-        .catch(function () {
-          if (!useIncrement) { showError(); return; }
-          // Increment attempt failed — try a read so we still show *something*.
-          fetchJSON(endpoint, FOUR_S)
-            .then(function (data) {
-              if (data && typeof data.count === 'number') {
-                render(data.count, 'read-only');
-              } else {
-                showError();
-              }
-            })
-            .catch(showError);
-        });
-    })();
-  </script>
+  <script src="counter.js?v=1" defer></script>
 </body>
 </html>
