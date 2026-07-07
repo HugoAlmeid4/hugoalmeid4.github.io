@@ -501,16 +501,34 @@
     });
   }
 
-  /* URL scheme allowlist: only http(s), mailto, in-page anchors, or
-     site-relative paths. Anything else (javascript:, data:, vbscript:,
-     file:, ftp:, ...) falls through to '#'. Used by per-page renderers
-     whose URLs come from admin-editable JSON / markdown so the page
-     can't be turned into a script-injection vector. */
+  /* URL safety filter used by per-page renderers whose URLs come from
+     admin-editable JSON / markdown (so the page can't be turned into a
+     script-injection vector).
+
+     Pass-through:
+       - "#anchor"
+       - http(s):// and mailto: schemes (also tel:)
+
+     Site-relative paths without a leading "/" are accepted, prefixed with
+     "/" so they resolve from the site root, and run through encodeURI()
+     so spaces and other unsafe chars in directory/file names are escaped
+     (e.g. "gallery/star clusters/foo.webp" → "/gallery/star%20clusters/foo.webp").
+
+     Any URL whose scheme isn't on the allow-list falls through to '#'.
+     This rejects javascript:, data:, vbscript:, file:, ftp:, and any
+     other scheme browsers may interpret as script content. */
   function safeUrl(u) {
     if (u == null) return '#';
     var s = String(u).trim();
     if (!s) return '#';
-    return /^(https?:|mailto:|#|\/)/i.test(s) ? s : '#';
+    if (/^#/.test(s)) return s;
+    if (/^(https?|mailto|tel):/i.test(s)) return s;
+    /* RFC 3986 scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ) ":".
+       A scheme is only safe when it's on the allow-list above, so any
+       other leading scheme is an injection attempt. */
+    if (/^[a-z][a-z0-9+.\-]*:/i.test(s)) return '#';
+    /* No scheme + no leading "/" → treat as site-relative. */
+    return '/' + encodeURI(s).replace(/^\/+/, '');
   }
 
   /* ── Switcher markup ────────────────────────────────────────────────── */

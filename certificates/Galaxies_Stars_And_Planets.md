@@ -10,4 +10,5 @@ skills_covered: [Cosmic Scale, Orbits and Gravity, Solar System Dynamics, Stella
 criteria: Completed 8 hours of introductory coursework, including all section materials and required mandatory tests.
 bio: {"en":"A general introduction to the scale of the universe, orbits, gravity, the Solar System, the Sun, stellar classification, galaxies, and the basic chemical composition of astronomical objects.","pt":"Uma introdução geral à escala do universo, órbitas, gravidade, Sistema Solar, Sol, classificação estelar, galáxias e composição química básica dos objetos astronómicos.","es":"Una introducción general a la escala del universo, las órbitas, la gravedad, el Sistema Solar, el Sol, la clasificación estelar, las galaxias y la composición química básica de los objetos astronómicos."}
 file: certificates/Galaxies_Stars_And_Planets.pdf
-is_pdf: true---
+is_pdf: true
+---

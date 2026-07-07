@@ -85,9 +85,21 @@
 
     function parseFrontmatter(mdText) {
       var metadata = {};
-      var fmMatch = mdText.match(/^---\r?\n([\s\S]+?)\r?\n---[ \t]*\r?\n?/);
+      /* Tolerate the closing "---" being glued to the previous line (a
+         common editor/template bug — e.g. `is_pdf: false---`). The lazy
+         content capture stops at the first 3+ dashes it can reach, with
+         `\s*` (zero-or-more) optional whitespace BEFORE the fence. This
+         rescues files where a generator forgot to insert a newline
+         between the last property value and `---`. We also accept 3+
+         dashes on the closing fence (per YAML document-separator spec). */
+      var fmMatch = mdText.match(/^---[ \t]*\r?\n([\s\S]+?)\s*---+/);
       if (!fmMatch) return metadata;
-      var lines = fmMatch[1].split('\n');
+      var body = fmMatch[1];
+      /* Drop a trailing CRLF/LF so split('\n') doesn't yield a phantom
+         empty last line. The isolated whitespace-before-`---` cases
+         don't carry any meaningful value anyway. */
+      body = body.replace(/[\r\n]+$/, '');
+      var lines = body.split('\n');
       for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         var colon = line.indexOf(':');
