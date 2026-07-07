@@ -5,13 +5,17 @@
    Bump CACHE_VERSION when shipping structural changes so old cached
    responses get evicted automatically next visit.
    ────────────────────────────────────────────────────────────────────────── */
-const CACHE_VERSION = 'hralmeida-v6';
-// Asset URLs include ?v=1 to match the version-busters in HTML. Without the
+const CACHE_VERSION = 'hralmeida-v7';
+// Asset URLs include ?v=N to match the version-busters in HTML. Without the
 // query string, caches.match() keys are unqueried and the network request for
 // `./style.css?v=1` would always miss the precache — defeating the cache. With
-// ?v=1 baked in, offline visits also pull the same version the HTML now asks
-// for. Bump this string + CACHE_VERSION (and the HTML ?v=) together when you
-// ship a new release.
+// ?v=N baked in, offline visits also pull the same version the HTML now asks
+// for. Bump this string + CACHE_VERSION + HTML ?v= together when shipping.
+//
+// Data files (posts/index.json, data/*.json, etc.) are intentionally excluded
+// from PRECACHE because they change when content is added via /admin. Cache-
+// first on those would cause stale content until Ctrl+Shift+R. posts.js always
+// fetches them with ?t=timestamp to bypass the service-worker cache entirely.
 const PRECACHE = [
   './',
   './index.html',
@@ -20,19 +24,19 @@ const PRECACHE = [
   './now.html',
   './cv.html',
   './404.html',
-  './style.css?v=2',
-  './posts.css?v=1',
-  './certificates.css?v=2',
-  './now.css?v=2',
-  './cv.css?v=2',
-  './404.css?v=2',
-  './theme.js?v=2',
-  './posts.js?v=1',
-  './bio.js?v=1',
-  './counter.js?v=1',
-  './now.js?v=2',
-  './cv.js?v=2',
-  './giscus-config.js?v=1',
+  './style.css?v=3',
+  './posts.css?v=2',
+  './certificates.css?v=3',
+  './now.css?v=3',
+  './cv.css?v=3',
+  './404.css?v=3',
+  './theme.js?v=3',
+  './posts.js?v=2',
+  './bio.js?v=2',
+  './counter.js?v=2',
+  './now.js?v=3',
+  './cv.js?v=3',
+  './giscus-config.js?v=2',
   './manifest.json',
   './imgs/imgs.jpg',
   './imgs/imgs.webp',
@@ -41,13 +45,7 @@ const PRECACHE = [
   './imgs/Frame10.webp',
   './imgs/icon-192.png',
   './imgs/icon-512.png',
-  './imgs/certificate-placeholder.webp',
-  './data/bio.json',
-  './data/now.json',
-  './data/cv.json',
-  './gallery/index.json',
-  './posts/index.json',
-  './generate-rss.js'
+  './imgs/certificate-placeholder.webp'
 ];
 
 self.addEventListener('install', event => {
