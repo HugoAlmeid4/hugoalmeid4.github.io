@@ -1,8 +1,16 @@
 {
-  "bio": "Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.",
+  "bio": {
+    "en": "Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.",
+    "pt": "Capturar luz que viajou milhões de anos só para aqui chegar. Prefiro o silêncio e as coisas simples. Apenas a apreciar a vista enquanto o mundo volta a girar.",
+    "es": "Capturando la luz que viajó millones de años sólo para llegar aquí. Prefiero el silencio y las cosas sencillas. Simplemente disfrutando de la vista mientras el mundo gira nuevamente."
+  },
   "socials": [
     {
-      "label": "Github",
+      "label": {
+        "en": "Github",
+        "pt": "GitHub",
+        "es": "Github"
+      },
       "url": "https://github.com/HugoAlmeid4",
       "icon": "🐙"
     },
@@ -12,7 +20,11 @@
       "icon": "🦊"
     },
     {
-      "label": "Contact Form",
+      "label": {
+        "en": "Contact Form",
+        "pt": "Formulário de contacto",
+        "es": "Formulario de contacto"
+      },
       "url": "#tally-open=GxkEvO&tally-emoji-text=👋&tally-emoji-animation=wave",
       "icon": "✉️"
     }
@@ -20,15 +32,37 @@
   "skills_groups": [
     {
       "category": "Astro",
-      "items": ["Siril", "Stellarium", "DeepSkyStacker"]
+      "items": [
+        "Siril",
+        "Stellarium",
+        "DeepSkyStacker"
+      ]
     },
     {
-      "category": "Code",
-      "items": ["Python", "HTML", "CSS", "Git", "Markdown"]
+      "category": {
+        "en": "Code",
+        "pt": "Código",
+        "es": "Código"
+      },
+      "items": [
+        "Python",
+        "HTML",
+        "CSS",
+        "Git",
+        "Markdown"
+      ]
     },
     {
-      "category": "Languages",
-      "items": ["English", "Português", "Español"]
+      "category": {
+        "en": "Languages",
+        "pt": "Idiomas",
+        "es": "Idiomas"
+      },
+      "items": [
+        "English",
+        "Português",
+        "Español"
+      ]
     }
   ]
 }

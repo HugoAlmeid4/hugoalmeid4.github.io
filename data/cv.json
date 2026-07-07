@@ -1,6 +1,14 @@
 {
-  "tagline": "Astrophotographer · Teenager · Lifelong learner",
-  "bio": "Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.",
+  "tagline": {
+    "en": "Astrophotographer · Teenager · Lifelong learner",
+    "pt": "Astrofotógrafo · Adolescente · Aprendiz ao longo da vida",
+    "es": "Astrofotógrafo · Adolescente · Aprendiz permanente"
+  },
+  "bio": {
+    "en": "Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.",
+    "pt": "Capturar luz que viajou milhões de anos só para aqui chegar. Prefiro o silêncio e as coisas simples. Apenas a apreciar a vista enquanto o mundo volta a girar.",
+    "es": "Capturando la luz que viajó millones de años sólo para llegar aquí. Prefiero el silencio y las cosas sencillas. Simplemente disfrutando de la vista mientras el mundo gira nuevamente."
+  },
   "contact": [
     {
       "label": "github.com/HugoAlmeid4",
@@ -13,34 +21,78 @@
   ],
   "skills": [
     {
-      "category": "Astrophotography",
-      "description": "Image stacking (Siril, DeepSkyStacker), session planning (Stellarium), post-processing (GIMP), equatorial mount operation, polar alignment."
+      "category": {
+        "en": "Astrophotography",
+        "pt": "Astrofotografia",
+        "es": "Astrofotografía"
+      },
+      "description": {
+        "en": "Image stacking (Siril, DeepSkyStacker), session planning (Stellarium), post-processing (GIMP), equatorial mount operation, polar alignment.",
+        "pt": "Empilhamento de imagens (Siril, DeepSkyStacker), planeamento de sessões (Stellarium), pós-processamento (GIMP), operação de montagem equatorial, alinhamento polar.",
+        "es": "Apilamiento de imágenes (Siril, DeepSkyStacker), planificación de sesiones (Stellarium), posprocesamiento (GIMP), operación de montaje ecuatorial, alineación polar."
+      }
     },
     {
-      "category": "Code",
-      "description": "Python, HTML, CSS, Git, Markdown, basic Linux command line."
+      "category": {
+        "en": "Code",
+        "pt": "Código",
+        "es": "Código"
+      },
+      "description": {
+        "en": "Python, HTML, CSS, Git, Markdown, basic Linux command line.",
+        "pt": "Python, HTML, CSS, Git, Markdown, linha de comandos básica do Linux.",
+        "es": "Python, HTML, CSS, Git, Markdown, línea de comando básica de Linux."
+      }
     },
     {
-      "category": "Languages",
-      "description": "English · Portuguese · Spanish."
+      "category": {
+        "en": "Languages",
+        "pt": "Idiomas",
+        "es": "Idiomas"
+      },
+      "description": {
+        "en": "English · Portuguese · Spanish.",
+        "pt": "Inglês · Português · Espanhol.",
+        "es": "Inglés · Portugués · Español."
+      }
     }
   ],
   "selected_posts": [
     {
-      "title": "Dark matter — a simple explanation",
+      "title": {
+        "en": "Dark matter — a simple explanation",
+        "pt": "Matéria escura – uma explicação simples",
+        "es": "Materia oscura: una explicación sencilla"
+      },
       "url": "posts/dark-matter-explanation.md"
     },
     {
-      "title": "Searching for black holes — what an amateur can actually see",
+      "title": {
+        "en": "Searching for black holes — what an amateur can actually see",
+        "pt": "Procurar buracos negros – o que um amador pode realmente ver",
+        "es": "En busca de agujeros negros: lo que realmente puede ver un aficionado"
+      },
       "url": "posts/searching-for-blackholes.md"
     }
   ],
-  "projects_intro": "Some projects:",
+  "projects_intro": {
+    "en": "Some projects:",
+    "pt": "Alguns projetos:",
+    "es": "Algunos proyectos:"
+  },
   "projects": [
     {
-      "description": "Python made project for shark coders",
+      "description": {
+        "en": "Python made project for shark coders",
+        "pt": "Projeto feito em Python para programadores de tubarões",
+        "es": "Proyecto creado en Python para codificadores de tiburones"
+      },
       "url": "https://gitlab.com/hralmeida/universe-toolkit-pyqt"
     }
   ],
-  "interests": "Deep-sky astrophotography · Python · web development · physics & reading · quiet nights under the stars."
+  "interests": {
+    "en": "Deep-sky astrophotography · Python · web development · physics & reading · quiet nights under the stars.",
+    "pt": "Astrofotografia do céu profundo · Python · desenvolvimento web · física e leitura · noites tranquilas sob as estrelas.",
+    "es": "Astrofotografía de cielo profundo · Python · desarrollo web · física y lectura · noches tranquilas bajo las estrellas."
+  }
 }

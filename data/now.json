@@ -2,28 +2,48 @@
   "last_updated": "2025-07",
   "blocks": [
     {
-      "title": "Learning",
+      "title": {
+        "en": "Learning",
+        "pt": "Aprendizagem",
+        "es": "Aprendiendo"
+      },
       "items": [
         "Long-exposure deep-sky image processing in Siril",
         "Python for data analysis"
       ]
     },
     {
-      "title": "Working on",
+      "title": {
+        "en": "Working on",
+        "pt": "Trabalhando em",
+        "es": "trabajando en"
+      },
       "items": [
         "Creating a small project to learn Python.",
         "Saving for a dedicated planetary imaging camera"
       ]
     },
     {
-      "title": "Imaging targets",
-      "intro": "The next clear, moonless night I want to try:",
+      "title": {
+        "en": "Imaging targets",
+        "pt": "Alvos de imagem",
+        "es": "Objetivos de imagen"
+      },
+      "intro": {
+        "en": "The next clear, moonless night I want to try:",
+        "pt": "The next clear, moonless night I want to try:",
+        "es": "La próxima noche clara y sin luna que quiero probar:"
+      },
       "items": [
         "Lagoon Nebula - Never shot a nebula before."
       ]
     },
     {
-      "title": "Reading",
+      "title": {
+        "en": "Reading",
+        "pt": "Leitura",
+        "es": "Lectura"
+      },
       "items": [
         "Carl Sagan — <em>Cosmos</em>",
         "Anne Frank — <em>The Diary of a Young Girl</em>",
@@ -31,7 +51,11 @@
       ]
     },
     {
-      "title": "Outside this site",
+      "title": {
+        "en": "Outside this site",
+        "pt": "Fora deste site",
+        "es": "Fuera de este sitio"
+      },
       "items": [
         "I am on vacation now so more time to study and learn more about astrophysics.."
       ]
