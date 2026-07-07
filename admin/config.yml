@@ -31,7 +31,9 @@ collections:
     # Posts reference images as `posts/...` in markdown (`![[foo.png|166]]`).
     # The renderer (posts.js) prepends `posts/` when no scheme is given, so
     # uploaded media must live under `posts/` at the repo root to be reached.
-    media_folder: 'posts'
+    # Images go directly to posts/ (same dir as markdown files).
+    # Using '' avoids double-nesting (media_folder + collection folder).
+    media_folder: ''
     public_folder: '/posts'
     fields:
       - name: title
