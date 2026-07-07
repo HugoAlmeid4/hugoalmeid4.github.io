@@ -43,19 +43,53 @@
       line-height: 1.7;
     }
 
-    /* ── Visits counter ──
-       Fixed-position footer strip with the same minimal aesthetic as the
-       rest of the admin page (uppercase Lilex, 1.5px hairline border).
-       Pinned (not flowing) so Sveltia CMS's body mount can't displace it
-       — fixed elements always occupy the viewport regardless of where Sveltia
-       inserts its shadow-DOM UI. z-index 99999 sits above Sveltia modals
-       (its polymer overlays commonly use 10000+). */
+    /* ── Visits counter toggle ──
+       A small pill button fixed at the bottom-centre of the viewport.
+       Clicking it reveals/hides the counter panel. */
+    .admin-counter-toggle {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 16px;
+      background: rgb(237, 231, 220);
+      color: #1a1a1a;
+      border: 1.5px solid #333;
+      font-family: "Lilex", monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      z-index: 99999;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: background 0.2s ease, color 0.2s ease;
+      user-select: none;
+    }
+    .admin-counter-toggle:hover {
+      background: #333;
+      color: rgb(237, 231, 220);
+    }
+    body.dark-mode .admin-counter-toggle {
+      background: #1a1a1a;
+      color: #ededed;
+      border-color: #ededed;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    }
+    body.dark-mode .admin-counter-toggle:hover {
+      background: #ededed;
+      color: #1a1a1a;
+    }
+
+    /* ── Visits counter panel ──
+       Fixed-position footer strip hidden by default. Shown when the toggle
+       button above is clicked. Same minimal aesthetic (uppercase Lilex,
+       1.5px hairline border). Pinned so Sveltia CMS can't displace it. */
     .admin-counter {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      display: inline-flex;
+      display: none;
       align-items: baseline;
       gap: 10px;
       padding: 10px 18px;
@@ -71,6 +105,9 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       pointer-events: none;
     }
+    .admin-counter.visible {
+      display: inline-flex;
+    }
     body.dark-mode .admin-counter {
       background: #1a1a1a;
       color: #ededed;
@@ -84,9 +121,6 @@
       font-weight: 700;
       font-size: 14px;
       font-variant-numeric: tabular-nums;
-      /* Reserved width + right-align stops the centered card from
-         shimmering between the loading "…" placeholder and a wider
-         final number like "1,234". */
       min-width: 3ch;
       text-align: right;
       display: inline-block;
@@ -94,10 +128,6 @@
     .admin-counter-value.loading {
       opacity: 0.4;
     }
-    /* Universal error class — counter.js adds `.visit-counter-error` on the
-       wrapper on fetch failure. Selector matches both the admin-specific
-       `.admin-counter-value` (this page) and the public-site
-       `.site-counter-value` (style.css) so the same script works everywhere. */
     .visit-counter-error .admin-counter-value {
       color: #c62828;
     }
@@ -172,15 +202,33 @@
     onerror="window.__sveltiaFailed=true;showCdnError('CDN script did not load.');">
   </script>
 
-  <!-- ── Visit counter ──
-       Footer-style strip pinned to viewport bottom. Shares counter.js with
-       the public site, both pages increment the same hralmeida-website
-       counter so this strip reflects total site visits. Uses ad-blocker-
-       friendly ids/classes (.visit-counter-*) so the shared JS finds it. -->
+  <!-- ── Visit counter toggle ──
+       Small pill button at viewport bottom. Clicking it toggles the counter
+       panel below. Hidden when the panel is visible (panel replaces it). -->
+  <button type="button" class="admin-counter-toggle" id="adminCounterToggle">VISITS</button>
+
+  <!-- ── Visit counter panel ──
+       Footer-style strip pinned to viewport bottom. Hidden by default;
+       shown when the toggle button above is clicked. Shares counter.js
+       with the public site. -->
   <div id="visit-counter" class="visit-counter admin-counter" aria-live="polite">
     <span class="visit-counter-label admin-counter-label">Site visits</span>
     <span class="visit-counter-value admin-counter-value loading" id="visit-counter-value">…</span>
     <span class="visit-counter-meta admin-counter-meta" id="visit-counter-meta"></span>
   </div>
+
+  <script>
+    /* Toggle the visit counter panel on/off. Hides the toggle button when
+       the panel is visible so they don't overlap. */
+    (function() {
+      var toggle = document.getElementById('adminCounterToggle');
+      var panel = document.getElementById('visit-counter');
+      if (!toggle || !panel) return;
+      toggle.addEventListener('click', function() {
+        var showing = panel.classList.toggle('visible');
+        toggle.style.display = showing ? 'none' : '';
+      });
+    })();
+  </script>
 </body>
 </html>
