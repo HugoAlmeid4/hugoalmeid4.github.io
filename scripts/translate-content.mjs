@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 // scripts/translate-content.mjs
 // ──────────────────────────────────────────────────────────────────────────
-// Translate the small per-page data JSON files (bio.json, cv.json, now.json)
-// into Portuguese (pt) and Spanish (es) using the same unofficial Google
-// Translate endpoint that posts.js uses at runtime. Run once after you edit
-// the English source — no rebuild step needed at runtime.
+// Translate the small per-page data JSON files (bio.json, cv.json, now.json),
+// gallery/index.json, and cert name frontmatter into Portuguese (pt) and
+// Spanish (es) using the unofficial Google Translate endpoint that posts.js
+// also uses at runtime. Run once after editing the English source; no
+// rebuild step is needed at runtime.
 //
 // What gets translated: human-readable text fields (paragraphs, headlines,
 // skill descriptions, project descriptions, interest strings, block intros,
-// reading list items).
+// reading list items, gallery item titles / alts / targets / notes, cert
+// frontmatter `name:` / `issuer:` / `bio:` values).
 //
 // What gets skipped:
 //   - URLs, dates, credential IDs (non-translatable strings)
@@ -17,9 +19,8 @@
 //     produces wrong results (e.g. "Python" → "Pitão").
 //   - Emoji icons ("🐙", "🦊", "✉️").
 //
-// Output: leaves the original English values intact and augments each
-// text-bearing field with `_pt` and `_es` siblings, OR replaces the field
-// with an object { en, pt, es } if it's a single string.
+// Output: leaves the original English values intact and converts each
+// text-bearing field to an object { en, pt, es }.
 //
 // Usage:  node scripts/translate-content.mjs
 // ──────────────────────────────────────────────────────────────────────────
@@ -32,8 +33,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const DATA_DIR = join(ROOT, 'data');
 
-// Brand / software names we never want to translate — Google's API would
-// otherwise produce wrong results like "Python" → "Píton".
 const BRAND_WORDS = new Set([
   'python', 'html', 'css', 'git', 'markdown', 'linux',
   'siril', 'stellarium', 'deepskystacker', 'gimp',
@@ -41,22 +40,37 @@ const BRAND_WORDS = new Set([
   'lilex', 'json', 'md', 'pdf'
 ]);
 
+/* INVARIANT (set LANG_KEYS):
+   Every translated field must end up as a flat { en, pt, es } object with
+   STRING leaves. The enrich() / enrichGallery() / translateCertMd()
+   functions below GUARD against ever wrapping an existing translation
+   object in another translation layer — that's how an earlier version of
+   this script inflated data/bio.json from a few KB to 180+ MB.
+
+   If you change the shape recognition here, also re-validate:
+     `node scripts/repair-translation-corruption.mjs` (dry-run)
+   and skim `git diff data/`. */
+const LANGS = ['en', 'pt', 'es'];
+const LANG_KEYS = new Set(LANGS);
+function isTLObject(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+  const keys = Object.keys(v);
+  if (!keys.length || keys.length > LANGS.length) return false;
+  return keys.every((k) => LANG_KEYS.has(k));
+}
+
 function isBrand(str) {
   if (!str) return false;
   const cleaned = String(str).trim().toLowerCase();
   return BRAND_WORDS.has(cleaned);
 }
 
-// Cache: { inputText_targetLang: translatedText }. Run-time only — no
-// persistence; the script is meant to be run on demand, output baked in.
 const cache = new Map();
 
 async function translateText(text, targetLang) {
   if (!text || typeof text !== 'string') return text;
   const trimmed = text.trim();
   if (!trimmed) return text;
-
-  // Skip brand / proper-noun only strings entirely.
   if (isBrand(trimmed)) return text;
 
   const cacheKey = `${text}__${targetLang}`;
@@ -76,20 +90,15 @@ async function translateText(text, targetLang) {
   }
 }
 
-// Decide whether a string value is "user-visible text" worth translating.
-// Very short strings (<2 words) that look like URLs/IDs/keys are skipped.
 function looksLikeText(s) {
   if (typeof s !== 'string') return false;
   if (s.length < 2) return false;
   if (/^https?:\/\//i.test(s)) return false;
   if (/^#?\/?[a-z0-9_/-]+\.(html|md|json|pdf|jpg|png|webp)/i.test(s)) return false;
-  if (/^[a-f0-9-]{8,}$/i.test(s)) return false; // hex IDs
+  if (/^[a-f0-9-]{8,}$/i.test(s)) return false;
   return true;
 }
 
-// Recursively walk the data file, translating every string value. Mutates
-// the object in place. Skips arrays of names like social labels where some
-// items might be brands.
 async function enrich(node, path = []) {
   if (Array.isArray(node)) {
     for (let i = 0; i < node.length; i++) {
@@ -98,31 +107,30 @@ async function enrich(node, path = []) {
     return node;
   }
   if (node && typeof node === 'object') {
+    /* GUARD: if the node itself is already a { en, pt, es } translation
+       wrapper, leave it untouched. Walking into it would re-translate
+       each string and wrap again — the bug that ballooned bio.json. */
+    if (isTLObject(node)) return node;
+
     const out = {};
     for (const [k, v] of Object.entries(node)) {
       if (typeof v === 'string' && looksLikeText(v)) {
-        // Skip fields that are obviously non-text even if `looksLikeText`
-        // returned true. (e.g. cert `file` and `credential_url`.)
         if (/^(url|file|credential_url|credential_id|datetime|date)$/i.test(k)) {
-          out[k] = v;
-          continue;
-        }
-        // Skip items inside known proper-noun arrays.
-        if (path[0] === 'items' && k === 'item_unused') {
-          // legacy guard — not actually hit, kept for clarity
           out[k] = v;
           continue;
         }
         const pt = await translateText(v, 'pt');
         const es = await translateText(v, 'es');
-        if (pt === v && es === v) {
-          // No translation needed (likely brand). Keep as plain string.
+        out[k] = (pt === v && es === v) ? v : { en: v, pt, es };
+      } else if (v && typeof v === 'object') {
+        if (isTLObject(v)) {
+          /* Already translated — pass through, don't recurse into leaves
+             and re-translate them (which would inflate file size on
+             every run). */
           out[k] = v;
         } else {
-          out[k] = { en: v, pt, es };
+          out[k] = await enrich(v, [...path, k]);
         }
-      } else if (v && typeof v === 'object') {
-        out[k] = await enrich(v, [...path, k]);
       } else {
         out[k] = v;
       }
@@ -133,16 +141,107 @@ async function enrich(node, path = []) {
 }
 
 const FILES = ['bio.json', 'cv.json', 'now.json'];
+const GALLERY_PATH = join(ROOT, 'gallery', 'index.json');
+const GALLERY_FIELDS = new Set(['title', 'alt', 'target', 'notes']);
+
+async function enrichGallery(node) {
+  if (Array.isArray(node)) {
+    for (let i = 0; i < node.length; i++) node[i] = await enrichGallery(node[i]);
+    return node;
+  }
+  if (node && typeof node === 'object') {
+    /* Same guard as enrich(): leaves already-translated values alone. */
+    if (isTLObject(node)) return node;
+
+    const out = {};
+    for (const [k, v] of Object.entries(node)) {
+      if (typeof v === 'string' && GALLERY_FIELDS.has(k) && looksLikeText(v)) {
+        const pt = await translateText(v, 'pt');
+        const es = await translateText(v, 'es');
+        out[k] = (pt === v && es === v) ? v : { en: v, pt, es };
+      } else if (v && typeof v === 'object') {
+        if (isTLObject(v)) {
+          out[k] = v;
+        } else {
+          out[k] = await enrichGallery(v);
+        }
+      } else {
+        out[k] = v;
+      }
+    }
+    return out;
+  }
+  return node;
+}
+
+/* Walk certificates/*.md. For each, find the frontmatter and convert any
+   `name:`, `issuer:`, `bio:` plain-string values to a JSON object literal
+   of shape { en, pt, es }. The certs page's parseFrontmatter() detects
+   JSON-shaped values and feeds them to i18n.localize(). */
+const CERT_MD_FIELDS = ['name', 'issuer', 'bio'];
+
+async function translateCertMd(mdText) {
+  const m = mdText.match(/^---\r?\n([\s\S]+?)\r?\n---[ \t]*\r?\n?/);
+  if (!m) return mdText;
+  const fmBody = m[1];
+  const rest = mdText.slice(m[0].length);
+  const lines = fmBody.split('\n');
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const colon = line.indexOf(':');
+    if (colon <= 0) continue;
+    const key = line.slice(0, colon).trim().toLowerCase();
+    const val = line.slice(colon + 1).trim().replace(/^['"]|['"]$/g, '');
+    if (CERT_MD_FIELDS.indexOf(key) < 0) continue;
+    if (!val || val.charAt(0) === '{') continue;
+    const pt = await translateText(val, 'pt');
+    const es = await translateText(val, 'es');
+    if (pt === val && es === val) continue;
+    lines[i] = key + ': ' + JSON.stringify({ en: val, pt, es });
+  }
+  return '---\n' + lines.join('\n') + '---' + rest;
+}
+
+async function translateCertsDir() {
+  let files;
+  try {
+    files = await (await import('node:fs/promises')).readdir(join(ROOT, 'certificates'));
+  } catch (e) { return; }
+  if (!Array.isArray(files)) return;
+  for (const f of files) {
+    if (!f.toLowerCase().endsWith('.md')) continue;
+    const p = join(ROOT, 'certificates', f);
+    const md = await readFile(p, 'utf8');
+    const translated = await translateCertMd(md);
+    if (translated !== md) {
+      await writeFile(p, translated, 'utf8');
+      console.log(`  ✓ ${f}`);
+    }
+  }
+}
 
 for (const file of FILES) {
   const path = join(DATA_DIR, file);
   const before = JSON.parse(await readFile(path, 'utf8'));
   console.log(`• ${file} — translating…`);
   const after = await enrich(before);
-  // Pretty 2-space indent keeps diffs readable.
   await writeFile(path, JSON.stringify(after, null, 2) + '\n', 'utf8');
-  console.log(`  ✓ wrote ${path} (cache hits: ${cache.size})`);
+  console.log(`  ✓ wrote ${path}`);
 }
 
+try {
+  const before = JSON.parse(await readFile(GALLERY_PATH, 'utf8'));
+  console.log('• gallery/index.json — translating…');
+  const after = await enrichGallery(before);
+  await writeFile(GALLERY_PATH, JSON.stringify(after, null, 2) + '\n', 'utf8');
+  console.log(`  ✓ wrote ${GALLERY_PATH}`);
+} catch (e) {
+  console.warn(`! skip gallery/index.json: ${e.message}`);
+}
+
+console.log('• certificates/*.md — translating name frontmatter…');
+await translateCertsDir();
+
 console.log('');
-console.log('Done. Reviews the diff with `git diff data/`.');
+console.log('Done. Review the diff with `git diff data/ gallery/ certificates/`.');

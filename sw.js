@@ -5,10 +5,10 @@
    Bump CACHE_VERSION when shipping structural changes so old cached
    responses get evicted automatically next visit.
    ────────────────────────────────────────────────────────────────────────── */
-const CACHE_VERSION = 'hralmeida-v8';
+const CACHE_VERSION = 'hralmeida-v25';
 // Asset URLs include ?v=N to match the version-busters in HTML. Without the
 // query string, caches.match() keys are unqueried and the network request for
-// `./style.css?v=2` would always miss the precache — defeating the cache. With
+// `./style.css?v=18` would always miss the precache — defeating the cache. With
 // ?v=N baked in, offline visits also pull the same version the HTML now asks
 // for. Bump this string + CACHE_VERSION + HTML ?v= together when shipping.
 //
@@ -24,19 +24,19 @@ const PRECACHE = [
   './now.html',
   './cv.html',
   './404.html',
-  './style.css?v=4',
-  './posts.css?v=3',
-  './certificates.css?v=4',
-  './now.css?v=4',
-  './cv.css?v=4',
-  './404.css?v=4',
-  './theme.js?v=4',
-  './posts.js?v=3',
-  './bio.js?v=3',
-  './counter.js?v=3',
-  './now.js?v=4',
-  './cv.js?v=4',
-  './giscus-config.js?v=3',
+  './style.css?v=20',
+  './posts.css?v=19',
+  './certificates.css?v=20',
+  './now.css?v=20',
+  './cv.css?v=20',
+  './404.css?v=20',
+  './theme.js?v=20',
+  './posts.js?v=19',
+  './bio.js?v=19',
+  './counter.js?v=19',
+  './now.js?v=20',
+  './cv.js?v=20',
+  './giscus-config.js?v=19',
   './manifest.json',
   './imgs/imgs.jpg',
   './imgs/imgs.webp',
@@ -71,6 +71,21 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // skip cross-origin (CDNs, fonts, giscus)
+
+  // Data files (data/*.json, posts/*, gallery/*, certificates/*) change
+  // whenever content is edited via /admin and were once ballooned to
+  // ~180 MB by an upstream translation bug. They should NEVER be cached in
+  // the SW — caching them (a) re-evicts arbitrary megabytes every time the
+  // data shape changes during editing, and (b) served stale data after the
+  // repair until CACHE_VERSION bumped. Force network-first, with the SW
+  // cache as offline fallback only. Pages should also append ?t=Date.now()
+  // to their fetches so the browser HTTP cache is bypassed as well.
+  if (/^\/(?:data|posts|gallery|certificates)\//.test(url.pathname)) {
+    event.respondWith(
+      fetch(req).catch(function () { return caches.match(req); })
+    );
+    return;
+  }
 
   // For navigations: try the network, fall back to cached index.html so the
   // app shell still loads offline.

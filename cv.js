@@ -15,6 +15,9 @@
   function escAttr(s) {
     return String(s == null ? '' : s).replace(/"/g, '&quot;');
   }
+  /* INVARIANT: this script runs AFTER i18n.js via <script defer> ordering.
+     Do not reorder scripts — window.i18n.safeUrl may not be live yet. */
+  var safeUrl = function (u) { return window.i18n.safeUrl(u); };
 
   /* Pick the right string for the requested language. Falls back to en,
      then to whatever string-like value is there. */
@@ -28,6 +31,14 @@
     return String(v);
   }
 
+  /* Helper: pull a translated string from i18n with English fallback. */
+  function t(key) {
+    return window.i18n ? window.i18n.t(key) : key;
+  }
+  function fmt(template, vars) {
+    return window.i18n ? window.i18n.format(template, vars) : template;
+  }
+
   function renderHeader(data) {
     var lang = (window.i18n && window.i18n.lang) || 'en';
     return ''
@@ -36,12 +47,12 @@
       + '<p class="cv-tagline">' + esc(pick(data.tagline, lang)) + '</p>'
       + '<p class="cv-bio">' + esc(pick(data.bio, lang)) + '</p>'
       + '<p class="cv-contact">' + ((data.contact || []).map(function (c, i) {
-          var link = '<a href="' + escAttr(c.url || '#') + '" target="_blank" rel="noopener">' + esc(pick(c.label, lang) || c.label || '') + '</a>';
+          var link = '<a href="' + escAttr(safeUrl(c.url)) + '" target="_blank" rel="noopener">' + esc(pick(c.label, lang) || c.label || '') + '</a>';
           return (i > 0 ? ' · ' : '') + link;
         }).join('')) + '</p>'
       + '<p class="cv-download">'
-      + '<button type="button" class="cv-download-link" onclick="window.print()">⎙ Print / Save as PDF</button>'
-      + '<span class="cv-print-hint">· opens your browser\'s print dialog</span>'
+      + '<button type="button" class="cv-download-link" onclick="window.print()">⎙ ' + esc(t('cvPrintButton')) + '</button>'
+      + '<span class="cv-print-hint">· ' + esc(t('cvPrintHint')) + '</span>'
       + '</p>'
       + '</header>';
   }
@@ -52,7 +63,7 @@
     var inner = data.skills.map(function (s) {
       return '<p><strong>' + esc(pick(s.category, lang)) + ':</strong> ' + esc(pick(s.description, lang)) + '</p>';
     }).join('');
-    return '<section class="cv-block"><h2>Skills &amp; Tools</h2>' + inner + '</section>';
+    return '<section class="cv-block"><h2>' + esc(t('cvSkillsHeader')) + '</h2>' + inner + '</section>';
   }
 
   function renderSelectedPosts(data) {
@@ -61,20 +72,20 @@
     var inner = data.selected_posts.map(function (p) {
       return '<li><a href="' + escAttr(p.url || '#') + '" target="_blank" rel="noopener">' + esc(pick(p.title, lang)) + '</a></li>';
     }).join('');
-    return '<section class="cv-block"><h2>Selected posts</h2><ul>' + inner + '</ul>'
-      + '<p class="cv-placeholder">More on the <a href="index.html#posts">home page</a>.</p>'
+    return '<section class="cv-block"><h2>' + esc(t('cvSelectedPostsHeader')) + '</h2><ul>' + inner + '</ul>'
+      + '<p class="cv-placeholder">' + esc(t('cvMoreOn')) + ' <a href="index.html#posts">' + esc(t('cvHomePage')) + '</a>.</p>'
       + '</section>';
   }
 
   function renderCertifications(certNames) {
     if (!Array.isArray(certNames) || certNames.length === 0) {
-      return '<section class="cv-block"><h2>Certificates</h2>'
-        + '<p>Full list at <a href="certificates.html" target="_blank" rel="noopener">/certificates</a>.</p>'
+      return '<section class="cv-block"><h2>' + esc(t('cvCertificatesHeader')) + '</h2>'
+        + '<p>' + esc(t('cvFullListAt')) + ' <a href="certificates.html" target="_blank" rel="noopener">/certificates</a>.</p>'
         + '</section>';
     }
     var inner = certNames.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('');
-    return '<section class="cv-block"><h2>Certificates</h2><ul>' + inner + '</ul>'
-      + '<p>Full list at <a href="certificates.html" target="_blank" rel="noopener">/certificates</a>.</p>'
+    return '<section class="cv-block"><h2>' + esc(t('cvCertificatesHeader')) + '</h2><ul>' + inner + '</ul>'
+      + '<p>' + esc(t('cvFullListAt')) + ' <a href="certificates.html" target="_blank" rel="noopener">/certificates</a>.</p>'
       + '</section>';
   }
 
@@ -82,18 +93,19 @@
     var lang = (window.i18n && window.i18n.lang) || 'en';
     if (!Array.isArray(data.projects) || data.projects.length === 0) return '';
     var intro = data.projects_intro ? '<p class="cv-placeholder">' + esc(pick(data.projects_intro, lang)) + '</p>' : '';
+    var checkItOut = esc(t('cvCheckItOut'));
     var inner = data.projects.map(function (p) {
       var desc = esc(pick(p.description, lang));
-      if (p.url) desc += ' <a href="' + escAttr(p.url) + '" target="_blank" rel="noopener">check it out.</a>';
+      if (p.url) desc += ' <a href="' + escAttr(safeUrl(p.url)) + '" target="_blank" rel="noopener">' + checkItOut + '</a>';
       return '<li>' + desc + '</li>';
     }).join('');
-    return '<section class="cv-block"><h2>Projects</h2>' + intro + '<ul>' + inner + '</ul></section>';
+    return '<section class="cv-block"><h2>' + esc(t('cvProjectsHeader')) + '</h2>' + intro + '<ul>' + inner + '</ul></section>';
   }
 
   function renderInterests(data) {
     var lang = (window.i18n && window.i18n.lang) || 'en';
     if (!data.interests) return '';
-    return '<section class="cv-block"><h2>Interests</h2><p>' + esc(pick(data.interests, lang)) + '</p></section>';
+    return '<section class="cv-block"><h2>' + esc(t('cvInterestsHeader')) + '</h2><p>' + esc(pick(data.interests, lang)) + '</p></section>';
   }
 
   function renderCV(data, certNames) {
@@ -112,12 +124,12 @@
 
   async function fetchCertificateNames() {
     try {
-      var res = await fetch('certificates/index.json');
+      var res = await fetch('certificates/index.json?t=' + Date.now());
       if (!res.ok) return [];
       var files = await res.json();
       var results = await Promise.all(files.map(async function (file) {
         try {
-          var r = await fetch('certificates/' + file);
+          var r = await fetch('certificates/' + file + '?t=' + Date.now());
           if (!r.ok) return null;
           var md = await r.text();
           var m = md.match(/^---\r?\n([\s\S]+?)\r?\n---[ \t]*\r?\n?/);
@@ -135,7 +147,7 @@
 
   async function loadCV() {
     try {
-      var res = await fetch('data/cv.json');
+      var res = await fetch('data/cv.json?t=' + Date.now());
       if (!res.ok) throw new Error('HTTP ' + res.status);
       raw_data = await res.json();
       certs_cache = await fetchCertificateNames();

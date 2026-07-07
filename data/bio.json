@@ -1,7 +1,7 @@
 {
   "bio": {
     "en": "Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.",
-    "pt": "Capturar luz que viajou milhões de anos só para aqui chegar. Prefiro o silêncio e as coisas simples. Apenas a apreciar a vista enquanto o mundo volta a girar.",
+    "pt": "Captar luz que passará milhões de anos só para aqui chegar. Prefiro o silêncio e as coisas simples. Basta apreciar a vista enquanto o mundo gira.",
     "es": "Capturando la luz que viajó millones de años sólo para llegar aquí. Prefiero el silencio y las cosas sencillas. Simplemente disfrutando de la vista mientras el mundo gira nuevamente."
   },
   "socials": [
@@ -15,7 +15,11 @@
       "icon": "🐙"
     },
     {
-      "label": "Gitlab",
+      "label": {
+        "en": "Gitlab",
+        "pt": "GitLab",
+        "es": "GitLab"
+      },
       "url": "https://gitlab.com/hralmeida",
       "icon": "🦊"
     },
@@ -31,7 +35,11 @@
   ],
   "skills_groups": [
     {
-      "category": "Astro",
+      "category": {
+        "en": "Astro",
+        "pt": "Astrofotografia",
+        "es": "Astronomia"
+      },
       "items": [
         "Siril",
         "Stellarium",

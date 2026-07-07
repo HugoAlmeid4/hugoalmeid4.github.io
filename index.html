@@ -19,17 +19,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap"
     rel="stylesheet">
-  <link rel="preload" href="style.css?v=4" as="style">
-  <link rel="stylesheet" href="style.css?v=4">
-  <link rel="preload" href="posts.css?v=3" as="style">
-  <link rel="stylesheet" href="posts.css?v=3">
-  <script src="i18n.js?v=2" defer></script>
-  <script src="i18n.js?v=2" defer></script>
-  <script src="theme.js?v=4" defer></script>
-  <script src="bio.js?v=4" defer></script>
-  <script src="counter.js?v=3" defer></script>
-  <script src="giscus-config.js?v=3" defer></script>
-  <script src="posts.js?v=4" defer></script>
+  <link rel="preload" href="style.css?v=20" as="style">
+  <link rel="stylesheet" href="style.css?v=20">
+  <link rel="preload" href="posts.css?v=19" as="style">
+  <link rel="stylesheet" href="posts.css?v=19">
+  <script src="i18n.js?v=19" defer></script>
+  <script src="theme.js?v=20" defer></script>
+  <script src="bio.js?v=20" defer></script>
+  <script src="counter.js?v=19" defer></script>
+  <script src="giscus-config.js?v=19" defer></script>
+  <script src="posts.js?v=20" defer></script>
   <script async src="https://tally.so/widgets/embed.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -37,14 +36,30 @@
 
 <body>
   <script>
-    // Apply stored theme before render to prevent FOUC. Mirrored in theme.js.
+    // Pre-paint bootstrap. Two responsibilities:
+    //   1. Theme: apply stored light/dark before paint (existing).
+    //   2. i18n: read saved language, set <html lang> immediately so the
+    //      browser never flashes the wrong lang attribute, and add
+    //      .i18n-pending to body so untranslated English fallbacks don't
+    //      flash either. i18n.js's boot() removes .i18n-pending once
+    //      translations are applied (its first synchronous paint of the
+    //      page happens after that). The 1.5s safety net below unhides
+    //      body even if i18n.js fails to load.
     try {
-      if (localStorage.getItem('theme') !== 'light') {
-        document.body.classList.add('dark-mode');
+      var savedTheme = localStorage.getItem('theme');
+      if (savedTheme !== 'light') document.body.classList.add('dark-mode');
+      var savedLang  = localStorage.getItem('blogLanguage');
+      if (savedLang === 'pt' || savedLang === 'es' || savedLang === 'en') {
+        document.documentElement.setAttribute('lang', savedLang);
+        if (savedLang !== 'en' && document.body) document.body.classList.add('i18n-pending');
       }
     } catch (e) {
       document.body.classList.add('dark-mode');
     }
+    window.__i18nPendingTimer = setTimeout(function () {
+      if (document.body) document.body.classList.remove('i18n-pending');
+      window.__i18nPendingTimer = null;
+    }, 1500);
   </script>
 
   <header class="Name-Photo">
@@ -61,6 +76,7 @@
       <a href="certificates.html" class="nav-link" data-i18n="navCertificates">Certificates</a>
       <span class="nav-separator" aria-hidden="true">/</span>
       <a href="now.html" class="nav-link" data-i18n="navNow">Now</a>
+
     </nav>
     <div id="globalLangSwitcher" class="language-switcher-container"></div>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
@@ -74,12 +90,12 @@
            The static fallback below keeps the page usable if the JSON fails
            to load. -->
       <div id="bio-section">
-        <h2>Bio</h2>
+        <h2 data-i18n="homeSectionBio">Bio</h2>
         <p>Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just
           enjoying the view while the world turns, again.</p>
       </div>
       <div class="Socials" id="socials-section">
-        <h2>Socials</h2>
+        <h2 data-i18n="homeSectionSocials">Socials</h2>
         <span class="social-links">
           <a href="https://github.com/HugoAlmeid4" target="_blank" rel="noopener"><span class="social-icon">🐙</span>Github</a>
           <span class="social-separator" aria-hidden="true">-</span>
@@ -90,7 +106,7 @@
       </div>
 
       <div class="Skills" aria-label="Skills and tools" id="skills-section">
-        <h2>Skills &amp; Tools</h2>
+        <h2 data-i18n="homeSectionSkills">Skills &amp; Tools</h2>
 
         <div class="skill-group">
           <h3>Astro</h3>
@@ -123,13 +139,13 @@
       </div>
 
       <div class="cv-mini">
-        <a href="cv.html" class="cv-mini-link">⤓ View / Download CV</a>
-        <span class="cv-mini-hint">Print-friendly résumé</span>
+        <a href="cv.html" class="cv-mini-link">⤓ <span data-i18n="homeViewDownloadCV">View / Download CV</span></a>
+        <span class="cv-mini-hint" data-i18n="homePrintFriendlyResume">Print-friendly résumé</span>
       </div>
     </section>
 
     <section class="Posts-Section">
-      <h2>Most Recent Posts</h2>
+      <h2 data-i18n="homeMostRecentPosts">Most Recent Posts</h2>
       <div class="posts-scroll" id="postsList">
         <div class="post-card skeleton-card">
           <div class="post-header">

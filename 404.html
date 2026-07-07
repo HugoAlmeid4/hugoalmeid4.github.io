@@ -17,15 +17,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lilex:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="404.css?v=3">
-  <script src="counter.js?v=3" defer></script>
+  <link rel="stylesheet" href="404.css?v=20">
+  <script src="counter.js?v=20" defer></script>
+  <script src="i18n.js?v=19" defer></script>
 </head>
 
 <body>
     <script>
-        if (localStorage.getItem('theme') !== 'light') {
+        try {
+            var savedTheme = localStorage.getItem('theme');
+            if (savedTheme !== 'light') document.body.classList.add('dark-mode');
+            var savedLang  = localStorage.getItem('blogLanguage');
+            if (savedLang === 'pt' || savedLang === 'es' || savedLang === 'en') {
+                document.documentElement.setAttribute('lang', savedLang);
+                if (savedLang !== 'en' && document.body) document.body.classList.add('i18n-pending');
+            }
+        } catch (e) {
             document.body.classList.add('dark-mode');
         }
+        window.__i18nPendingTimer = setTimeout(function () {
+            if (document.body) document.body.classList.remove('i18n-pending');
+            window.__i18nPendingTimer = null;
+        }, 1500);
     </script>
 
     <div class="container">
@@ -33,12 +46,10 @@
           <source srcset="/imgs/Frame10.webp" type="image/webp">
           <img src="/imgs/Frame10.png" alt="Astronaut Dog - Lost in Space" width="543" height="930" decoding="async" fetchpriority="high">
         </picture>
-        <h1>404</h1>
-        <p>Houston, we have a problem. <br> This page has drifted out of orbit.</p>
-        <a href="index.html" class="home-btn">Return to Earth</a>
+        <h1 data-i18n="err404">404</h1>
+        <p data-i18n="err404Message">Houston, we have a problem. <br> This page has drifted out of orbit.</p>
+        <a href="index.html" class="home-btn"><span data-i18n="returnHome">Return to Earth</span></a>
     </div>
-  <!-- Service worker for offline support (PWA). Silently fails on origins
-       where the browser rejects registration (e.g. non-HTTPS). -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

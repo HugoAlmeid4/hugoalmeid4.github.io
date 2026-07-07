@@ -18,29 +18,35 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-  <link rel="preload" href="style.css?v=4" as="style">
-  <link rel="stylesheet" href="style.css?v=4">
-  <link rel="preload" href="certificates.css?v=3" as="style">
-  <link rel="stylesheet" href="certificates.css?v=3">
-  <script src="counter.js?v=3" defer></script>
-  <script src="i18n.js?v=2" defer></script>
-  <script src="theme.js?v=4" defer></script>
+  <link rel="preload" href="style.css?v=21" as="style">
+  <link rel="stylesheet" href="style.css?v=21">
+  <link rel="preload" href="certificates.css?v=20" as="style">
+  <link rel="stylesheet" href="certificates.css?v=20">
+  <script src="counter.js?v=20" defer></script>
+  <script src="i18n.js?v=19" defer></script>
+  <script src="theme.js?v=21" defer></script>
 
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script defer>
-    /* Set the PDF.js worker source AFTER pdf.min.js loads.
-       defer scripts execute in document order, so pdfjsLib is defined here.
-       (Previously this line was in the inline body script, where it ran before
-       pdf.min.js and threw ReferenceError, which halted the script and prevented
-       the dark-mode class from being applied — light mode flash.) */
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-  </script></head>
+  </script>
+</head>
 
 <body>
   <script>
     try {
-      if (localStorage.getItem('theme') !== 'light') { document.body.classList.add('dark-mode'); }
+      var savedTheme = localStorage.getItem('theme');
+      if (savedTheme !== 'light') document.body.classList.add('dark-mode');
+      var savedLang  = localStorage.getItem('blogLanguage');
+      if (savedLang === 'pt' || savedLang === 'es' || savedLang === 'en') {
+        document.documentElement.setAttribute('lang', savedLang);
+        if (savedLang !== 'en' && document.body) document.body.classList.add('i18n-pending');
+      }
     } catch (e) { document.body.classList.add('dark-mode'); }
+    window.__i18nPendingTimer = setTimeout(function () {
+      if (document.body) document.body.classList.remove('i18n-pending');
+      window.__i18nPendingTimer = null;
+    }, 1500);
   </script>
 
   <header class="Name-Photo">
@@ -52,11 +58,12 @@
     <nav class="nav-links" aria-label="Main navigation">
       <a href="index.html" class="nav-link" data-i18n="navHome">Home</a>
       <span class="nav-separator" aria-hidden="true">/</span>
-      <a href="gallery.html" class="nav-link">Gallery</a>
+      <a href="gallery.html" class="nav-link" data-i18n="navGallery">Gallery</a>
       <span class="nav-separator" aria-hidden="true">/</span>
       <a href="certificates.html" class="nav-link active" aria-current="page" data-i18n="navCertificates">Certificates</a>
       <span class="nav-separator" aria-hidden="true">/</span>
       <a href="now.html" class="nav-link" data-i18n="navNow">Now</a>
+
     </nav>
     <div id="globalLangSwitcher" class="language-switcher-container"></div>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
@@ -65,48 +72,63 @@
   <main>
     <section class="certificates-section" aria-label="Certificates list">
       <div class="certificates-section-header">
-        <h2>Certificates</h2>
-        <p class="certificates-section-subtitle">Verified professional credentials and course certifications.</p>
+        <h2 data-i18n="certHeader">Certificates</h2>
+        <p class="certificates-section-subtitle" data-i18n="certSubtitle">Verified professional credentials and course certifications.</p>
       </div>
 
-      <div class="certificates-grid" id="certificates-grid">
-         </div>
+      <div class="certificates-grid" id="certificates-grid"></div>
     </section>
   </main>
 
   <script>
+    var CERT_DATA = []; /* cached by loadCertificates(); re-used on language change */
+
     function parseFrontmatter(mdText) {
       var metadata = {};
       var fmMatch = mdText.match(/^---\r?\n([\s\S]+?)\r?\n---[ \t]*\r?\n?/);
-      if (fmMatch) {
-        var lines = fmMatch[1].split('\n');
-        for (var i = 0; i < lines.length; i++) {
-          var line = lines[i];
-          var colon = line.indexOf(':');
-          if (colon > 0) {
-            var key = line.slice(0, colon).trim();
-            var val = line.slice(colon + 1).trim().replace(/^['"]|['"]$/g, '');
-            metadata[key] = val;
-          }
+      if (!fmMatch) return metadata;
+      var lines = fmMatch[1].split('\n');
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        var colon = line.indexOf(':');
+        if (colon <= 0) continue;
+        var key = line.slice(0, colon).trim();
+        var raw = line.slice(colon + 1).trim().replace(/^['"]|['"]$/g, '');
+        /* name may be a JSON object {en,pt,es} when pre-translated by
+           scripts/translate-content.mjs — parse it so i18n.localize()
+           can render the right string per language. */
+        if (raw.charAt(0) === '{') {
+          try { metadata[key] = JSON.parse(raw); continue; } catch (e) { /* fall through */ }
         }
+        metadata[key] = raw;
       }
       return metadata;
     }
 
+    function t(key) { return (window.i18n && typeof key === 'string') ? window.i18n.t(key) : key; }
+    function loc(v) { return (window.i18n && typeof window.i18n.localize === 'function') ? window.i18n.localize(v) : (typeof v === 'string' ? v : (v && v.en) || ''); }
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    /* INVARIANT: this <script> runs AFTER i18n.js via <script defer> ordering.
+       Do not reorder scripts — window.i18n.safeUrl may not be live yet. */
+    var safeUrl = function (u) { return window.i18n.safeUrl(u); };
+
     async function loadCertificates() {
       var grid = document.getElementById('certificates-grid');
       if (!grid) return;
-      grid.innerHTML = '<p class="gallery-status">Loading certificates...</p>';
+      grid.innerHTML = '<p class="gallery-status">' + t('certLoading') + '</p>';
 
       try {
-        var res = await fetch('certificates/index.json');
+        var res = await fetch('certificates/index.json?t=' + Date.now());
         if (!res.ok) throw new Error('Could not load certificates/index.json');
         var files = await res.json();
 
         var certs = [];
         var certResults = await Promise.all(files.map(async function(file) {
           try {
-            var r = await fetch('certificates/' + file);
+            var r = await fetch('certificates/' + file + '?t=' + Date.now());
             if (!r.ok) return null;
             var mdText = await r.text();
             var m = parseFrontmatter(mdText);
@@ -120,10 +142,11 @@
           if (certResults[j]) certs.push(certResults[j]);
         }
 
+        CERT_DATA = certs;
         renderCertificates(certs);
       } catch (err) {
         console.error('Error loading certificates:', err);
-        grid.innerHTML = '<p class="gallery-empty">Error loading certificates. Make sure certificates/index.json exists.</p>';
+        grid.innerHTML = '<p class="gallery-empty">' + t('certErrorLoading') + '</p>';
       }
     }
 
@@ -133,62 +156,59 @@
       grid.innerHTML = '';
 
       if (certs.length === 0) {
-        grid.innerHTML = '<p class="gallery-empty">No certificates found.</p>';
+        grid.innerHTML = '<p class="gallery-empty">' + t('certEmpty') + '</p>';
         return;
       }
 
+      var issuedLabel = t('certIssued');
+      var expiresLabel = t('certExpires');
+      var idLabel = t('certID');
+      var viewLabel = t('certViewDocument');
+      var verifyLabel = t('certVerifyCredential');
+
       certs.forEach(function(cert) {
+        var certName = loc(cert.name);
         var isPDF = cert.file && cert.file.toLowerCase().endsWith('.pdf');
 
         var previewHTML;
+        var certFileUrl = safeUrl(cert.file);
         if (!cert.file) {
           previewHTML = '<span class="certificate-icon-placeholder">&#128196;</span>';
         } else if (isPDF) {
-          previewHTML = `
-            <a href="${cert.file}" target="_blank" rel="noopener" aria-label="Open full ${cert.name} document">
-              <canvas class="pdf-thumbnail" data-src="${cert.file}"></canvas>
-            </a>`;
+          previewHTML = '<a href="' + esc(certFileUrl) + '" target="_blank" rel="noopener" aria-label="Open full ' + esc(certName) + ' document">'
+            + '<canvas class="pdf-thumbnail" data-src="' + esc(certFileUrl) + '"></canvas></a>';
         } else {
-          previewHTML = `
-            <a href="${cert.file}" target="_blank" rel="noopener" aria-label="Open full ${cert.name} image">
-              <img src="${cert.file}" alt="${cert.name} preview" loading="lazy">
-            </a>`;
+          previewHTML = '<a href="' + esc(certFileUrl) + '" target="_blank" rel="noopener" aria-label="Open full ' + esc(certName) + ' image">'
+            + '<img src="' + esc(certFileUrl) + '" alt="' + esc(certName) + ' preview" loading="lazy"></a>';
         }
 
         var metaParts = [];
-        if (cert.issue_date) metaParts.push('<span class="meta-item"><strong>Issued:</strong> ' + cert.issue_date + '</span>');
-        if (cert.expiry_date) metaParts.push('<span class="meta-item"><strong>Expires:</strong> ' + cert.expiry_date + '</span>');
-        if (cert.credential_id) metaParts.push('<span class="meta-item"><strong>ID:</strong> ' + cert.credential_id + '</span>');
+        if (cert.issue_date)   metaParts.push('<span class="meta-item"><strong>' + issuedLabel + '</strong> ' + esc(loc(cert.issue_date)) + '</span>');
+        if (cert.expiry_date)  metaParts.push('<span class="meta-item"><strong>' + expiresLabel + '</strong> ' + esc(loc(cert.expiry_date)) + '</span>');
+        if (cert.credential_id) metaParts.push('<span class="meta-item"><strong>' + idLabel + '</strong> ' + esc(loc(cert.credential_id)) + '</span>');
         var metaHTML = metaParts.length ? '<div class="certificate-meta-info">' + metaParts.join('') + '</div>' : '';
 
         var viewBtn = cert.file
-          ? '<a href="' + cert.file + '" target="_blank" rel="noopener" class="certificate-btn">&#128196; View Document</a>'
+          ? '<a href="' + esc(certFileUrl) + '" target="_blank" rel="noopener" class="certificate-btn">&#128196; ' + viewLabel + '</a>'
           : '';
         var verifyBtn = cert.credential_url
-          ? '<a href="' + cert.credential_url + '" target="_blank" rel="noopener" class="certificate-btn secondary">&#9654; Verify Credential</a>'
+          ? '<a href="' + esc(safeUrl(cert.credential_url)) + '" target="_blank" rel="noopener" class="certificate-btn secondary">&#9654; ' + verifyLabel + '</a>'
           : '';
 
         var card = document.createElement('div');
         card.className = 'certificate-card';
-        card.innerHTML = `
-          <div class="certificate-preview-container">
-            ${previewHTML}
-          </div>
-          <div class="certificate-details">
-            <div>
-              <div class="certificate-header-row">
-                <h3>${cert.name}</h3>
-                ${cert.issuer ? '<span class="certificate-issuer">' + cert.issuer + '</span>' : ''}
-              </div>
-              <p>${cert.bio || ''}</p>
-              ${metaHTML}
-            </div>
-            <div class="certificate-actions">
-              ${viewBtn}
-              ${verifyBtn}
-            </div>
-          </div>
-        `;
+        card.innerHTML = '<div class="certificate-preview-container">' + previewHTML + '</div>'
+          + '<div class="certificate-details">'
+          + '<div>'
+          + '<div class="certificate-header-row">'
+          + '<h3>' + esc(certName) + '</h3>'
+          + (cert.issuer ? '<span class="certificate-issuer">' + esc(loc(cert.issuer)) + '</span>' : '')
+          + '</div>'
+          + '<p>' + (cert.bio ? esc(loc(cert.bio)) : '') + '</p>'
+          + metaHTML
+          + '</div>'
+          + '<div class="certificate-actions">' + viewBtn + verifyBtn + '</div>'
+          + '</div>';
         grid.appendChild(card);
       });
 
@@ -199,28 +219,30 @@
       var canvases = document.querySelectorAll('.pdf-thumbnail');
       canvases.forEach(function(canvas) {
         var url = canvas.getAttribute('data-src');
-        
         pdfjsLib.getDocument(url).promise.then(function(pdf) {
           return pdf.getPage(1);
         }).then(function(page) {
           var viewport = page.getViewport({ scale: 1.5 });
           canvas.height = viewport.height;
           canvas.width = viewport.width;
-          
-          var renderContext = {
-            canvasContext: canvas.getContext('2d'),
-            viewport: viewport
-          };
-          page.render(renderContext);
+          page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport });
         }).catch(function(err) {
           console.error('Error rendering snapshot for preview:', url, err);
         });
       });
     }
 
-    loadCertificates();
-  </script>  <!-- Service worker for offline support (PWA). Silently fails on origins
-       where the browser rejects registration (e.g. non-HTTPS). -->
+    window.addEventListener('languageChange', function() {
+      if (CERT_DATA && CERT_DATA.length) renderCertificates(CERT_DATA);
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadCertificates);
+    } else {
+      loadCertificates();
+    }
+  </script>
+
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

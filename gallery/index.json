@@ -1,37 +1,85 @@
 {
   "items": [
     {
-      "title": "M5 — Globular Cluster",
+      "title": {
+        "en": "M5 — Globular Cluster",
+        "pt": "M5 – Aglomerado Globular",
+        "es": "M5 - Cúmulo globular"
+      },
       "src": "gallery/star clusters/m5/m5final.webp",
-      "alt": "M5 globular star cluster.",
+      "alt": {
+        "en": "M5 globular star cluster.",
+        "pt": "Aglomerado estelar globular M5.",
+        "es": "Cúmulo globular de estrellas M5."
+      },
       "category": "star-clusters",
-      "target": "M5 — Globular Cluster in Serpens",
+      "target": {
+        "en": "M5 — Globular Cluster in Serpens",
+        "pt": "M5 – Aglomerado Globular em Serpens",
+        "es": "M5 - Cúmulo globular en Serpens"
+      },
       "date": "2026-06-29",
       "equipment": "Sky watcher 72ed + Canon T5 + Astroberry + Sky watcher GTI",
       "exposure_total": "0.23 hours (~200 × 7s subs)",
-      "notes": "First star cluster photo, also the moon was almost at peak brightness."
+      "notes": {
+        "en": "First star cluster photo, also the moon was almost at peak brightness.",
+        "pt": "Primeira foto do enxame de estrelas, também a lua estava quase no pico de brilho.",
+        "es": "Primera foto del cúmulo de estrellas, también la luna estaba casi en su máximo brillo."
+      }
     },
     {
-      "title": "M81 & M82 — Bodes & Cigar Galaxies",
+      "title": {
+        "en": "M81 & M82 — Bodes & Cigar Galaxies",
+        "pt": "M81 e M82 - Bodes e galáxias charuto",
+        "es": "M81 y M82: presagios y galaxias de cigarros"
+      },
       "src": "gallery/galaxies/m81m82.webp",
-      "alt": "M81 and M82, Bodes Galaxy and the Cigar Galaxy photographed together",
+      "alt": {
+        "en": "M81 and M82, Bodes Galaxy and the Cigar Galaxy photographed together",
+        "pt": "M81 e M82, Bodes Galaxy e Cigar Galaxy fotografados juntos",
+        "es": "M81 y M82, Bodes Galaxy y Cigar Galaxy fotografiados juntos"
+      },
       "category": "galaxies",
-      "target": "M81 & M82 — interacting pair in Ursa Major",
+      "target": {
+        "en": "M81 & M82 — interacting pair in Ursa Major",
+        "pt": "M81 e M82 – par a interagir na Ursa Maior",
+        "es": "M81 y M82: par interactuante en la Osa Mayor"
+      },
       "date": "2026-04-20",
       "equipment": "Sky watcher 72ed + Canon T5 + Astroberry + Sky watcher GTI",
       "exposure_total": "0.5 hours (~75 x 40s subs)",
-      "notes": "First picture ever on my telescope. Dope. But I do not remember how much time was the total integration so it is not 100% correct."
+      "notes": {
+        "en": "First picture ever on my telescope. Dope. But I do not remember how much time was the total integration so it is not 100% correct.",
+        "pt": "Primeira foto no meu telescópio. Droga. Mas não me lembro quanto tempo demorou a integração total por isso não está 100% correcto.",
+        "es": "Primera fotografía tomada con mi telescopio. Droga. Pero no recuerdo cuánto tiempo duró la integración total por lo que no es 100% correcto."
+      }
     },
     {
-      "title": "Full Moon",
+      "title": {
+        "en": "Full Moon",
+        "pt": "Lua Cheia",
+        "es": "Luna llena"
+      },
       "src": "gallery/moon/Moon.webp",
-      "alt": "A picture of a full moon",
+      "alt": {
+        "en": "A picture of a full moon",
+        "pt": "Uma foto de lua cheia",
+        "es": "Una imagen de una luna llena."
+      },
       "category": "moon",
-      "target": "Moon",
+      "target": {
+        "en": "Moon",
+        "pt": "Lua",
+        "es": "Luna"
+      },
       "date": "2026-07-01",
       "equipment": "Sky watcher 72ed + Canon T5 + Astroberry + Sky watcher GTI",
       "exposure_total": "0 (200 x 0.0005s)",
-      "notes": "Just do not ask me why 0.0005.. I thought it was too bright. 😂"
+      "notes": {
+        "en": "Just do not ask me why 0.0005.. I thought it was too bright. 😂",
+        "pt": "Só não me perguntem porquê 0,0005.. Achei muito claro. 😂",
+        "es": "Simplemente no me pregunten por qué 0,0005. Pensé que era demasiado brillante. 😂"
+      }
     }
   ]
 }

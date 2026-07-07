@@ -17,27 +17,34 @@
   <title>Now | Hralmeida</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap"
-    rel="stylesheet">
-  <link rel="preload" href="style.css?v=4" as="style">
-  <link rel="stylesheet" href="style.css?v=4">
-  <link rel="preload" href="now.css?v=3" as="style">
-  <link rel="stylesheet" href="now.css?v=3">
-  <script src="counter.js?v=3" defer></script>
-  <script src="i18n.js?v=2" defer></script>
-  <script src="theme.js?v=4" defer></script>
-  <script src="now.js?v=4" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="preload" href="style.css?v=21" as="style">
+  <link rel="stylesheet" href="style.css?v=21">
+  <link rel="preload" href="now.css?v=20" as="style">
+  <link rel="stylesheet" href="now.css?v=20">
+  <script src="counter.js?v=20" defer></script>
+  <script src="i18n.js?v=19" defer></script>
+  <script src="theme.js?v=21" defer></script>
+  <script src="now.js?v=21" defer></script>
 </head>
 
 <body>
   <script>
     try {
-      if (localStorage.getItem('theme') !== 'light') {
-        document.body.classList.add('dark-mode');
+      var savedTheme = localStorage.getItem('theme');
+      if (savedTheme !== 'light') document.body.classList.add('dark-mode');
+      var savedLang  = localStorage.getItem('blogLanguage');
+      if (savedLang === 'pt' || savedLang === 'es' || savedLang === 'en') {
+        document.documentElement.setAttribute('lang', savedLang);
+        if (savedLang !== 'en' && document.body) document.body.classList.add('i18n-pending');
       }
     } catch (e) {
       document.body.classList.add('dark-mode');
     }
+    window.__i18nPendingTimer = setTimeout(function () {
+      if (document.body) document.body.classList.remove('i18n-pending');
+      window.__i18nPendingTimer = null;
+    }, 1500);
   </script>
 
   <header class="Name-Photo">
@@ -54,6 +61,7 @@
       <a href="certificates.html" class="nav-link" data-i18n="navCertificates">Certificates</a>
       <span class="nav-separator" aria-hidden="true">/</span>
       <a href="now.html" class="nav-link active" aria-current="page" data-i18n="navNow">Now</a>
+
     </nav>
     <div id="globalLangSwitcher" class="language-switcher-container"></div>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
@@ -61,14 +69,17 @@
 
   <main class="Medium-Path">
     <section class="now-section" aria-label="What I'm focused on right now" id="now-section">
-      <h1>Now</h1>
+      <!-- Static fallback. now.js will replace its innerHTML on boot with
+           the data/now.json-rendered version. Bilingual-ready via data-i18n
+           so the FOUC fallback already swaps to the chosen language. -->
+      <h1 data-i18n="nowPageTitle">Now</h1>
       <p class="now-disclaimer">
-        Last updated: <time datetime="2025-07">July 2025</time>
-        · inspired by <a href="https://nownownow.com/about" target="_blank" rel="noopener">nownownow.com</a>
+        <span data-i18n="nowLastUpdated">Last updated:</span> <time datetime="2025-07">July 2025</time>
+        · <span data-i18n="nowInspiredBy">inspired by</span> <a href="https://nownownow.com/about" target="_blank" rel="noopener">nownownow.com</a>
       </p>
 
       <div class="now-block">
-        <h2>Learning</h2>
+        <h2 data-i18n="nowHeaderLearning">Learning</h2>
         <ul>
           <li>Long-exposure deep-sky image processing in Siril</li>
           <li>Python for data analysis</li>
@@ -76,7 +87,7 @@
       </div>
 
       <div class="now-block">
-        <h2>Working on</h2>
+        <h2 data-i18n="nowHeaderWorkingOn">Working on</h2>
         <ul>
           <li>Creating a small project to learn Python.</li>
           <li>Saving for a dedicated planetary imaging camera</li>
@@ -84,7 +95,7 @@
       </div>
 
       <div class="now-block">
-        <h2>Imaging targets</h2>
+        <h2 data-i18n="nowHeaderImagingTargets">Imaging targets</h2>
         <p>The next clear, moonless night I want to try:</p>
         <ul>
           <li>Lagoon Nebula - Never shot a nebula before.</li>
@@ -92,7 +103,7 @@
       </div>
 
       <div class="now-block">
-        <h2>Reading</h2>
+        <h2 data-i18n="nowHeaderReading">Reading</h2>
         <ul>
           <li>Carl Sagan — <em>Cosmos</em></li>
           <li>Anne Frank — <em>The Diary of a Young Girl</em></li>
@@ -101,14 +112,12 @@
       </div>
 
       <div class="now-block">
-        <h2>Outside this site</h2>
+        <h2 data-i18n="nowHeaderOutside">Outside this site</h2>
         <p>I am on vacation now so more time to study and learn more about astrophysics..</p>
       </div>
     </section>
   </main>
 
-  <!-- Service worker for offline support (PWA). Silently fails on origins
-       where the browser rejects registration (e.g. non-HTTPS). -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -17,27 +17,34 @@
   <title>CV — Hralmeida</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap"
-    rel="stylesheet">
-  <link rel="preload" href="style.css?v=4" as="style">
-  <link rel="stylesheet" href="style.css?v=4">
-  <link rel="preload" href="cv.css?v=3" as="style">
-  <link rel="stylesheet" href="cv.css?v=3">
-  <script src="counter.js?v=3" defer></script>
-  <script src="i18n.js?v=2" defer></script>
-  <script src="theme.js?v=4" defer></script>
-  <script src="cv.js?v=4" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="preload" href="style.css?v=21" as="style">
+  <link rel="stylesheet" href="style.css?v=21">
+  <link rel="preload" href="cv.css?v=20" as="style">
+  <link rel="stylesheet" href="cv.css?v=20">
+  <script src="counter.js?v=20" defer></script>
+  <script src="i18n.js?v=19" defer></script>
+  <script src="theme.js?v=21" defer></script>
+  <script src="cv.js?v=21" defer></script>
 </head>
 
 <body>
   <script>
     try {
-      if (localStorage.getItem('theme') !== 'light') {
-        document.body.classList.add('dark-mode');
+      var savedTheme = localStorage.getItem('theme');
+      if (savedTheme !== 'light') document.body.classList.add('dark-mode');
+      var savedLang  = localStorage.getItem('blogLanguage');
+      if (savedLang === 'pt' || savedLang === 'es' || savedLang === 'en') {
+        document.documentElement.setAttribute('lang', savedLang);
+        if (savedLang !== 'en' && document.body) document.body.classList.add('i18n-pending');
       }
     } catch (e) {
       document.body.classList.add('dark-mode');
     }
+    window.__i18nPendingTimer = setTimeout(function () {
+      if (document.body) document.body.classList.remove('i18n-pending');
+      window.__i18nPendingTimer = null;
+    }, 1500);
   </script>
 
   <header class="Name-Photo">
@@ -54,8 +61,7 @@
       <a href="certificates.html" class="nav-link" data-i18n="navCertificates">Certificates</a>
       <span class="nav-separator" aria-hidden="true">/</span>
       <a href="now.html" class="nav-link" data-i18n="navNow">Now</a>
-      <span class="nav-separator" aria-hidden="true">/</span>
-      <a href="cv.html" class="nav-link active" aria-current="page" data-i18n="navCV">CV</a>
+
     </nav>
     <div id="globalLangSwitcher" class="language-switcher-container"></div>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
@@ -63,6 +69,10 @@
 
   <main class="Medium-Path">
     <article class="cv-section" aria-label="Curriculum vitae" id="cv-section">
+      <!-- Static fallback. cv.js replaces the inner contents with the
+           data/cv.json-rendered version on boot. Headings below pick up
+           the right language via cv.js → i18n.t() so the FOUC fallback
+           is bilingual-ready. -->
       <header class="cv-header">
         <h1>Hralmeida</h1>
         <p class="cv-tagline">Astrophotographer · Code hobbyist · Lifelong learner</p>
@@ -73,54 +83,52 @@
           <a href="https://gitlab.com/hralmeida" target="_blank" rel="noopener">gitlab.com/hralmeida</a>
         </p>
         <p class="cv-download">
-          <button type="button" class="cv-download-link" onclick="window.print()">⎙ Print / Save as PDF</button>
-          <span class="cv-print-hint">· opens your browser's print dialog</span>
+          <button type="button" class="cv-download-link" onclick="window.print()">⎙ <span data-i18n="cvPrintButton">Print / Save as PDF</span></button>
+          <span class="cv-print-hint">· <span data-i18n="cvPrintHint">opens your browser's print dialog</span></span>
         </p>
       </header>
 
       <section class="cv-block">
-        <h2>Skills &amp; Tools</h2>
+        <h2 data-i18n="cvSkillsHeader">Skills &amp; Tools</h2>
         <p><strong>Astrophotography:</strong> Image stacking (Siril, DeepSkyStacker), session planning (Stellarium), post-processing (GIMP), equatorial mount operation, polar alignment.</p>
         <p><strong>Code:</strong> Python, HTML, CSS, Git, Markdown, basic Linux command line.</p>
         <p><strong>Languages:</strong> English · Portuguese · Spanish.</p>
       </section>
 
       <section class="cv-block">
-        <h2>Selected posts</h2>
+        <h2 data-i18n="cvSelectedPostsHeader">Selected posts</h2>
         <ul>
           <li><a href="posts/dark-matter-explanation.md" target="_blank" rel="noopener">Dark matter — a simple explanation</a></li>
           <li><a href="posts/searching-for-blackholes.md" target="_blank" rel="noopener">Searching for black holes — what an amateur can actually see</a></li>
         </ul>
-        <p class="cv-placeholder">More on the <a href="index.html#posts">home page</a>.</p>
+        <p class="cv-placeholder"><span data-i18n="cvMoreOn">More on the</span> <a href="index.html#posts"><span data-i18n="cvHomePage">home page</span></a>.</p>
       </section>
 
       <section class="cv-block">
-        <h2>Certificates</h2>
+        <h2 data-i18n="cvCertificatesHeader">Certificates</h2>
         <ul>
           <li>Galaxies, Stars and Planets — open online course</li>
           <li>Astronomy Images of the Universe — open online course</li>
           <li>Code Teen Python — Shark Coders</li>
         </ul>
-        <p>Full list at <a href="certificates.html" target="_blank" rel="noopener">/certificates</a>.</p>
+        <p><span data-i18n="cvFullListAt">Full list at</span> <a href="certificates.html" target="_blank" rel="noopener">/certificates</a>.</p>
       </section>
 
       <section class="cv-block">
-        <h2>Projects</h2>
+        <h2 data-i18n="cvProjectsHeader">Projects</h2>
         <p class="cv-placeholder">Some projects:</p>
         <ul>
-          <li>Python made project for shark coders <a href="https://gitlab.com/hralmeida/universe-toolkit-pyqt">check it out.</a></li>
+          <li>Python made project for shark coders <a href="https://gitlab.com/hralmeida/universe-toolkit-pyqt"><span data-i18n="cvCheckItOut">check it out.</span></a></li>
         </ul>
       </section>
 
       <section class="cv-block">
-        <h2>Interests</h2>
+        <h2 data-i18n="cvInterestsHeader">Interests</h2>
         <p>Deep-sky astrophotography · Python · web development · physics &amp; reading · quiet nights under the stars.</p>
       </section>
     </article>
   </main>
 
-  <!-- Service worker for offline support (PWA). Silently fails on origins
-       where the browser rejects registration (e.g. non-HTTPS). -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

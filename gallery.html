@@ -18,18 +18,28 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-  <link rel="preload" href="style.css?v=4" as="style">
-  <link rel="stylesheet" href="style.css?v=4">
-  <script src="counter.js?v=3" defer></script>
-  <script src="i18n.js?v=2" defer></script>
-  <script src="theme.js?v=4" defer></script>
+  <link rel="preload" href="style.css?v=21" as="style">
+  <link rel="stylesheet" href="style.css?v=21">
+  <script src="counter.js?v=20" defer></script>
+  <script src="i18n.js?v=19" defer></script>
+  <script src="theme.js?v=21" defer></script>
 </head>
 
 <body>
   <script>
     try {
-      if (localStorage.getItem('theme') !== 'light') { document.body.classList.add('dark-mode'); }
+      var savedTheme = localStorage.getItem('theme');
+      if (savedTheme !== 'light') document.body.classList.add('dark-mode');
+      var savedLang  = localStorage.getItem('blogLanguage');
+      if (savedLang === 'pt' || savedLang === 'es' || savedLang === 'en') {
+        document.documentElement.setAttribute('lang', savedLang);
+        if (savedLang !== 'en' && document.body) document.body.classList.add('i18n-pending');
+      }
     } catch (e) { document.body.classList.add('dark-mode'); }
+    window.__i18nPendingTimer = setTimeout(function () {
+      if (document.body) document.body.classList.remove('i18n-pending');
+      window.__i18nPendingTimer = null;
+    }, 1500);
   </script>
 
   <header class="Name-Photo">
@@ -46,6 +56,7 @@
       <a href="certificates.html" class="nav-link" data-i18n="navCertificates">Certificates</a>
       <span class="nav-separator" aria-hidden="true">/</span>
       <a href="now.html" class="nav-link" data-i18n="navNow">Now</a>
+
     </nav>
     <div id="globalLangSwitcher" class="language-switcher-container"></div>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
@@ -54,19 +65,19 @@
   <main>
     <section class="gallery-section" aria-label="Astrophotography gallery">
       <div class="gallery-section-header">
-        <h2>Gallery</h2>
-        <p class="gallery-section-subtitle">Capturing light that traveled millions of years.</p>
+        <h2 data-i18n="galleryHeader">Gallery</h2>
+        <p class="gallery-section-subtitle" data-i18n="gallerySubtitle">Capturing light that traveled millions of years.</p>
       </div>
 
       <!-- One-time disclaimer banner about image compression -->
       <div id="gallery-disclaimer" class="gallery-disclaimer" style="display: none;">
-        <span class="disclaimer-text">Note: Gallery images are slightly compressed for optimal load performance.</span>
-        <button id="dismiss-disclaimer" class="close-disclaimer" aria-label="Dismiss disclaimer">&#10005;</button>
+        <span class="disclaimer-text" data-i18n="galleryDisclaimer">Note: Gallery images are slightly compressed for optimal load performance.</span>
+        <button id="dismiss-disclaimer" class="close-disclaimer" data-i18n-aria-label="lbClose" aria-label="Dismiss disclaimer">&#10005;</button>
       </div>
 
       <div class="gallery-tabs" role="tablist" aria-label="Filter by category"></div>
       <div class="gallery-search-container">
-        <input type="text" id="gallery-search-input" placeholder="Search gallery by target, cluster name, or description..." aria-label="Search gallery items">
+        <input type="text" id="gallery-search-input" data-i18n-placeholder="gallerySearchPlaceholder" placeholder="Search gallery by target, cluster name, or description…" aria-label="Search gallery items">
       </div>
       <div class="gallery-grid" id="gallery-grid" role="tabpanel" aria-labelledby="tab-all"></div>
       <div class="gallery-status" id="gallery-status" aria-live="polite"></div>
@@ -77,24 +88,24 @@
     <div class="gallery-lightbox-inner">
       <div class="gallery-lightbox-topbar">
         <span class="gallery-lightbox-counter" id="lightbox-counter" aria-live="polite"></span>
-        <button class="gallery-lightbox-close" id="lightbox-close" aria-label="Close image viewer">&#10005;</button>
+        <button class="gallery-lightbox-close" id="lightbox-close" data-i18n-aria-label="lbClose" aria-label="Close image viewer">&#10005;</button>
       </div>
       <div class="gallery-lightbox-spinner" id="lightbox-spinner" aria-hidden="true"></div>
       <div class="gallery-lightbox-img-wrap">
         <img id="lightbox-img" src="" alt="" draggable="false" decoding="async">
       </div>
-      <button class="gallery-lightbox-nav prev" id="lightbox-prev" aria-label="Previous image">&#8592;</button>
-      <button class="gallery-lightbox-nav next" id="lightbox-next" aria-label="Next image">&#8594;</button>
+      <button class="gallery-lightbox-nav prev" id="lightbox-prev" data-i18n-aria-label="lbPrevious" aria-label="Previous image">&#8592;</button>
+      <button class="gallery-lightbox-nav next" id="lightbox-next" data-i18n-aria-label="lbNext" aria-label="Next image">&#8594;</button>
       <div class="gallery-lightbox-bottombar">
         <span class="gallery-lightbox-caption" id="lightbox-caption"></span>
-        <button class="gallery-lightbox-download" id="lightbox-download" aria-label="Download image with watermark">&#8595; Download</button>
+        <button class="gallery-lightbox-download" id="lightbox-download" data-i18n-aria-label="lbDownload" aria-label="Download image with watermark">&#8595; <span data-i18n="lbDownload">Download</span></button>
       </div>
       <div class="gallery-lightbox-info" id="lightbox-info" hidden>
-        <div class="info-row"><span class="info-label">Target</span><span class="info-value" data-info-key="target"></span></div>
-        <div class="info-row"><span class="info-label">Captured</span><span class="info-value" data-info-key="date"></span></div>
-        <div class="info-row"><span class="info-label">Equipment</span><span class="info-value" data-info-key="equipment"></span></div>
-        <div class="info-row"><span class="info-label">Integration</span><span class="info-value" data-info-key="exposure_total"></span></div>
-        <div class="info-row"><span class="info-label">Notes</span><span class="info-value" data-info-key="notes"></span></div>
+        <div class="info-row"><span class="info-label" data-i18n="lbInfoTarget">Target</span><span class="info-value" data-info-key="target"></span></div>
+        <div class="info-row"><span class="info-label" data-i18n="lbInfoCaptured">Captured</span><span class="info-value" data-info-key="date"></span></div>
+        <div class="info-row"><span class="info-label" data-i18n="lbInfoEquipment">Equipment</span><span class="info-value" data-info-key="equipment"></span></div>
+        <div class="info-row"><span class="info-label" data-i18n="lbInfoIntegration">Integration</span><span class="info-value" data-info-key="exposure_total"></span></div>
+        <div class="info-row"><span class="info-label" data-i18n="lbInfoNotes">Notes</span><span class="info-value" data-info-key="notes"></span></div>
       </div>
     </div>
   </div>
@@ -102,6 +113,7 @@
   <canvas id="watermark-canvas" style="display:none;" aria-hidden="true"></canvas>
 
   <script>
+    /* ── State ───────────────────────────────────────────────────────── */
     var GALLERY_ITEMS = [];
     var filteredItems = [];
     var lightboxIndex = 0;
@@ -127,44 +139,42 @@
     var categories      = [];
     var searchInput     = document.getElementById('gallery-search-input');
 
-    /* Intersection Observer for lazy loading.
-       NOTE: We do NOT use the native loading="lazy" attribute on these imgs
-       because it conflicts with display:none (the browser stops fetching).
-       Our IntersectionObserver is the sole lazy-loading mechanism. */
+    function t(key) { return (window.i18n && typeof key === 'string') ? window.i18n.t(key) : key; }
+    function fmt(tpl, vars) { return (window.i18n && typeof tpl === 'string') ? window.i18n.format(tpl, vars) : tpl; }
+    function loc(v) { return (window.i18n && typeof window.i18n.localize === 'function') ? window.i18n.localize(v) : (typeof v === 'string' ? v : (v && v.en) || ''); }
+    function catLabel(slug) { return (window.i18n && typeof window.i18n.categoryLabel === 'function') ? window.i18n.categoryLabel(slug) : (slug || '').replace(/-/g, ' '); }
+    function pluralize(n) { return (window.i18n && typeof window.i18n.plural === 'function') ? window.i18n.plural('galleryImageSingular', 'galleryImagePlural', n) : (n + ' ' + (n === 1 ? 'image' : 'images')); }
+    /* INVARIANT: this <script> runs AFTER i18n.js via <script defer> ordering.
+       Do not reorder scripts — window.i18n.safeUrl may not be live yet. */
+    var safeUrl = function (u) { return window.i18n.safeUrl(u); };
+
+    function safeGet(name) {
+      try { return localStorage.getItem(name); } catch (e) { return null; }
+    }
+    function safeSet(name, v) { try { localStorage.setItem(name, v); } catch (e) {} }
+
+    /* ── Image observer (lazy-load) ─────────────────────────────────── */
     var imgObserver = new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
         if (!entry.isIntersecting) return;
         var item = entry.target;
         var img  = item.querySelector('img[data-src]');
         if (!img) return;
-
-        /* Register load/error listeners BEFORE setting src.
-           If the image is already cached it can fire synchronously on src set,
-           so the listener must exist before that happens. */
-        img.addEventListener('load', function() {
-          item.classList.add('img-loaded');
-        }, { once: true });
-        img.addEventListener('error', function() {
-          /* On error still mark as loaded so shimmer stops */
-          item.classList.add('img-loaded');
-        }, { once: true });
-
+        img.addEventListener('load', function() { item.classList.add('img-loaded'); }, { once: true });
+        img.addEventListener('error', function() { item.classList.add('img-loaded'); }, { once: true });
         img.src = img.dataset.src;
         img.removeAttribute('data-src');
-
-        /* Catch images already in cache (complete before listener fires) */
-        if (img.complete && img.naturalWidth > 0) {
-          item.classList.add('img-loaded');
-        }
-
+        if (img.complete && img.naturalWidth > 0) item.classList.add('img-loaded');
         imgObserver.unobserve(item);
       });
     }, { rootMargin: '300px 0px', threshold: 0 });
 
+    /* ── Translate dynamic content via i18n.localize() ─────────────────
+       gallery/index.json is pre-translated with {en,pt,es} shapes for
+       title/alt/target/notes. localize() picks the right language. */
     function renderTabs() {
       if (!tabsContainer) return;
       tabsContainer.innerHTML = '';
-
       function createTab(slug, label, selected) {
         var button = document.createElement('button');
         button.className = 'gallery-tab';
@@ -177,18 +187,16 @@
         if (selected) button.classList.add('active');
         return button;
       }
-
-      tabsContainer.appendChild(createTab('all', 'All', activeCategory === 'all'));
+      tabsContainer.appendChild(createTab('all', t('galleryTabAll'), activeCategory === 'all'));
       categories.forEach(function(cat) {
-        tabsContainer.appendChild(createTab(cat.slug, cat.label, activeCategory === cat.slug));
+        tabsContainer.appendChild(createTab(cat.slug, catLabel(cat.slug), activeCategory === cat.slug));
       });
-
       tabs = tabsContainer.querySelectorAll('.gallery-tab');
       tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
-          tabs.forEach(function(t) {
-            t.classList.remove('active');
-            t.setAttribute('aria-selected', 'false');
+          tabs.forEach(function(t2) {
+            t2.classList.remove('active');
+            t2.setAttribute('aria-selected', 'false');
           });
           tab.classList.add('active');
           tab.setAttribute('aria-selected', 'true');
@@ -198,25 +206,21 @@
       });
     }
 
-    function normalizeCategoryLabel(slug) {
-      return slug.split('-').map(function(part) {
-        return part.charAt(0).toUpperCase() + part.slice(1);
-      }).join(' ');
-    }
-
     function renderGrid() {
-      // Filter by category first
       var items = activeCategory === 'all'
         ? GALLERY_ITEMS
         : GALLERY_ITEMS.filter(function(it) { return it.category === activeCategory; });
 
-      // Then filter by search query
       if (searchQuery.trim() !== '') {
         var query = searchQuery.toLowerCase().trim();
         items = items.filter(function(it) {
-          return it.title.toLowerCase().indexOf(query) !== -1 ||
-                 it.alt.toLowerCase().indexOf(query) !== -1 ||
-                 it.category.replace('-', ' ').toLowerCase().indexOf(query) !== -1;
+          var title   = loc(it.title).toLowerCase();
+          var alt     = loc(it.alt).toLowerCase();
+          var catText = catLabel(it.category).toLowerCase();
+          return title.indexOf(query) !== -1 ||
+                 alt.indexOf(query) !== -1 ||
+                 catText.indexOf(query) !== -1 ||
+                 (it.category || '').replace('-', ' ').indexOf(query) !== -1;
         });
       }
 
@@ -226,17 +230,18 @@
       grid.innerHTML = '';
 
       if (filteredItems.length === 0) {
-        grid.innerHTML = '<p class="gallery-empty">No matching images found.</p>';
-        statusEl.textContent = '0 images';
+        grid.innerHTML = '<p class="gallery-empty">' + t('galleryEmpty') + '</p>';
+        statusEl.textContent = '0 ' + (window.i18n && window.i18n.t('galleryImagePlural') || 'images');
         return;
       }
 
       filteredItems.forEach(function(item, idx) {
+        var localizedTitle = loc(item.title);
         var article = document.createElement('article');
-        article.className = 'gallery-item';  /* no 'loading' class — CSS shimmer is always-on until img-loaded */
+        article.className = 'gallery-item';
         article.setAttribute('role', 'button');
         article.setAttribute('tabindex', '0');
-        article.setAttribute('aria-label', 'Open ' + item.title);
+        article.setAttribute('aria-label', fmt(t('galleryOpenItem'), { title: localizedTitle }));
         article.dataset.index = idx;
 
         var placeholder = document.createElement('div');
@@ -245,15 +250,13 @@
         placeholder.innerHTML = '<div class="gallery-item-spinner"></div>';
 
         var img = document.createElement('img');
-        img.dataset.src = item.src;  /* real src set by observer, not here */
-        img.alt = item.alt;
-        /* No loading="lazy" — it conflicts with IntersectionObserver when the
-           image has opacity:0 (browser thinks it's off-screen and pauses fetch) */
+        img.dataset.src = safeUrl(item.src);
+        img.alt = loc(item.alt);
         img.setAttribute('decoding', 'async');
 
         var badge = document.createElement('span');
         badge.className = 'gallery-item-badge';
-        badge.textContent = item.category.replace('-', ' ');
+        badge.textContent = catLabel(item.category);
         badge.setAttribute('aria-hidden', 'true');
 
         var overlay = document.createElement('div');
@@ -266,15 +269,15 @@
         var viewBtn = document.createElement('button');
         viewBtn.className = 'gallery-action-btn';
         viewBtn.setAttribute('tabindex', '-1');
-        viewBtn.setAttribute('title', 'View fullscreen');
-        viewBtn.setAttribute('aria-label', 'Open ' + item.title + ' in lightbox');
+        viewBtn.setAttribute('title', t('galleryViewFullscreen'));
+        viewBtn.setAttribute('aria-label', fmt(t('galleryOpenInLightbox'), { title: localizedTitle }));
         viewBtn.innerHTML = '&#128269;';
 
         var dlBtn = document.createElement('button');
         dlBtn.className = 'gallery-action-btn gallery-item-dl-btn';
         dlBtn.setAttribute('tabindex', '-1');
-        dlBtn.setAttribute('title', 'Download with watermark');
-        dlBtn.setAttribute('aria-label', 'Download ' + item.title);
+        dlBtn.setAttribute('title', t('galleryDownloadW'));
+        dlBtn.setAttribute('aria-label', fmt(t('galleryDownloadItem'), { title: localizedTitle }));
         dlBtn.innerHTML = '&#8595;';
 
         actions.appendChild(viewBtn);
@@ -288,7 +291,7 @@
 
         article.addEventListener('click', function(e) {
           if (e.target.closest('.gallery-item-dl-btn')) {
-            downloadWithWatermark(item.src, item.title);
+            downloadWithWatermark(safeUrl(item.src), localizedTitle);
             return;
           }
           openLightbox(idx);
@@ -301,8 +304,7 @@
         imgObserver.observe(article);
       });
 
-      var n = filteredItems.length;
-      statusEl.textContent = n + ' image' + (n !== 1 ? 's' : '');
+      statusEl.textContent = pluralize(filteredItems.length);
     }
 
     function openLightbox(idx) {
@@ -327,26 +329,28 @@
     function showLightboxImage(idx) {
       var item = filteredItems[idx];
       if (!item) return;
-      lightboxCounter.textContent = (idx + 1) + ' / ' + filteredItems.length;
-      lightboxCaption.textContent = item.title;
+      var localizedTitle = loc(item.title);
+      var counterTpl = t('lbCounterFormat');
+      lightboxCounter.textContent = fmt(counterTpl, { n: String(idx + 1), total: String(filteredItems.length) });
+      lightboxCaption.textContent = localizedTitle;
       populateLightboxInfo(item);
       lightboxPrev.disabled = idx === 0;
       lightboxNext.disabled = idx === filteredItems.length - 1;
       lightboxImg.classList.remove('loaded');
       lightboxSpinner.classList.add('visible');
       lightboxDl.disabled = true;
-      lightboxImg.alt = item.alt;
-      lightboxImg.src = item.src;
+      lightboxImg.alt = loc(item.alt);
+      lightboxImg.src = safeUrl(item.src);
+      lightboxEl.setAttribute('aria-label', localizedTitle);
 
       function onReady() {
         lightboxSpinner.classList.remove('visible');
         lightboxImg.classList.add('loaded');
         lightboxDl.disabled = false;
       }
-      if (lightboxImg.complete && lightboxImg.naturalWidth > 0) {
-        onReady();
-      } else {
-        lightboxImg.addEventListener('load',  onReady, { once: true });
+      if (lightboxImg.complete && lightboxImg.naturalWidth > 0) onReady();
+      else {
+        lightboxImg.addEventListener('load', onReady, { once: true });
         lightboxImg.addEventListener('error', function() {
           lightboxSpinner.classList.remove('visible');
           lightboxImg.classList.add('loaded');
@@ -361,7 +365,10 @@
         var valEl = row.querySelector('[data-info-key]');
         if (!valEl) return;
         var key = valEl.getAttribute('data-info-key');
-        var val = (item && item[key] != null) ? String(item[key]).trim() : '';
+        /* `notes` and `target` are localized per renderTabs() pattern;
+           other keys (date, equipment, exposure_total) stay English. */
+        var raw = (key === 'notes' || key === 'target') ? loc(item[key]) : item[key];
+        var val = (item && raw != null) ? String(raw).trim() : '';
         if (val) {
           valEl.textContent = val;
           row.style.display = '';
@@ -386,7 +393,7 @@
     lightboxEl.addEventListener('click', function(e) { if (e.target === lightboxEl) closeLightbox(); });
     lightboxDl.addEventListener('click', function() {
       var item = filteredItems[lightboxIndex];
-      if (item) downloadWithWatermark(item.src, item.title);
+      if (item) downloadWithWatermark(safeUrl(item.src), loc(item.title));
     });
 
     document.addEventListener('keydown', function(e) {
@@ -403,10 +410,10 @@
       if (Math.abs(dx) > 50) navigate(dx < 0 ? 1 : -1);
     }, { passive: true });
 
+    /* ── Download with watermark ─────────────────────────────────────── */
     function downloadWithWatermark(src, title) {
-      var originalLabel = lightboxDl.innerHTML;
       lightboxDl.disabled = true;
-      lightboxDl.innerHTML = '&#8987; Processing...';
+      lightboxDl.innerHTML = '&#8987; ' + t('lbDownloading');
 
       var offscreen = new Image();
       offscreen.crossOrigin = 'anonymous';
@@ -421,22 +428,17 @@
           var w = canvas.width;
           var h = canvas.height;
           var text     = 'HRALMEIDA';
-          
-          // Calculate font size proportional to image size, but not too big
           var fontSize = Math.max(16, Math.floor(Math.min(w, h) * 0.03));
 
           ctx.save();
           ctx.font         = 'bold ' + fontSize + 'px "Lilex", monospace';
-          ctx.fillStyle    = 'rgba(255, 255, 255, 0.4)';  /* readable corner watermark */
+          ctx.fillStyle    = 'rgba(255, 255, 255, 0.4)';
           ctx.textAlign    = 'right';
           ctx.textBaseline = 'bottom';
-
-          // Margin proportional to image size (2% of minimum dimension)
           var margin = Math.max(12, Math.floor(Math.min(w, h) * 0.02));
           ctx.fillText(text, w - margin, h - margin);
           ctx.restore();
 
-          /* JPEG at 0.88 quality: ~5-10x smaller than PNG, visually identical for photos */
           canvas.toBlob(function(blob) {
             if (!blob) { resetBtn(); return; }
             var url  = URL.createObjectURL(blob);
@@ -450,16 +452,15 @@
             setTimeout(function() { URL.revokeObjectURL(url); }, 15000);
             resetBtn();
           }, 'image/jpeg', 0.88);
-
         } catch(err) {
           console.error('Watermark error:', err);
-          alert('Download failed. If running locally, open via a local server (e.g. npx serve).');
+          alert(t('lbDownloadFailed'));
           resetBtn();
         }
       };
 
       offscreen.onerror = function() {
-        alert('Could not load image for processing.');
+        alert(t('lbLoadError'));
         resetBtn();
       };
 
@@ -467,78 +468,78 @@
 
       function resetBtn() {
         lightboxDl.disabled = false;
-        lightboxDl.innerHTML = originalLabel;
+        /* Rebuild the button so any language-switch during the download
+           is reflected: write a fresh, current-lang label rather than
+           restoring the saved markup (which contained a static English
+           fallback). */
+        lightboxDl.innerHTML = '&#8595; <span data-i18n="lbDownload">' + t('lbDownload') + '</span>';
+        if (window.i18n) window.i18n.applyStaticTranslations();
       }
     }
 
-    tabs.forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        tabs.forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-        tab.classList.add('active');
-        tab.setAttribute('aria-selected', 'true');
-        activeCategory = tab.dataset.category;
-        renderGrid();
-      });
-    });
-
-    if (searchInput) {
-      searchInput.addEventListener('input', function() {
-        searchQuery = searchInput.value;
-        renderGrid();
-      });
-    }
-
-
-    // ── Disclaimer show/dismiss logic ──
+    /* ── Disclaimer ──────────────────────────────────────────────────── */
     var disclaimerEl = document.getElementById('gallery-disclaimer');
     var dismissBtn = document.getElementById('dismiss-disclaimer');
-    if (disclaimerEl && localStorage.getItem('gallery_disclaimer_seen') !== 'true') {
+    if (disclaimerEl && safeGet('gallery_disclaimer_seen') !== 'true') {
       disclaimerEl.style.display = 'flex';
     }
     if (dismissBtn && disclaimerEl) {
       dismissBtn.addEventListener('click', function() {
-        localStorage.setItem('gallery_disclaimer_seen', 'true');
+        safeSet('gallery_disclaimer_seen', 'true');
         disclaimerEl.style.display = 'none';
       });
     }
 
+    /* ── Boot: load index, render, listen for language change ────────── */
     function loadGalleryIndex() {
       if (!grid) return;
-      grid.innerHTML = '<p class="gallery-status">Loading gallery...</p>';
+      grid.innerHTML = '<p class="gallery-status">' + t('galleryLoading') + '</p>';
 
-      return fetch('gallery/index.json')
+      return fetch('gallery/index.json?t=' + Date.now())
         .then(function(res) {
           if (!res.ok) throw new Error('Could not load gallery/index.json');
           return res.json();
         })
         .then(function(data) {
-          if (Array.isArray(data)) {
-            GALLERY_ITEMS = data;
-            categories = Array.from(new Set(GALLERY_ITEMS.map(function(it) { return it.category; }))).map(function(slug) {
-              return { slug: slug, label: normalizeCategoryLabel(slug) };
-            });
-          } else {
-            GALLERY_ITEMS = Array.isArray(data.items) ? data.items : [];
-            categories = Array.isArray(data.categories)
-              ? data.categories
-              : Array.from(new Set(GALLERY_ITEMS.map(function(it) { return it.category; }))).map(function(slug) {
-                return { slug: slug, label: normalizeCategoryLabel(slug) };
-              });
-          }
+          var rawItems = Array.isArray(data) ? data : (Array.isArray(data.items) ? data.items : []);
+          GALLERY_ITEMS = rawItems;
+          var seen = {};
+          var categorySlugs = [];
+          rawItems.forEach(function(it) {
+            if (!it.category || seen[it.category]) return;
+            seen[it.category] = true;
+            categorySlugs.push(it.category);
+          });
+          categories = categorySlugs.map(function(slug) { return { slug: slug, label: catLabel(slug) }; });
 
           renderTabs();
           renderGrid();
         })
         .catch(function(err) {
           console.error('Error loading gallery index:', err);
-          grid.innerHTML = '<p class="gallery-empty">Error loading gallery. Make sure gallery/index.json exists.</p>';
+          grid.innerHTML = '<p class="gallery-empty">' + t('galleryErrorLoading') + '</p>';
           statusEl.textContent = '';
         });
     }
 
-    loadGalleryIndex();
-  </script>  <!-- Service worker for offline support (PWA). Silently fails on origins
-       where the browser rejects registration (e.g. non-HTTPS). -->
+    function refreshAll() {
+      /* Categories may have new localized labels — re-render tabs and grid. */
+      if (!GALLERY_ITEMS.length) return;
+      categories = categories.map(function(c) { return { slug: c.slug, label: catLabel(c.slug) }; });
+      renderTabs();
+      renderGrid();
+      if (lightboxOpen) showLightboxImage(lightboxIndex);
+    }
+
+    /* Re-render whenever language changes (from i18n.js event). */
+    window.addEventListener('languageChange', refreshAll);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadGalleryIndex);
+    } else {
+      loadGalleryIndex();
+    }
+  </script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

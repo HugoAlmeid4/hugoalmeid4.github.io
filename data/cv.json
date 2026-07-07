@@ -6,7 +6,7 @@
   },
   "bio": {
     "en": "Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.",
-    "pt": "Capturar luz que viajou milhões de anos só para aqui chegar. Prefiro o silêncio e as coisas simples. Apenas a apreciar a vista enquanto o mundo volta a girar.",
+    "pt": "Captar luz que passará milhões de anos só para aqui chegar. Prefiro o silêncio e as coisas simples. Basta apreciar a vista enquanto o mundo gira.",
     "es": "Capturando la luz que viajó millones de años sólo para llegar aquí. Prefiero el silencio y las cosas sencillas. Simplemente disfrutando de la vista mientras el mundo gira nuevamente."
   },
   "contact": [
@@ -24,7 +24,7 @@
       "category": {
         "en": "Astrophotography",
         "pt": "Astrofotografia",
-        "es": "Astrofotografía"
+        "es": "Astrofotografia"
       },
       "description": {
         "en": "Image stacking (Siril, DeepSkyStacker), session planning (Stellarium), post-processing (GIMP), equatorial mount operation, polar alignment.",
@@ -40,8 +40,8 @@
       },
       "description": {
         "en": "Python, HTML, CSS, Git, Markdown, basic Linux command line.",
-        "pt": "Python, HTML, CSS, Git, Markdown, linha de comandos básica do Linux.",
-        "es": "Python, HTML, CSS, Git, Markdown, línea de comando básica de Linux."
+        "pt": "Python, HTML, CSS, Git, Markdown, linha de comandos básicos do Linux.",
+        "es": "Python, HTML, CSS, Git, Markdown, línea de comando básico de Linux."
       }
     },
     {

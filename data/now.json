@@ -5,7 +5,7 @@
       "title": {
         "en": "Learning",
         "pt": "Aprendizagem",
-        "es": "Aprendiendo"
+        "es": "aprendiendo"
       },
       "items": [
         "Long-exposure deep-sky image processing in Siril",
@@ -31,7 +31,7 @@
       },
       "intro": {
         "en": "The next clear, moonless night I want to try:",
-        "pt": "The next clear, moonless night I want to try:",
+        "pt": "Na próxima noite clara e sem lua, quero experimentar:",
         "es": "La próxima noche clara y sin luna que quiero probar:"
       },
       "items": [
@@ -42,7 +42,7 @@
       "title": {
         "en": "Reading",
         "pt": "Leitura",
-        "es": "Lectura"
+        "es": "conferencia"
       },
       "items": [
         "Carl Sagan — <em>Cosmos</em>",

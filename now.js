@@ -45,9 +45,39 @@
     return MONTHS[month] + ' ' + year;
   }
 
+  /* Block ↔ i18n header key. New sections: just add a key to this map and
+     to sharedTranslations in i18n.js — no now.js change required. */
+  var BLOCK_KEYS = {
+    Learning: 'nowHeaderLearning',
+    Working: 'nowHeaderWorkingOn',
+    'Imaging targets': 'nowHeaderImagingTargets',
+    Reading: 'nowHeaderReading',
+    'Outside this site': 'nowHeaderOutside'
+  };
+
+  function t(key) {
+    return (window.i18n && typeof key === 'string') ? window.i18n.t(key) : key;
+  }
+
+  function headerForBlock(englishTitle, lang) {
+    var key = BLOCK_KEYS[englishTitle];
+    if (key) return t(key);
+    /* Fall back to the data-driven title if it's already a {en,pt,es}
+       object — keeps the dataset single-source-of-truth. */
+    var objTitle;
+    return englishTitle;
+  }
+
   function renderBlock(block) {
     var lang = (window.i18n && window.i18n.lang) || 'en';
-    var title = escAllowInline(pick(block.title, lang));
+    /* If the block comes pre-localized (data/now.json has en/pt/es titles),
+       honor that translation. Otherwise use the i18n header map keyed off
+       the English title so we get a single, centralised match. */
+    var rawTitle = pick(block.title, lang);
+    var mapKey = (typeof block.title === 'object' && block.title.en) ? block.title.en : rawTitle;
+    var mappedKey = BLOCK_KEYS[mapKey];
+    var i18nTitle = mappedKey ? t(mappedKey) : rawTitle;
+    var title = escAllowInline(i18nTitle);
     var intro = block.intro ? '<p>' + escAllowInline(pick(block.intro, lang)) + '</p>' : '';
     var body = '';
     if (Array.isArray(block.items) && block.items.length > 0) {
@@ -67,9 +97,9 @@
     var updatedHTML = lastUpdated ? '<time datetime="' + esc((data.last_updated || '').slice(0, 7)) + '">' + esc(lastUpdated) + '</time>' : '';
     var blocks = Array.isArray(data.blocks) ? data.blocks : [];
     var blocksHTML = blocks.map(renderBlock).join('');
-    section.innerHTML = '<h1>Now</h1>'
-      + '<p class="now-disclaimer">Last updated: ' + updatedHTML
-      + ' · inspired by <a href="https://nownownow.com/about" target="_blank" rel="noopener">nownownow.com</a></p>'
+    section.innerHTML = '<h1>' + esc(t('nowPageTitle')) + '</h1>'
+      + '<p class="now-disclaimer">' + esc(t('nowLastUpdated')) + ' ' + updatedHTML
+      + ' · ' + esc(t('nowInspiredBy')) + ' <a href="https://nownownow.com/about" target="_blank" rel="noopener">nownownow.com</a></p>'
       + blocksHTML;
   }
 
@@ -77,7 +107,7 @@
 
   async function loadNow() {
     try {
-      var res = await fetch('data/now.json');
+      var res = await fetch('data/now.json?t=' + Date.now());
       if (!res.ok) throw new Error('HTTP ' + res.status);
       raw_data = await res.json();
       renderNow(raw_data);
