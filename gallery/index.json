@@ -2,7 +2,7 @@
   "items": [
     {
       "title": "M5 — Globular Cluster",
-      "src": "gallery/star clusters/m5/m5final.jpg",
+      "src": "gallery/star clusters/m5/m5final.webp",
       "alt": "M5 globular star cluster.",
       "category": "star-clusters",
       "target": "M5 — Globular Cluster in Serpens",
@@ -13,7 +13,7 @@
     },
     {
       "title": "M81 & M82 — Bodes & Cigar Galaxies",
-      "src": "gallery/galaxies/m81m82.jpg",
+      "src": "gallery/galaxies/m81m82.webp",
       "alt": "M81 and M82, Bodes Galaxy and the Cigar Galaxy photographed together",
       "category": "galaxies",
       "target": "M81 & M82 — interacting pair in Ursa Major",
@@ -24,7 +24,7 @@
     },
     {
       "title": "Full Moon",
-      "src": "gallery/moon/Moon.jpg",
+      "src": "gallery/moon/Moon.webp",
       "alt": "A picture of a full moon",
       "category": "moon",
       "target": "Moon",

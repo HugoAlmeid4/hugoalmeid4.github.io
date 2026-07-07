@@ -5,7 +5,7 @@
    Bump CACHE_VERSION when shipping structural changes so old cached
    responses get evicted automatically next visit.
    ────────────────────────────────────────────────────────────────────────── */
-const CACHE_VERSION = 'hralmeida-v5';
+const CACHE_VERSION = 'hralmeida-v6';
 // Asset URLs include ?v=1 to match the version-busters in HTML. Without the
 // query string, caches.match() keys are unqueried and the network request for
 // `./style.css?v=1` would always miss the precache — defeating the cache. With
@@ -15,20 +15,39 @@ const CACHE_VERSION = 'hralmeida-v5';
 const PRECACHE = [
   './',
   './index.html',
-  './style.css?v=1',
+  './gallery.html',
+  './certificates.html',
+  './now.html',
+  './cv.html',
+  './404.html',
+  './style.css?v=2',
   './posts.css?v=1',
-  './theme.js?v=1',
+  './certificates.css?v=2',
+  './now.css?v=2',
+  './cv.css?v=2',
+  './404.css?v=2',
+  './theme.js?v=2',
   './posts.js?v=1',
   './bio.js?v=1',
   './counter.js?v=1',
-  './now.js?v=1',
-  './cv.js?v=1',
+  './now.js?v=2',
+  './cv.js?v=2',
   './giscus-config.js?v=1',
   './manifest.json',
   './imgs/imgs.jpg',
+  './imgs/imgs.webp',
   './imgs/og-default.png',
+  './imgs/Frame10.png',
+  './imgs/Frame10.webp',
   './imgs/icon-192.png',
-  './imgs/icon-512.png'
+  './imgs/icon-512.png',
+  './imgs/certificate-placeholder.webp',
+  './data/bio.json',
+  './data/now.json',
+  './data/cv.json',
+  './gallery/index.json',
+  './posts/index.json',
+  './generate-rss.js'
 ];
 
 self.addEventListener('install', event => {
