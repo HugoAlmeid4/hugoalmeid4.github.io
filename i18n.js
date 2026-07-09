@@ -837,6 +837,37 @@
   }
 
   /* ── Boot ───────────────────────────────────────────────────────────── */
+  /* ── Body unmask scheduling ───────────────────────────────────────────────────────────────
+     Posts.js sets window.__expectsContentRenderSignal=true near its top
+     and dispatches 'firstContentRendered' once the first renderPosts
+     call resolves. We keep body.i18n-pending until that signal fires
+     (or a 700 ms cap, whichever first) so the unmask aligns with the
+     moment real translated posts are on screen. Without this, users
+     with a non-English saved language see a hidden body → English
+     skeleton → real posts ripple on cold load (the body's 240ms
+     opacity fade lands while posts.js is still loading, and the
+     skeleton gets wiped instantly when real posts arrive). */
+  function unmaskBody() {
+    if (window.__i18nPendingTimer) {
+      clearTimeout(window.__i18nPendingTimer);
+      window.__i18nPendingTimer = null;
+    }
+    if (document.body && document.body.classList.contains('i18n-pending')) {
+      document.body.classList.remove('i18n-pending');
+    }
+  }
+  function scheduleUnmask() {
+    if (window.__expectsContentRenderSignal) {
+      var cap = setTimeout(unmaskBody, 1500);
+      window.addEventListener('firstContentRendered', function () {
+        clearTimeout(cap);
+        unmaskBody();
+      }, { once: true });
+    } else {
+      unmaskBody();
+    }
+  }
+
   function boot() {
     lang = readLang();
     /* Re-assert <html lang> in case the inline pre-paint script didn't
@@ -850,11 +881,7 @@
        parked on window.__i18nPendingTimer — we won the race so we
        don't need it. Then release the body-hide gate. The visibility
        flip happens via CSS transition (in style.css). */
-    if (window.__i18nPendingTimer) {
-      clearTimeout(window.__i18nPendingTimer);
-      window.__i18nPendingTimer = null;
-    }
-    if (document.body) document.body.classList.remove('i18n-pending');
+    scheduleUnmask();
     window.dispatchEvent(new CustomEvent('i18nReady', { detail: { lang: lang } }));
   }
 
