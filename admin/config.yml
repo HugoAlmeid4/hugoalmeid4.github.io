@@ -59,6 +59,17 @@ collections:
         widget: string
         required: false
         hint: Comma-separated (e.g. "dark matter, relativity"). Stored as a single string — the renderer splits it for filtering.
+      - name: banner_image
+        label: Cover / banner image
+        widget: image
+        required: false
+        multiple: false
+        hint: 'Optional hero image shown at the top of the post reader. Uploads land in /posts/ alongside the markdown.'
+      - name: banner_image_alt
+        label: Banner alt text
+        widget: string
+        required: false
+        hint: 'Describe the banner for screen readers. Falls back to the post title if left blank.'
       - name: draft
         label: Draft
         widget: boolean

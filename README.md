@@ -22,11 +22,15 @@ Personal website and blog of **Hralmeida**. Static site hosted on **GitHub Pages
    title: Your post title
    date: 2025-08-01
    excerpt: One- or two-sentence summary used on the home card.
-   tags: astro, black-holes     # optional, comma-separated
-   author: Your name             # optional
+   tags: astro, black-holes              # optional, comma-separated
+   author: Your name                      # optional
+   banner_image: /posts/cover.jpg         # optional, hero at top of post
+   banner_image_alt: Convective cloud...  # optional, screen-reader description
    ---
    ```
 2. Push to `main`. GitHub Actions runs `generate-rss.js`, which regenerates `posts/index.json` and `rss.xml` and commits them back. The post will appear on the home page automatically.
+
+`banner_image` is a per-post cover image — upload it via `/admin` (Sveltia CMS → **Posts (Blog)** form), or commit an image under `posts/` and reference it as `/posts/<file>`. Editors remember and edit the path through the same field, so existing posts get a banner just by setting it.
 
 ### New certificate
 
