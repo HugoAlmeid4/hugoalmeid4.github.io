@@ -60,10 +60,147 @@ body.i18n-pending{opacity:0;visibility:hidden;transition:opacity 240ms cubic-bez
      doesn't get clipped by the viewport edge on phones */
   .Name-Photo .lang-menu{right:0;left:auto;min-width:160px;top:calc(100% + 6px);max-width:calc(100vw - 32px)}
 }
+/* ── Hamburger menu (mobile only) ────────────────────────────────────
+   Hidden on desktop by default — overridden to display:inline-flex inside
+   the @media(max-width:768px) block below. The button matches the theme
+   toggle visually (sharp 1.5px border, square corners, hover color
+   inversion) and morphs its three lines into an X when the menu opens. */
+.hamburger-toggle{
+  display:none;
+  background:transparent;border:1.5px solid #333;color:#333;
+  width:42px;height:42px;min-width:42px;padding:0;margin:0;
+  cursor:pointer;border-radius:0;
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:5px;
+  transition:border-color .2s ease,background .2s ease,color .2s ease,transform .15s ease;
+}
+.hamburger-toggle .hamburger-line{
+  display:block;width:22px;height:1.5px;background:currentColor;
+  border-radius:1px;transform-origin:center;
+  transition:transform .32s cubic-bezier(0.16,1,0.3,1),opacity .22s ease;
+}
+.hamburger-toggle.open .hamburger-line:nth-child(1){transform:translateY(6.25px) rotate(45deg)}
+.hamburger-toggle.open .hamburger-line:nth-child(2){opacity:0;transform:translateX(-22px)}
+.hamburger-toggle.open .hamburger-line:nth-child(3){transform:translateY(-6.25px) rotate(-45deg)}
+@media (hover:hover){.hamburger-toggle:hover{background:#333;color:rgb(237,231,220)}}
+body.dark-mode .hamburger-toggle{border-color:#ededed;color:#ededed}
+@media (hover:hover){body.dark-mode .hamburger-toggle:hover{background:#ededed;color:#1a1a1a}}
+
+/* The panel itself is hidden on desktop — otherwise the clone of
+   .nav-links that hamburger.js inserts into .hamburger-menu-inner would
+   render as a regular block under the desktop header (looks like a
+   duplicate nav row). The @media(max-width:768px) block below re-enables
+   the panel via display:grid. */
+.hamburger-menu{display:none}
+
+/* ── Mobile hamburger panel (≤768px) ────────────────────────────────
+   The full nav-link list and language picker collapse into a
+   slide-down panel below the header. The panel animates open via
+   grid-template-rows: 0fr → 1fr so the open/close matches the
+   actual content height (no fixed max-height hack). */
+@media(max-width:768px){
+  /* Shift theme-toggle one column left (col 3 = where the lang switcher
+     used to sit, which is now hidden on mobile) so it doesn't occupy the
+     same cell as the hamburger. Hamburger stays at col 4 (right edge —
+     standard mobile drawer-toggle position). */
+  .Name-Photo .theme-toggle{grid-column:3}
+  .Name-Photo .hamburger-toggle{grid-column:4;grid-row:1;display:inline-flex}
+  /* !important beats the older .language-switcher-container{display:block !important}
+   rule in the search-bar-wrapper compact @media(max-width:768px) block. Without
+   this the lang dropdown stays visible in the header at col 3 row 1, the same
+   cell as the theme-toggle — they end up stacked on top of each other in the
+   mobile grid. */
+.Name-Photo > .language-switcher-container{display:none !important}
+  .Name-Photo > .nav-links{display:none}
+
+  .Name-Photo > .hamburger-menu{
+    grid-column:1 / span 4;grid-row:2;
+    display:grid;grid-template-rows:0fr;
+    opacity:0;transform:translateY(-6px);
+    border-top:1.5px solid transparent;
+    transition:grid-template-rows .38s cubic-bezier(0.16,1,0.3,1),
+               opacity .26s ease,
+               transform .38s cubic-bezier(0.16,1,0.3,1),
+               border-top-color .22s ease;
+  }
+  .Name-Photo > .hamburger-menu.open{
+    grid-template-rows:1fr;
+    opacity:1;transform:translateY(0);
+    border-top-color:rgba(0,0,0,0.08);
+  }
+  body.dark-mode .Name-Photo > .hamburger-menu.open{border-top-color:rgba(255,255,255,0.08)}
+  .Name-Photo > .hamburger-menu > .hamburger-menu-inner{overflow:hidden}
+
+  .hamburger-menu-inner > nav.nav-links{
+    display:flex;flex-direction:column;gap:0;
+    padding:4px 14px 0;margin-top:0;width:100%;
+  }
+  .hamburger-menu-inner .nav-link{
+    position:relative;display:block;
+    padding:14px 10px;
+    border-bottom:1px solid rgba(0,0,0,0.06);
+    font-size:13px;font-weight:500;
+    text-transform:uppercase;letter-spacing:0.06em;
+    text-decoration:none;color:#555;
+    opacity:0;transform:translateX(-10px);
+    transition:opacity .3s ease,
+               transform .36s cubic-bezier(0.16,1,0.3,1),
+               color .15s ease,
+               padding-left .22s cubic-bezier(0.16,1,0.3,1),
+               background-color .2s ease;
+  }
+  .hamburger-menu-inner .nav-link:last-child{border-bottom:none}
+  .hamburger-menu-inner .nav-link.active{color:#111;font-weight:700}
+  .hamburger-menu-inner .nav-link::before{
+    content:"";position:absolute;left:0;top:50%;
+    transform:translateY(-50%);
+    width:3px;height:0;background:currentColor;
+    transition:height .24s cubic-bezier(0.16,1,0.3,1);
+  }
+  .hamburger-menu-inner .nav-link.active::before{height:20px}
+  @media (hover:hover){
+    .hamburger-menu-inner .nav-link:hover{color:#111;padding-left:18px;background-color:rgba(0,0,0,0.03)}
+    .hamburger-menu-inner .nav-link:hover::before{height:20px}
+  }
+  .hamburger-menu.open .hamburger-menu-inner .nav-link{opacity:1;transform:translateX(0)}
+  .hamburger-menu.open .hamburger-menu-inner .nav-link:nth-child(1){transition-delay:120ms}
+  .hamburger-menu.open .hamburger-menu-inner .nav-link:nth-child(2){transition-delay:170ms}
+  .hamburger-menu.open .hamburger-menu-inner .nav-link:nth-child(3){transition-delay:220ms}
+  .hamburger-menu.open .hamburger-menu-inner .nav-link:nth-child(4){transition-delay:270ms}
+  body.dark-mode .hamburger-menu-inner .nav-link{color:#aaa;border-bottom-color:rgba(255,255,255,0.06)}
+  body.dark-mode .hamburger-menu-inner .nav-link.active{color:#ededed}
+  @media (hover:hover){body.dark-mode .hamburger-menu-inner .nav-link:hover{color:#ededed;background-color:rgba(255,255,255,0.05)}}
+
+  .hamburger-menu-lang{
+    padding:18px 14px 22px;
+    border-top:1px solid rgba(0,0,0,0.06);
+  }
+  .hamburger-menu-lang-label{
+    display:block;font-size:10px;font-weight:700;
+    text-transform:uppercase;letter-spacing:0.08em;
+    color:#888;margin-bottom:10px;
+  }
+  .hamburger-menu-lang-options{display:flex;gap:8px}
+  .hamburger-lang-btn{
+    flex:1 1 0;background:transparent;border:1.5px solid #333;color:#333;
+    padding:11px 8px;font-size:11px;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.05em;
+    cursor:pointer;font-family:inherit;
+    transition:background .2s ease,color .2s ease,border-color .2s ease,transform .15s ease,opacity .3s ease .32s;
+  }
+  @media (hover:hover){.hamburger-lang-btn:hover{background:rgba(0,0,0,0.05);transform:translateY(-1px)}}
+  .hamburger-lang-btn.active{background:#333;color:rgb(237,231,220);border-color:#333}
+  body.dark-mode .hamburger-menu-lang{border-top-color:rgba(255,255,255,0.08)}
+  body.dark-mode .hamburger-menu-lang-label{color:#aaa}
+  body.dark-mode .hamburger-lang-btn{color:#ededed;border-color:#ededed}
+  @media (hover:hover){body.dark-mode .hamburger-lang-btn:hover{background:rgba(255,255,255,0.06)}}
+  body.dark-mode .hamburger-lang-btn.active{background:#ededed;color:#1a1a1a;border-color:#ededed}
+}
 @media(max-width:380px){
-  .Name-Photo{padding:12px 14px;gap:8px}
+  .Name-Photo{padding:10px 14px;gap:8px}
   .Name-Photo img{width:40px;height:40px}
   .Name-Photo h3{font-size:14px}
-  .Name-Photo .lang-menu-toggle{height:40px;padding:0 10px !important;font-size:10px}
   .Name-Photo .theme-toggle{width:40px;height:40px;min-width:40px}
+  .Name-Photo .hamburger-toggle{width:40px;height:40px;min-width:40px}
+  .hamburger-toggle .hamburger-line{width:20px}
 }
