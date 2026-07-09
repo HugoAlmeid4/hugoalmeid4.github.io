@@ -24,8 +24,10 @@ Personal website and blog of **Hralmeida**. Static site hosted on **GitHub Pages
    excerpt: One- or two-sentence summary used on the home card.
    tags: astro, black-holes              # optional, comma-separated
    author: Your name                      # optional
-   banner_image: /posts/cover.jpg         # optional, hero at top of post
-   banner_image_alt: Convective cloud...  # optional, screen-reader description
+   banner_image: /posts/cover.jpg             # optional, hero at top of post
+   banner_image_alt: Convective cloud...      # optional, screen-reader description
+   banner_image_credit: Photo by ESA / Hubble # optional, attribution shown overlaid on the banner image
+   banner_image_credit_url: https://...        # optional, makes the credit a clickable link (opens in new tab)
    ---
    ```
 2. Push to `main`. GitHub Actions runs `generate-rss.js`, which regenerates `posts/index.json` and `rss.xml` and commits them back. The post will appear on the home page automatically.

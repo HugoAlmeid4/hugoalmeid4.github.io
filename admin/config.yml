@@ -70,6 +70,16 @@ collections:
         widget: string
         required: false
         hint: 'Describe the banner for screen readers. Falls back to the post title if left blank.'
+      - name: banner_image_credit
+        label: Banner image credit
+        widget: string
+        required: false
+        hint: 'Photographer / source attribution text. Renders as a small overlay on the bottom-right corner of the banner image. If a credit URL is also set, the credit becomes a clickable link.'
+      - name: banner_image_credit_url
+        label: Banner image credit URL
+        widget: string
+        required: false
+        hint: 'Optional source URL the credit links to (opens in a new tab). Add the canonical page for the photographer, archive, or paper.'
       - name: draft
         label: Draft
         widget: boolean
