@@ -5,7 +5,9 @@ excerpt: In Einstein's Theory of Relativity published in the 20th century, descr
 author: hralmeida
 tags: black holes, relativity, einstein
 banner_image: posts/eso2208-eht-mwd.webp
-banner_image_alt: ''
+banner_image_alt: Blackholes banner
+banner_image_credit: EHT Collaboration | Eso.org
+banner_image_credit_url: https://www.eso.org/public/images/eso2208-eht-mwd/
 ---
 
 ###### This article is intended for educational purposes and summarize current scientific understating, while this article was made to ensure accuracy, you should not use this as your only source of information.
