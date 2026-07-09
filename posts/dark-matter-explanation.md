@@ -6,6 +6,8 @@ author: hralmeida
 tags: dark matter, dark energy, newton equation
 banner_image: posts/20220329-Dark-matter.webp
 banner_image_alt: Rubin Observatory Dark Matter Banner
+banner_image_credit: EHT Collaboration | Eso.org
+banner_image_credit_url: https://www.eso.org/public/images/eso2208-eht-mwd/
 ---
 
 ### How was dark matter discovered?
