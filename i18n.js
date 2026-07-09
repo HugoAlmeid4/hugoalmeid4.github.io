@@ -154,7 +154,11 @@
       /* 404 page (404.html) */
       err404: '404',
       err404Message: 'Houston, we have a problem.\nThis page has drifted out of orbit.',
-      returnHome: 'Return to Earth'
+      returnHome: 'Return to Earth',
+
+      /* Site-wide banner (banner.js). Used as aria-label on the dismiss
+         button — X glyph itself is language-neutral. */
+      bannerDismiss: 'Dismiss banner'
     },
     pt: {
       navHome: 'Início',
@@ -239,7 +243,9 @@
 
       err404: '404',
       err404Message: 'Houston, temos um problema.\nEsta página saiu da órbita.',
-      returnHome: 'Voltar à Terra'
+      returnHome: 'Voltar à Terra',
+
+      bannerDismiss: 'Fechar banner'
     },
     es: {
       navHome: 'Inicio',
@@ -324,7 +330,9 @@
 
       err404: '404',
       err404Message: 'Houston, tenemos un problema.\nEsta página se ha salido de órbita.',
-      returnHome: 'Volver a la Tierra'
+      returnHome: 'Volver a la Tierra',
+
+      bannerDismiss: 'Cerrar banner'
     },
     hi: {
       navHome: 'होम',
@@ -409,7 +417,9 @@
 
       err404: '404',
       err404Message: 'ह्यूस्टन, हमारे पास एक समस्या है।\nयह पृष्ठ कक्षा से बाहर हो गया है।',
-      returnHome: 'पृथ्वी पर वापस'
+      returnHome: 'पृथ्वी पर वापस',
+
+      bannerDismiss: 'बैनर बंद करें'
     },
     zh: {
       navHome: '首页',
@@ -494,7 +504,9 @@
 
       err404: '404',
       err404Message: '休斯顿，我们遇到了一个问题。\n该页面已偏离轨道。',
-      returnHome: '返回地球'
+      returnHome: '返回地球',
+
+      bannerDismiss: '关闭横幅'
     }
   };
 

@@ -63,6 +63,14 @@ Personal website and blog of **Hralmeida**. Static site hosted on **GitHub Pages
 
 `cv.html` is the source of truth. The download link uses `download="Hralmeida-CV.html"`. To export to PDF: open `cv.html` in a browser and choose **Print → Save as PDF** (print stylesheet hides the nav, theme toggle, etc.).
 
+## Editing the site banner
+
+A dismissable strip at the very top of every page, rendered by `banner.js` from `data/banner.json`. Editable from `/admin` (Sveltia CMS → **Banner**). Toggle **`enabled`** to publish, write the message per language, add an optional click-through URL, optionally enable **`dismissable`** to give visitors a × button.
+
+- Banner stays off until `enabled` is true and the active language has text.
+- Empty fields are skipped silently — leave a language blank to suppress the banner in that locale.
+- Dismiss state is versioned (hash of `en` text + URL) so editing either re-shows the banner to previously-dismissed users. Stop editing and the dismissal sticks across visits and language switches.
+
 ## Tech notes
 
 - **No build step** for the site itself. Only `generate-rss.js` and `certificates/update-index.js` run at build / commit time.

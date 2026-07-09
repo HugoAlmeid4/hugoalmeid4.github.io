@@ -352,4 +352,45 @@ collections:
                 widget: text
                 required: false
 
+  # ── Banner (announcement strip) ──
+  # Renders a thin dismissable strip at the very top of every page when
+  # `enabled` is true. Per-language text fields prevent the banner from
+  # being a half-translated eyesore in non-English locales that haven't
+  # been translated yet — leave a field empty to skip that language
+  # (banner.js already filters empty strings). The CSS lives in
+  # style.css under `.site-banner`; banner.js reads this file at boot.
+  - name: banner
+    label: 'Banner (announcement strip)'
+    files:
+      - name: banner
+        label: 'Banner content'
+        file: data/banner.json
+        format: json
+        fields:
+          - name: enabled
+            label: 'Show banner on every page?'
+            widget: boolean
+            default: false
+            hint: 'Globally on/off. Per-language text still controls which locales the banner actually renders in.'
+          - name: dismissable
+            label: 'Allow visitors to dismiss?'
+            widget: boolean
+            default: false
+            hint: 'Add a small × button on the right. Dismissed state is versioned — editing the text or URL re-shows it.'
+          - name: text
+            label: 'Banner text (per language)'
+            widget: object
+            hint: 'Each language has its own field. Leave a field empty to suppress the banner in that language.'
+            fields:
+              - { name: en, label: English,    widget: string }
+              - { name: pt, label: Português,  widget: string }
+              - { name: es, label: Español,    widget: string }
+              - { name: hi, label: हिन्दी,   widget: string }
+              - { name: zh, label: 中文,        widget: string }
+          - name: url
+            label: 'Optional link URL'
+            widget: string
+            required: false
+            hint: 'External (https://...), in-site (/path), or anchor (#anchor). Whole banner becomes clickable.'
+
 
