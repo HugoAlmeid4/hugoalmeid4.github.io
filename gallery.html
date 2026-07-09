@@ -18,12 +18,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-  <link rel="preload" href="style.css?v=24" as="style">
-  <link rel="stylesheet" href="style.css?v=24">
-  <script src="counter.js?v=20" defer></script>
-  <script src="i18n.js?v=19" defer></script>
-  <script src="theme.js?v=21" defer></script>
-  <script src="hamburger.js?v=1" defer></script>
+  <link rel="preload" href="style.css?v=25" as="style">
+  <link rel="stylesheet" href="style.css?v=25">
+  <script src="counter.js?v=21" defer></script>
+  <script src="i18n.js?v=20" defer></script>
+  <script src="theme.js?v=22" defer></script>
+  <script src="hamburger.js?v=2" defer></script>
 </head>
 
 <body>
@@ -164,19 +164,29 @@
     }
     function safeSet(name, v) { try { localStorage.setItem(name, v); } catch (e) {} }
 
-    /* ── Image observer (lazy-load) ─────────────────────────────────── */
-    var imgObserver = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
+    /* ── Image observer (fade-in trigger only) ──────────────────────── *
+     * The previous version assigned img.src from data-src INSIDE the
+     * observer callback. That meant a broken / blocked
+     * IntersectionObserver — or an item that never reached
+     * `isIntersecting` (Safari quirks, certain ad-blockers, items in
+     * an offscreen iframe) — left the grid showing alt text instead of
+     * the photo, because no `src` was ever assigned. Now `src` is set
+     * eagerly in renderGrid(); the observer only flips `.img-loaded`
+     * for the fade-in effect, with the .jpg fallback handled by the
+     * error listener attached during creation. */
+    var imgObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
         var item = entry.target;
-        var img  = item.querySelector('img[data-src]');
-        if (!img) return;
-        img.addEventListener('load', function() { item.classList.add('img-loaded'); }, { once: true });
-        img.addEventListener('error', function() { item.classList.add('img-loaded'); }, { once: true });
-        img.src = img.dataset.src;
-        img.removeAttribute('data-src');
-        if (img.complete && img.naturalWidth > 0) item.classList.add('img-loaded');
-        imgObserver.unobserve(item);
+        var img  = item.querySelector('img');
+        if (!img) { imgObserver.unobserve(item); return; }
+        function markLoaded() { item.classList.add('img-loaded'); imgObserver.unobserve(item); }
+        if (img.complete && img.naturalWidth > 0) { markLoaded(); return; }
+        img.addEventListener('load', markLoaded, { once: true });
+        img.addEventListener('error', function () {
+          console.warn('[gallery] image failed to load:', img.src);
+          markLoaded();
+        }, { once: true });
       });
     }, { rootMargin: '300px 0px', threshold: 0 });
 
@@ -261,9 +271,41 @@
         placeholder.innerHTML = '<div class="gallery-item-spinner"></div>';
 
         var img = document.createElement('img');
-        img.dataset.src = safeUrl(item.src);
+        /* Set src eagerly (not data-src + observer-assigned). The
+           previous version left img.src empty until IntersectionObserver
+           fired, and any observer failure showed broken alt text in
+           every gallery slot. With src assigned at creation the browser
+           loads the image immediately — observer below only handles the
+           fade-in animation, not the network request. */
+        img.src = safeUrl(item.src);
         img.alt = loc(item.alt);
         img.setAttribute('decoding', 'async');
+        img.loading = 'lazy';
+        /* If the WebP source fails (browser rejects WebP, CDN MIME glitch,
+           broken intermediary), fall back to the .jpg sibling. Every
+           gallery folder carries both extensions (m81m82.webp +
+           m81m82.jpg, etc.), so this silently rescues the image without
+           a deploy. `triedFallback` guards against an infinite
+           error→retry loop when both files are missing. */
+        var triedFallback = false;
+        img.addEventListener('error', function () {
+          if (triedFallback) {
+            item.classList.add('img-error');
+            console.warn('[gallery] image failed to load (no .jpg fallback):', img.src);
+            return;
+          }
+          var baseSrc = item.src || '';
+          /* Replace .webp extension only — preserve any query/hash so we
+             match the same cache-buster the primary request used (none
+             today, but future-proof). */
+          var jpgSrc = baseSrc.replace(/(\.webp)(\?|#|$)/i, '.jpg$2');
+          if (!jpgSrc || jpgSrc === baseSrc) {
+            item.classList.add('img-error');
+            return;
+          }
+          triedFallback = true;
+          img.src = jpgSrc;
+        });
 
         var badge = document.createElement('span');
         badge.className = 'gallery-item-badge';
