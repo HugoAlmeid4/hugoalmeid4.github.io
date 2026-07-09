@@ -4,6 +4,8 @@ date: 2026-07-07
 excerpt: We really do not know what nothing is because we never saw absolute nothing but mathematical models of nothing exist, but still we do not completely understand the concept of nothing, because we only know that every "empty" region on the universe contain quantum fields, because in physics there is no thing as a true void or in other words something that has no energy and matter (nothing). I will explain that concept to you in a second.
 author: hralmeida
 tags: vacuum, sound, space, light, waves
+banner_image: posts/what-is-space-milky-way-full-width.jpg.thumb.1024.1024.webp
+banner_image_alt: ''
 draft: false
 ---
 
@@ -45,10 +47,7 @@ The difference between light and sound traveling through vacuum is one and is no
 
 ### Footnotes:
 
-
-
-
-1. Lowest energy state of the field it is just the state of field with the smallest amount of energy that we know of.[↩︎](#fnref-1)
-2. An enclosed space from which part of the air or another gas has been removed.[↩︎](#fnref-2)
-3. Perfect vacuum is an idealized concept vacuum that does not have any atoms, it only has quantum fields.[↩︎](#fnref-3)
-4. Is the vacuum that we find on space, with some atoms and energy.[↩︎](#fnref-4)
+        1. Lowest energy state of the field it is just the state of field with the smallest amount of energy that we know of.[↩︎](#fnref-1)
+1. An enclosed space from which part of the air or another gas has been removed.[↩︎](#fnref-2)
+2. Perfect vacuum is an idealized concept vacuum that does not have any atoms, it only has quantum fields.[↩︎](#fnref-3)
+3. Is the vacuum that we find on space, with some atoms and energy.[↩︎](#fnref-4)
