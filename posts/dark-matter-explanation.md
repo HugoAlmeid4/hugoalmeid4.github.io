@@ -1,11 +1,15 @@
 ---
-title: "Dark Matter, the unknown matter of the universe"
-date: "2026-06-20"
-author: "hralmeida"
-tags: "dark matter, dark energy, newton equation"
+title: Dark Matter, the unknown matter of the universe
+date: 2026-06-20
+excerpt: Dark matter existence was suspected for now over 90 years, when a Swiss-American astronomer Fritz Zwicky noticed that galaxies in the Coma cluster were moving so quickly they should have been flung away to space yet they remained there because of unseen matter.
+author: hralmeida
+tags: dark matter, dark energy, newton equation
+banner_image: posts/20220329-Dark-matter.webp
+banner_image_alt: Rubin Observatory Dark Matter Banner
 ---
 
 ### How was dark matter discovered?
+
 Dark matter existence was suspected for now over 90 years, when a Swiss-American astronomer Fritz Zwicky noticed that galaxies in the Coma cluster were moving so quickly they should have been flung away to space yet they remained there because of unseen matter.
 
 Than it the 70s, Vera Rubin and collaborators discovered the same type of problem, stars at the edge of the galaxy move too fast to be held by its ordinal matter.
@@ -13,11 +17,13 @@ Than it the 70s, Vera Rubin and collaborators discovered the same type of proble
 ![[Pasted image 20260620004216.png|166]] ![[Pasted image 20260620004245.png|153]]
 
 ### What really is dark matter?
+
 So dark matter, cannot be seen directly so we just use dark matter because its the strongest explanation that can fit in all observations. Dark matter is made of one or more types of unknown particles, the other main possibility is that dark matter is composed by primordial black holes. 
 
 Those particles have mass, but it interacts weakly with ordinary matter, which means that it probably interacts only with gravity, it has a little bit or no interactions with light, which is needed to do observations on telescopes, or any other ordinary matter.
 
 ### If dark matter is invisible, how do we know it exists?
+
 We cant visualize that particle like any stars or something that emits or reflects light, because it does not interact with electromagnetic radiation or if it does it does not interact enough to be detected, and that includes light so we cannot see it directly, neither interacts with ordinal matter, BUT we can see the gravitational pull very well. So its a theory with a good amount of evidences because it cannot be directly observed but its what makes more sense overall, that it should really exist, until now has extremely strong evidences but is still debated. It should cover around 26.8% of the observable universe, but dark matter constitutes 85% of the total mass of the universe. 
 
 ### Newtonian gravity equation to use as evidence
@@ -51,12 +57,11 @@ We can see it too using a process called, strong gravitational lensing, so basic
 No they are not the same.
 
 - Dark energy, is responsible for the expansion of the universe
-
 - Dark matter is responsible to hold galaxies and galaxy clusters together and affect the movement of those bodies.
 
-| Dark Energy                                   | Dark Matter                                                        |
-| --------------------------------------------- | ------------------------------------------------------------------ |
-| Pushes matter outward                         | Pulls matter inward                                                |
+| Dark Energy | Dark Matter |
+| --- | --- |
+| Pushes matter outward | Pulls matter inward |
 | Shows itself only on the largest cosmic scale | Shows its influence on individual galaxies as well as the universe |
 
 ### How do scientist search for black matter?
