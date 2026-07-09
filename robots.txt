@@ -1,4 +1,20 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /scripts/
 
+# Block AI training crawlers (privacy-conscious; revisit if you ever want to
+# opt back in). These bots scrape content to train LLMs without consent.
+User-agent: GPTBot
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+User-agent: ClaudeBot
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+
+Host: https://hugoalmeid4.github.io
 Sitemap: https://hugoalmeid4.github.io/sitemap.xml
