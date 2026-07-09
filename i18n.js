@@ -34,7 +34,7 @@
 
    Public API (window.i18n):
      - i18n.lang                current language (string getter)
-     - i18n.supportedLangs      ['en','pt','es']
+     - i18n.supportedLangs      ['en','pt','es','hi','zh']
      - i18n.setLanguage(lang)   switch language (no opts needed)
      - i18n.t(key)              shared UI string in current lang, fallback en
      - i18n.localize(v, lang?)  pick en/pt/es from a { en, pt, es } object
@@ -49,7 +49,7 @@
 (function () {
   'use strict';
 
-  var SUPPORTED = ['en', 'pt', 'es', 'hi'];
+  var SUPPORTED = ['en', 'pt', 'es', 'hi', 'zh'];
   var LANG_KEY = 'blogLanguage';
   var CACHE_KEY = 'i18n_dynamic_cache_v1';
 
@@ -57,7 +57,7 @@
      so localize/translateText can reference it without a temporal dead zone. */
   var lang;
 
-  var LANG_FULL = { en: 'English', pt: 'Português', es: 'Español', hi: 'हिन्दी' };
+  var LANG_FULL = { en: 'English', pt: 'Português', es: 'Español', hi: 'हिन्दी', zh: '中文' };
 
   /* ── Shared UI translations ───────────────────────────────────────────
      Keep this exhaustive — every static string on every page lives here.
@@ -410,6 +410,91 @@
       err404: '404',
       err404Message: 'ह्यूस्टन, हमारे पास एक समस्या है।\nयह पृष्ठ कक्षा से बाहर हो गया है।',
       returnHome: 'पृथ्वी पर वापस'
+    },
+    zh: {
+      navHome: '首页',
+      navGallery: '画廊',
+      navCertificates: '证书',
+      navNow: '当前',
+      navCV: '简历',
+
+      homeSectionBio: '简介',
+      homeSectionSocials: '社交媒体',
+      homeSectionSkills: '技能与工具',
+      homeMostRecentPosts: '最新文章',
+      homeViewDownloadCV: '查看 / 下载简历',
+      homePrintFriendlyResume: '可打印的简历',
+
+      cvSkillsHeader: '技能与工具',
+      cvSelectedPostsHeader: '精选文章',
+      cvHomePage: '主页',
+      cvMoreOn: '更多内容请访问',
+      cvCertificatesHeader: '证书',
+      cvFullListAt: '完整列表',
+      cvProjectsHeader: '项目',
+      cvInterestsHeader: '兴趣爱好',
+      cvPrintButton: '打印 / 另存为 PDF',
+      cvPrintHint: '将打开浏览器的打印对话框',
+      cvCheckItOut: '请查看。',
+
+      nowPageTitle: '当前',
+      nowLastUpdated: '最后更新：',
+      nowInspiredBy: '灵感来自',
+      nowHeaderLearning: '正在学习',
+      nowHeaderWorkingOn: '正在进行',
+      nowHeaderImagingTargets: '拍摄目标',
+      nowHeaderReading: '正在阅读',
+      nowHeaderOutside: '站外动态',
+
+      galleryHeader: '画廊',
+      gallerySubtitle: '捕捉历经数百万年抵达此处的一缕光。',
+      galleryDisclaimer: '注：画廊图片经过轻微压缩以优化加载速度。',
+      galleryTabAll: '全部',
+      galleryCategoryStarClusters: '星团',
+      galleryCategoryGalaxies: '星系',
+      galleryCategoryMoon: '月球',
+      galleryCategoryNebula: '星云',
+      galleryCategorySolarSystem: '太阳系',
+      galleryCategoryWideField: '广角',
+      gallerySearchPlaceholder: '按目标、星团名称或描述搜索画廊…',
+      galleryLoading: '正在加载画廊…',
+      galleryErrorLoading: '加载画廊出错。请确认 gallery/index.json 存在。',
+      galleryEmpty: '未找到匹配的图像。',
+      galleryImageSingular: '张图片',
+      galleryImagePlural: '张图片',
+      galleryOpenInLightbox: '在灯箱中打开 {title}',
+      galleryOpenItem: '打开 {title}',
+      galleryViewFullscreen: '全屏查看',
+      galleryDownloadW: '下载带水印版本',
+      galleryDownloadItem: '下载 {title}',
+      lbClose: '关闭图片查看器',
+      lbPrevious: '上一张',
+      lbNext: '下一张',
+      lbDownload: '下载',
+      lbDownloading: '处理中…',
+      lbDownloadFailed: '下载失败。如果是本地运行，请通过本地服务器打开（例如 npx serve）。',
+      lbLoadError: '无法加载要处理的图片。',
+      lbInfoTarget: '目标',
+      lbInfoCaptured: '拍摄',
+      lbInfoEquipment: '设备',
+      lbInfoIntegration: '累计曝光',
+      lbInfoNotes: '备注',
+      lbCounterFormat: '{n} / {total}',
+
+      certHeader: '证书',
+      certSubtitle: '经过验证的专业凭证和课程认证。',
+      certLoading: '正在加载证书…',
+      certErrorLoading: '加载证书出错。请确认 certificates/index.json 存在。',
+      certIssued: '颁发日期：',
+      certExpires: '有效期至：',
+      certID: '编号：',
+      certViewDocument: '查看文档',
+      certVerifyCredential: '验证凭证',
+      certEmpty: '未找到证书。',
+
+      err404: '404',
+      err404Message: '休斯顿，我们遇到了一个问题。\n该页面已偏离轨道。',
+      returnHome: '返回地球'
     }
   };
 
@@ -491,7 +576,7 @@
     var cache = readCache();
     if (cache[cacheKey] != null) return cache[cacheKey];
 
-    var targetCode = tl === 'pt' ? 'pt-PT' : tl;
+    var targetCode = tl === 'pt' ? 'pt-PT' : (tl === 'zh' ? 'zh-CN' : tl);
     var url = 'https://translate.googleapis.com/translate_a/single'
       + '?client=gtx&sl=en&tl=' + targetCode
       + '&dt=t&q=' + encodeURIComponent(text);
@@ -631,6 +716,7 @@
       +     '<button class="lang-menu-option ' + (l === 'pt' ? 'active' : '') + '" data-lang="pt" type="button" role="menuitem">Português</button>'
       +     '<button class="lang-menu-option ' + (l === 'es' ? 'active' : '') + '" data-lang="es" type="button" role="menuitem">Español</button>'
       +     '<button class="lang-menu-option ' + (l === 'hi' ? 'active' : '') + '" data-lang="hi" type="button" role="menuitem">हिन्दी</button>'
+      +     '<button class="lang-menu-option ' + (l === 'zh' ? 'active' : '') + '" data-lang="zh" type="button" role="menuitem">中文</button>'
       +   '</div>'
       + '</div>';
   }

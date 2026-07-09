@@ -30,7 +30,7 @@
     if (v == null) return '';
     if (typeof v === 'string') return v;
     if (typeof v === 'object' && !Array.isArray(v)) {
-      var supported = (window.i18n && window.i18n.supportedLangs) || ['en','pt','es','hi'];
+      var supported = (window.i18n && window.i18n.supportedLangs) || ['en','pt','es','hi','zh'];
       while (v && typeof v === 'object' && !Array.isArray(v)) {
         var ks = Object.keys(v);
         var allLangs = ks.length > 0 && ks.every(function (k) {

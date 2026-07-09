@@ -3,7 +3,8 @@
     "en": "Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.",
     "pt": "Captar luz que passará milhões de anos só para aqui chegar. Prefiro o silêncio e as coisas simples. Basta apreciar a vista enquanto o mundo gira.",
     "es": "Capturando la luz que viajó millones de años sólo para llegar aquí. Prefiero el silencio y las cosas sencillas. Simplemente disfrutando de la vista mientras el mundo gira nuevamente.",
-    "hi": "प्रकाश को कैद करना जिसने यहां तक ​​पहुंचने के लिए लाखों वर्षों की यात्रा की। मैं मौन और सरल चीजें पसंद करता हूं। बस उस दृश्य का आनंद ले रहा हूँ जबकि दुनिया फिर से घूम रही है।"
+    "hi": "प्रकाश को कैद करना जिसने यहां तक ​​पहुंचने के लिए लाखों वर्षों की यात्रा की। मैं मौन और सरल चीजें पसंद करता हूं। बस उस दृश्य का आनंद ले रहा हूँ जबकि दुनिया फिर से घूम रही है।",
+    "zh": "捕捉经过数百万年才到达这里的光线。我更喜欢安静和简单的事情。只是在世界再次转动时欣赏风景。"
   },
   "socials": [
     {
@@ -20,7 +21,8 @@
         "en": "Gitlab",
         "pt": "GitLab",
         "es": "GitLab",
-        "hi": "गिटलैब"
+        "hi": "गिटलैब",
+        "zh": "GitLab"
       },
       "url": "https://gitlab.com/hralmeida",
       "icon": "🦊"
@@ -30,7 +32,8 @@
         "en": "Contact Form",
         "pt": "Formulário de contacto",
         "es": "Formulario de contacto",
-        "hi": "संपर्क करें प्रपत्र"
+        "hi": "संपर्क करें प्रपत्र",
+        "zh": "联系表"
       },
       "url": "#tally-open=GxkEvO&tally-emoji-text=👋&tally-emoji-animation=wave",
       "icon": "✉️"
@@ -42,7 +45,8 @@
         "en": "Astro",
         "pt": "Astrofotografia",
         "es": "Astronomia",
-        "hi": "खगोल"
+        "hi": "खगोल",
+        "zh": "阿斯特罗"
       },
       "items": [
         "Siril",
@@ -55,7 +59,8 @@
         "en": "Code",
         "pt": "Código",
         "es": "Código",
-        "hi": "कोड"
+        "hi": "कोड",
+        "zh": "代码"
       },
       "items": [
         "Python",
@@ -70,7 +75,8 @@
         "en": "Languages",
         "pt": "Idiomas",
         "es": "Idiomas",
-        "hi": "बोली"
+        "hi": "बोली",
+        "zh": "语言"
       },
       "items": [
         "English",

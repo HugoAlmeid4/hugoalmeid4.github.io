@@ -1,12 +1,19 @@
 {
-  "last_updated": "2025-07",
+  "last_updated": {
+    "en": "2025-07",
+    "pt": "2025-07",
+    "es": "2025-07",
+    "hi": "2025-07",
+    "zh": "2025年7月"
+  },
   "blocks": [
     {
       "title": {
         "en": "Learning",
         "pt": "Aprendizagem",
         "es": "aprendiendo",
-        "hi": "सीखना"
+        "hi": "सीखना",
+        "zh": "学习"
       },
       "items": [
         "Long-exposure deep-sky image processing in Siril",
@@ -18,7 +25,8 @@
         "en": "Working on",
         "pt": "Trabalhando em",
         "es": "trabajando en",
-        "hi": "काम पर"
+        "hi": "काम पर",
+        "zh": "致力于"
       },
       "items": [
         "Creating a small project to learn Python.",
@@ -30,13 +38,15 @@
         "en": "Imaging targets",
         "pt": "Alvos de imagem",
         "es": "Objetivos de imagen",
-        "hi": "इमेजिंग लक्ष्य"
+        "hi": "इमेजिंग लक्ष्य",
+        "zh": "成像目标"
       },
       "intro": {
         "en": "The next clear, moonless night I want to try:",
         "pt": "Na próxima noite clara e sem lua, quero experimentar:",
         "es": "La próxima noche clara y sin luna que quiero probar:",
-        "hi": "अगली स्पष्ट, चांदनी रात मैं आज़माना चाहता हूँ:"
+        "hi": "अगली स्पष्ट, चांदनी रात मैं आज़माना चाहता हूँ:",
+        "zh": "下一个晴朗、无月的夜晚我想尝试："
       },
       "items": [
         "Lagoon Nebula - Never shot a nebula before."
@@ -47,7 +57,8 @@
         "en": "Reading",
         "pt": "Leitura",
         "es": "conferencia",
-        "hi": "पढ़ना"
+        "hi": "पढ़ना",
+        "zh": "阅读"
       },
       "items": [
         "Carl Sagan — <em>Cosmos</em>",
@@ -60,7 +71,8 @@
         "en": "Outside this site",
         "pt": "Fora deste site",
         "es": "Fuera de este sitio",
-        "hi": "इस साइट के बाहर"
+        "hi": "इस साइट के बाहर",
+        "zh": "在本网站之外"
       },
       "items": [
         "I am on vacation now so more time to study and learn more about astrophysics.."
