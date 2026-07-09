@@ -36,7 +36,7 @@ const DATA_DIR = join(ROOT, 'data');
 const BRAND_WORDS = new Set([
   'python', 'html', 'css', 'git', 'markdown', 'linux',
   'siril', 'stellarium', 'deepskystacker', 'gimp',
-  'english', 'portuguese', 'spanish',
+  'english', 'portuguese', 'spanish', 'hindi',
   'lilex', 'json', 'md', 'pdf'
 ]);
 
@@ -50,7 +50,7 @@ const BRAND_WORDS = new Set([
    If you change the shape recognition here, also re-validate:
      `node scripts/repair-translation-corruption.mjs` (dry-run)
    and skim `git diff data/`. */
-const LANGS = ['en', 'pt', 'es'];
+const LANGS = ['en', 'pt', 'es', 'hi'];
 const LANG_KEYS = new Set(LANGS);
 function isTLObject(v) {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
@@ -63,6 +63,29 @@ function isBrand(str) {
   if (!str) return false;
   const cleaned = String(str).trim().toLowerCase();
   return BRAND_WORDS.has(cleaned);
+}
+
+/* Extend an existing { en, pt, es, ... } translation object so it has
+   'hi' as well. Used during the migration from 3-language to 4-language
+   data files: if a value is already a complete translation object, we
+   keep its en/pt/es intact and ADD 'hi' by translating the 'en' string.
+
+   Returns the same object reference if no extension is needed (already
+   has 'hi', translation failed, or 'en' isn't a string). Never recurses
+   into a translation wrapper — that was the bug that ballooned bio.json
+   (the old guard returned as-is; we now extend instead of skip). */
+async function ensureHindi(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return v;
+  if (!isTLObject(v)) return v;
+  if (typeof v.hi === 'string') return v;
+  var enVal = v.en;
+  if (typeof enVal !== 'string') return v;
+  const hi = await translateText(enVal, 'hi');
+  if (hi === enVal) return v;
+  var out = {};
+  for (const k of Object.keys(v)) out[k] = v[k];
+  out.hi = hi;
+  return out;
 }
 
 const cache = new Map();
@@ -121,13 +144,14 @@ async function enrich(node, path = []) {
         }
         const pt = await translateText(v, 'pt');
         const es = await translateText(v, 'es');
-        out[k] = (pt === v && es === v) ? v : { en: v, pt, es };
+        const hi = await translateText(v, 'hi');
+        out[k] = (pt === v && es === v && hi === v) ? v : { en: v, pt, es, hi };
       } else if (v && typeof v === 'object') {
         if (isTLObject(v)) {
-          /* Already translated — pass through, don't recurse into leaves
-             and re-translate them (which would inflate file size on
-             every run). */
-          out[k] = v;
+          /* Already a translation object — extend it with 'hi' if
+             missing, otherwise pass through. We never recurse into
+             a translation wrapper (corruption guard). */
+          out[k] = await ensureHindi(v);
         } else {
           out[k] = await enrich(v, [...path, k]);
         }
@@ -158,10 +182,11 @@ async function enrichGallery(node) {
       if (typeof v === 'string' && GALLERY_FIELDS.has(k) && looksLikeText(v)) {
         const pt = await translateText(v, 'pt');
         const es = await translateText(v, 'es');
-        out[k] = (pt === v && es === v) ? v : { en: v, pt, es };
+        const hi = await translateText(v, 'hi');
+        out[k] = (pt === v && es === v && hi === v) ? v : { en: v, pt, es, hi };
       } else if (v && typeof v === 'object') {
         if (isTLObject(v)) {
-          out[k] = v;
+          out[k] = await ensureHindi(v);
         } else {
           out[k] = await enrichGallery(v);
         }
@@ -181,7 +206,7 @@ async function enrichGallery(node) {
 const CERT_MD_FIELDS = ['name', 'issuer', 'bio'];
 
 async function translateCertMd(mdText) {
-  const m = mdText.match(/^---\r?\n([\s\S]+?)\r?\n---[ \t]*\r?\n?/);
+  const m = mdText.match(/^---\r?\n([\s\S]+?)(?:\r?\n---[ \t]*(?:\r?\n?|\s*$)|---[ \t]*$)/m);
   if (!m) return mdText;
   const fmBody = m[1];
   const rest = mdText.slice(m[0].length);
@@ -194,11 +219,30 @@ async function translateCertMd(mdText) {
     const key = line.slice(0, colon).trim().toLowerCase();
     const val = line.slice(colon + 1).trim().replace(/^['"]|['"]$/g, '');
     if (CERT_MD_FIELDS.indexOf(key) < 0) continue;
-    if (!val || val.charAt(0) === '{') continue;
+    if (!val) continue;
+    if (val.charAt(0) === '{') {
+      /* Already a JSON-stringified translation object. Try to extend it
+         with 'hi' if missing — same path as the data-file migration. */
+      try {
+        const obj = JSON.parse(val);
+        if (obj && typeof obj === 'object' && !Array.isArray(obj) && isTLObject(obj)) {
+          if (typeof obj.hi === 'string') continue;
+          if (typeof obj.en === 'string') {
+            const hi = await translateText(obj.en, 'hi');
+            if (hi !== obj.en) {
+              obj.hi = hi;
+              lines[i] = key + ': ' + JSON.stringify(obj);
+            }
+          }
+        }
+      } catch (e) { /* malformed JSON, leave the line alone */ }
+      continue;
+    }
     const pt = await translateText(val, 'pt');
     const es = await translateText(val, 'es');
-    if (pt === val && es === val) continue;
-    lines[i] = key + ': ' + JSON.stringify({ en: val, pt, es });
+    const hi = await translateText(val, 'hi');
+    if (pt === val && es === val && hi === val) continue;
+    lines[i] = key + ': ' + JSON.stringify({ en: val, pt, es, hi });
   }
   return '---\n' + lines.join('\n') + '---' + rest;
 }

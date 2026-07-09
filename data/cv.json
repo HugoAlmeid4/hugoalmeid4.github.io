@@ -2,12 +2,14 @@
   "tagline": {
     "en": "Astrophotographer · Teenager · Lifelong learner",
     "pt": "Astrofotógrafo · Adolescente · Aprendiz ao longo da vida",
-    "es": "Astrofotógrafo · Adolescente · Aprendiz permanente"
+    "es": "Astrofotógrafo · Adolescente · Aprendiz permanente",
+    "hi": "एस्ट्रोफोटोग्राफर · किशोर · आजीवन सीखने वाला"
   },
   "bio": {
     "en": "Capturing light that traveled millions of years just to get here. I prefer silence and simple things. Just enjoying the view while the world turns, again.",
     "pt": "Captar luz que passará milhões de anos só para aqui chegar. Prefiro o silêncio e as coisas simples. Basta apreciar a vista enquanto o mundo gira.",
-    "es": "Capturando la luz que viajó millones de años sólo para llegar aquí. Prefiero el silencio y las cosas sencillas. Simplemente disfrutando de la vista mientras el mundo gira nuevamente."
+    "es": "Capturando la luz que viajó millones de años sólo para llegar aquí. Prefiero el silencio y las cosas sencillas. Simplemente disfrutando de la vista mientras el mundo gira nuevamente.",
+    "hi": "प्रकाश को कैद करना जिसने यहां तक ​​पहुंचने के लिए लाखों वर्षों की यात्रा की। मैं मौन और सरल चीजें पसंद करता हूं। बस उस दृश्य का आनंद ले रहा हूँ जबकि दुनिया फिर से घूम रही है।"
   },
   "contact": [
     {
@@ -24,36 +26,42 @@
       "category": {
         "en": "Astrophotography",
         "pt": "Astrofotografia",
-        "es": "Astrofotografia"
+        "es": "Astrofotografia",
+        "hi": "astrophotography"
       },
       "description": {
         "en": "Image stacking (Siril, DeepSkyStacker), session planning (Stellarium), post-processing (GIMP), equatorial mount operation, polar alignment.",
         "pt": "Empilhamento de imagens (Siril, DeepSkyStacker), planeamento de sessões (Stellarium), pós-processamento (GIMP), operação de montagem equatorial, alinhamento polar.",
-        "es": "Apilamiento de imágenes (Siril, DeepSkyStacker), planificación de sesiones (Stellarium), posprocesamiento (GIMP), operación de montaje ecuatorial, alineación polar."
+        "es": "Apilamiento de imágenes (Siril, DeepSkyStacker), planificación de sesiones (Stellarium), posprocesamiento (GIMP), operación de montaje ecuatorial, alineación polar.",
+        "hi": "इमेज स्टैकिंग (सिरिल, डीपस्काईस्टैकर), सेशन प्लानिंग (स्टेलारियम), पोस्ट-प्रोसेसिंग (जीआईएमपी), इक्वेटोरियल माउंट ऑपरेशन, पोलर अलाइनमेंट।"
       }
     },
     {
       "category": {
         "en": "Code",
         "pt": "Código",
-        "es": "Código"
+        "es": "Código",
+        "hi": "कोड"
       },
       "description": {
         "en": "Python, HTML, CSS, Git, Markdown, basic Linux command line.",
         "pt": "Python, HTML, CSS, Git, Markdown, linha de comandos básicos do Linux.",
-        "es": "Python, HTML, CSS, Git, Markdown, línea de comando básico de Linux."
+        "es": "Python, HTML, CSS, Git, Markdown, línea de comando básico de Linux.",
+        "hi": "पायथन, HTML, CSS, Git, मार्कडाउन, बेसिक लिनक्स कमांड लाइन।"
       }
     },
     {
       "category": {
         "en": "Languages",
         "pt": "Idiomas",
-        "es": "Idiomas"
+        "es": "Idiomas",
+        "hi": "बोली"
       },
       "description": {
         "en": "English · Portuguese · Spanish.",
         "pt": "Inglês · Português · Espanhol.",
-        "es": "Inglés · Portugués · Español."
+        "es": "Inglés · Portugués · Español.",
+        "hi": "अंग्रेज़ी · पुर्तगाली · स्पैनिश।"
       }
     }
   ],
@@ -62,7 +70,8 @@
       "title": {
         "en": "Dark matter — a simple explanation",
         "pt": "Matéria escura – uma explicação simples",
-        "es": "Materia oscura: una explicación sencilla"
+        "es": "Materia oscura: una explicación sencilla",
+        "hi": "डार्क मैटर - एक सरल व्याख्या"
       },
       "url": "posts/dark-matter-explanation.md"
     },
@@ -70,7 +79,8 @@
       "title": {
         "en": "Searching for black holes — what an amateur can actually see",
         "pt": "Procurar buracos negros – o que um amador pode realmente ver",
-        "es": "En busca de agujeros negros: lo que realmente puede ver un aficionado"
+        "es": "En busca de agujeros negros: lo que realmente puede ver un aficionado",
+        "hi": "ब्लैक होल की खोज - एक शौकिया वास्तव में क्या देख सकता है"
       },
       "url": "posts/searching-for-blackholes.md"
     }
@@ -78,14 +88,16 @@
   "projects_intro": {
     "en": "Some projects:",
     "pt": "Alguns projetos:",
-    "es": "Algunos proyectos:"
+    "es": "Algunos proyectos:",
+    "hi": "कुछ परियोजनाएँ:"
   },
   "projects": [
     {
       "description": {
         "en": "Python made project for shark coders",
         "pt": "Projeto feito em Python para programadores de tubarões",
-        "es": "Proyecto creado en Python para codificadores de tiburones"
+        "es": "Proyecto creado en Python para codificadores de tiburones",
+        "hi": "पायथन ने शार्क कोडर्स के लिए प्रोजेक्ट बनाया"
       },
       "url": "https://gitlab.com/hralmeida/universe-toolkit-pyqt"
     }
@@ -93,6 +105,7 @@
   "interests": {
     "en": "Deep-sky astrophotography · Python · web development · physics & reading · quiet nights under the stars.",
     "pt": "Astrofotografia do céu profundo · Python · desenvolvimento web · física e leitura · noites tranquilas sob as estrelas.",
-    "es": "Astrofotografía de cielo profundo · Python · desarrollo web · física y lectura · noches tranquilas bajo las estrellas."
+    "es": "Astrofotografía de cielo profundo · Python · desarrollo web · física y lectura · noches tranquilas bajo las estrellas.",
+    "hi": "डीप-स्काई एस्ट्रोफोटोग्राफी · पायथन · वेब डेवलपमेंट · फिजिक्स और रीडिंग · तारों के नीचे शांत रातें।"
   }
 }

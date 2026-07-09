@@ -49,7 +49,7 @@
 (function () {
   'use strict';
 
-  var SUPPORTED = ['en', 'pt', 'es'];
+  var SUPPORTED = ['en', 'pt', 'es', 'hi'];
   var LANG_KEY = 'blogLanguage';
   var CACHE_KEY = 'i18n_dynamic_cache_v1';
 
@@ -57,7 +57,7 @@
      so localize/translateText can reference it without a temporal dead zone. */
   var lang;
 
-  var LANG_FULL = { en: 'English', pt: 'Português', es: 'Español' };
+  var LANG_FULL = { en: 'English', pt: 'Português', es: 'Español', hi: 'हिन्दी' };
 
   /* ── Shared UI translations ───────────────────────────────────────────
      Keep this exhaustive — every static string on every page lives here.
@@ -325,6 +325,91 @@
       err404: '404',
       err404Message: 'Houston, tenemos un problema.\nEsta página se ha salido de órbita.',
       returnHome: 'Volver a la Tierra'
+    },
+    hi: {
+      navHome: 'होम',
+      navGallery: 'गैलरी',
+      navCertificates: 'प्रमाणपत्र',
+      navNow: 'अभी',
+      navCV: 'बायोडाटा',
+
+      homeSectionBio: 'परिचय',
+      homeSectionSocials: 'सोशल मीडिया',
+      homeSectionSkills: 'कौशल एवं उपकरण',
+      homeMostRecentPosts: 'नवीनतम पोस्ट',
+      homeViewDownloadCV: 'बायोडाटा देखें / डाउनलोड करें',
+      homePrintFriendlyResume: 'प्रिंट-योग्य बायोडाटा',
+
+      cvSkillsHeader: 'कौशल एवं उपकरण',
+      cvSelectedPostsHeader: 'चुनी हुई पोस्ट',
+      cvHomePage: 'मुख्य पृष्ठ',
+      cvMoreOn: 'अधिक जानकारी यहाँ',
+      cvCertificatesHeader: 'प्रमाणपत्र',
+      cvFullListAt: 'पूरी सूची',
+      cvProjectsHeader: 'प्रोजेक्ट',
+      cvInterestsHeader: 'रुचियाँ',
+      cvPrintButton: 'प्रिंट / PDF के रूप में सहेजें',
+      cvPrintHint: 'आपके ब्राउज़र का प्रिंट डायलॉग खोलता है',
+      cvCheckItOut: 'देखें।',
+
+      nowPageTitle: 'अभी',
+      nowLastUpdated: 'अंतिम अपडेट:',
+      nowInspiredBy: 'से प्रेरित',
+      nowHeaderLearning: 'सीख रहा हूँ',
+      nowHeaderWorkingOn: 'काम कर रहा हूँ',
+      nowHeaderImagingTargets: 'इमेजिंग लक्ष्य',
+      nowHeaderReading: 'पढ़ रहा हूँ',
+      nowHeaderOutside: 'इस साइट से बाहर',
+
+      galleryHeader: 'गैलरी',
+      gallerySubtitle: 'लाखों वर्ष यात्रा करने वाली रोशनी को कैद करना।',
+      galleryDisclaimer: 'नोट: लोड प्रदर्शन के लिए गैलरी की छवियाँ थोड़ी संपीड़ित हैं।',
+      galleryTabAll: 'सभी',
+      galleryCategoryStarClusters: 'तारा समूह',
+      galleryCategoryGalaxies: 'आकाशगंगाएँ',
+      galleryCategoryMoon: 'चंद्रमा',
+      galleryCategoryNebula: 'नीहारिका',
+      galleryCategorySolarSystem: 'सौर मंडल',
+      galleryCategoryWideField: 'वाइड फील्ड',
+      gallerySearchPlaceholder: 'गैलरी में खोजें — लक्ष्य, तारा समूह या विवरण…',
+      galleryLoading: 'गैलरी लोड हो रही है…',
+      galleryErrorLoading: 'गैलरी लोड करने में त्रुटि। सुनिश्चित करें कि gallery/index.json मौजूद है।',
+      galleryEmpty: 'कोई मिलान छवि नहीं मिली।',
+      galleryImageSingular: 'छवि',
+      galleryImagePlural: 'छवियाँ',
+      galleryOpenInLightbox: '{title} को लाइटबॉक्स में खोलें',
+      galleryOpenItem: '{title} खोलें',
+      galleryViewFullscreen: 'पूर्ण स्क्रीन देखें',
+      galleryDownloadW: 'वॉटरमार्क के साथ डाउनलोड करें',
+      galleryDownloadItem: '{title} डाउनलोड करें',
+      lbClose: 'इमेज व्यूअर बंद करें',
+      lbPrevious: 'पिछली छवि',
+      lbNext: 'अगली छवि',
+      lbDownload: 'डाउनलोड',
+      lbDownloading: 'प्रोसेसिंग…',
+      lbDownloadFailed: 'डाउनलोड विफल। यदि स्थानीय रूप से चला रहे हैं, तो किसी स्थानीय सर्वर के माध्यम से खोलें (जैसे npx serve)।',
+      lbLoadError: 'प्रसंस्करण के लिए छवि लोड नहीं हो सकी।',
+      lbInfoTarget: 'लक्ष्य',
+      lbInfoCaptured: 'कैप्चर',
+      lbInfoEquipment: 'उपकरण',
+      lbInfoIntegration: 'एकीकरण',
+      lbInfoNotes: 'टिप्पणियाँ',
+      lbCounterFormat: '{n} / {total}',
+
+      certHeader: 'प्रमाणपत्र',
+      certSubtitle: 'सत्यापित पेशेवर प्रमाणपत्र एवं कोर्स सर्टिफिकेशन।',
+      certLoading: 'प्रमाणपत्र लोड हो रहे हैं…',
+      certErrorLoading: 'प्रमाणपत्र लोड करने में त्रुटि। सुनिश्चित करें कि certificates/index.json मौजूद है।',
+      certIssued: 'जारी:',
+      certExpires: 'समाप्ति:',
+      certID: 'आईडी:',
+      certViewDocument: 'दस्तावेज़ देखें',
+      certVerifyCredential: 'प्रमाणपत्र सत्यापित करें',
+      certEmpty: 'कोई प्रमाणपत्र नहीं मिला।',
+
+      err404: '404',
+      err404Message: 'ह्यूस्टन, हमारे पास एक समस्या है।\nयह पृष्ठ कक्षा से बाहर हो गया है।',
+      returnHome: 'पृथ्वी पर वापस'
     }
   };
 
@@ -367,7 +452,7 @@
       while (v && typeof v === 'object' && !Array.isArray(v)) {
         var ks = Object.keys(v);
         var allLangs = ks.length > 0 && ks.every(function (k) {
-          return k === 'en' || k === 'pt' || k === 'es';
+          return SUPPORTED.indexOf(k) >= 0;
         });
         if (!allLangs) break;
         if (typeof v[l] === 'string' && v[l]) return v[l];
@@ -545,6 +630,7 @@
       +     '<button class="lang-menu-option ' + (l === 'en' ? 'active' : '') + '" data-lang="en" type="button" role="menuitem">English</button>'
       +     '<button class="lang-menu-option ' + (l === 'pt' ? 'active' : '') + '" data-lang="pt" type="button" role="menuitem">Português</button>'
       +     '<button class="lang-menu-option ' + (l === 'es' ? 'active' : '') + '" data-lang="es" type="button" role="menuitem">Español</button>'
+      +     '<button class="lang-menu-option ' + (l === 'hi' ? 'active' : '') + '" data-lang="hi" type="button" role="menuitem">हिन्दी</button>'
       +   '</div>'
       + '</div>';
   }

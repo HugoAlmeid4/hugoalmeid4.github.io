@@ -23,17 +23,18 @@
 
   /* Mirrors i18n.localize() but kept as a local helper so bio.js can
      render before window.i18n is ready (during initial script boot).
-     Drills down through any wrapped { en, pt, es } layers to the first
-     leaf string — guards against the recursion-corruption bug. */
+     Drills down through any wrapped { en, pt, es, hi } layers to the
+     first leaf string — guards against the recursion-corruption bug. */
   function pickString(v, lang) {
     var l = lang || (window.i18n && window.i18n.lang) || 'en';
     if (v == null) return '';
     if (typeof v === 'string') return v;
     if (typeof v === 'object' && !Array.isArray(v)) {
+      var supported = (window.i18n && window.i18n.supportedLangs) || ['en','pt','es','hi'];
       while (v && typeof v === 'object' && !Array.isArray(v)) {
         var ks = Object.keys(v);
         var allLangs = ks.length > 0 && ks.every(function (k) {
-          return k === 'en' || k === 'pt' || k === 'es';
+          return supported.indexOf(k) >= 0;
         });
         if (!allLangs) break;
         if (typeof v[l] === 'string' && v[l]) return v[l];

@@ -5,10 +5,10 @@
    Bump CACHE_VERSION when shipping structural changes so old cached
    responses get evicted automatically next visit.
    ────────────────────────────────────────────────────────────────────────── */
-const CACHE_VERSION = 'hralmeida-v30';
+const CACHE_VERSION = 'hralmeida-v35';
 // Asset URLs include ?v=N to match the version-busters in HTML. Without the
 // query string, caches.match() keys are unqueried and the network request for
-// `./style.css?v=23` would always miss the precache — defeating the cache. With
+// `./style.css?v=28` would always miss the precache — defeating the cache. With
 // ?v=N baked in, offline visits also pull the same version the HTML now asks
 // for. Bump this string + CACHE_VERSION + HTML ?v= together when shipping.
 //
@@ -24,19 +24,19 @@ const PRECACHE = [
   './now.html',
   './cv.html',
   './404.html',
-  './style.css?v=25',
-  './posts.css?v=24',
-  './certificates.css?v=25',
-  './now.css?v=25',
-  './cv.css?v=25',
-  './404.css?v=25',
-  './theme.js?v=25',
-  './posts.js?v=24',
-  './bio.js?v=24',
-  './counter.js?v=24',
-  './now.js?v=25',
-  './cv.js?v=25',
-  './giscus-config.js?v=24',
+  './style.css?v=30',
+  './posts.css?v=29',
+  './certificates.css?v=30',
+  './now.css?v=30',
+  './cv.css?v=30',
+  './404.css?v=30',
+  './theme.js?v=30',
+  './posts.js?v=29',
+  './bio.js?v=29',
+  './counter.js?v=29',
+  './now.js?v=30',
+  './cv.js?v=30',
+  './giscus-config.js?v=29',
   './manifest.json',
   './imgs/imgs.jpg',
   './imgs/imgs.webp',

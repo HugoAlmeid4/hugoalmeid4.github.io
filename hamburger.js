@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  var LANG_NAMES = { en: 'English', pt: 'Português', es: 'Español' };
+  var LANG_NAMES = { en: 'English', pt: 'Português', es: 'Español', hi: 'हिन्दी' };
 
   function $(sel, root) { return (root || document).querySelector(sel); }
 
