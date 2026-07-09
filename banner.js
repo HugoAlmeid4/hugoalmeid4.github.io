@@ -187,6 +187,11 @@
     requestAnimationFrame(function () {
       row.classList.add('site-banner-show');
     });
+
+    /* If a post overlay is currently open (e.g. user navigates to a post
+       via shared URL `?post=slug` while the overlay is already active),
+       re-apply the elevated state to the freshly-rendered banner. */
+    syncOverlayElevation();
   }
 
   /* ── Load / boot ─────────────────────────────────────────────────────── */
@@ -213,9 +218,55 @@
     render();
   });
 
+  /* ── Post-overlay elevation ────────────────────────────────────
+     Posts.js creates two full-viewport overlays (`postFullscreenOverlay`
+     for the post reader and `postArchiveOverlay` for the "View all"
+     archive list) lazily on first need. Both have stacking-context
+     z-indices above the default layer (1000 and 2500 respectively),
+     so a banner in normal flow at the top of <body> gets visually
+     covered when either opens. Watch for them and switch the banner
+     to `position:fixed; z-index:9999` (the `.site-banner-elevated`
+     class) while either is `.active`, then revert on close. The body
+     overflow:hidden that posts.js applies while the overlays are
+     open also prevents the user from scrolling, so the banner's
+     position swap is invisible — it stays at viewport top either way.
+     ─────────────────────────────────────────────────────────── */
+  var POST_OVERLAY_IDS = ['postFullscreenOverlay', 'postArchiveOverlay'];
+
+  function syncOverlayElevation() {
+    if (!bannerEl) return;
+    var anyOpen = POST_OVERLAY_IDS.some(function (id) {
+      var el = document.getElementById(id);
+      return !!el && el.classList.contains('active');
+    });
+    bannerEl.classList.toggle('site-banner-elevated', anyOpen);
+  }
+
+  function attachOverlayObserver(overlayEl) {
+    if (overlayEl.__bannerElevInstalled) return;
+    overlayEl.__bannerElevInstalled = true;
+    var obs = new MutationObserver(syncOverlayElevation);
+    obs.observe(overlayEl, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  function watchOverlays() {
+    if (document.body.__bannerElevWired) return;
+    document.body.__bannerElevWired = true;
+    var bodyObs = new MutationObserver(function () {
+      POST_OVERLAY_IDS.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) attachOverlayObserver(el);
+      });
+      syncOverlayElevation();
+    });
+    bodyObs.observe(document.body, { childList: true });
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadBanner);
+    document.addEventListener('DOMContentLoaded', watchOverlays);
   } else {
     loadBanner();
+    watchOverlays();
   }
 })();

@@ -397,3 +397,12 @@ body.dark-mode .site-banner-dismiss:focus-visible{outline-color:#ededed}
   .site-banner-link{padding:4px 8px;gap:6px}
 }
 @media(prefers-reduced-motion:reduce){.site-banner,.site-banner-show{transition:none}}
+
+/* Elevated state: applied by banner.js while a post-fullscreen overlay
+ * (`#postFullscreenOverlay`, z-index 1000) or the post archive overlay
+ * (`#postArchiveOverlay`, z-index 2500) is .active. Promotes the
+ * banner to position:fixed at viewport top with z-index above the
+ * lightbox (z-3000) so it stays visible while the visitor reads or
+ * browses posts. Transitions don't animate position changes, but at
+ * scrollTop=0 the visual position is unchanged so the swap is silent. */
+.site-banner-elevated{position:fixed;top:0;left:0;right:0;z-index:9999}
