@@ -157,10 +157,11 @@ collections:
         widget: boolean
         default: false
         required: false
-        hint: 'If true, the certificate page renders a PDF thumbnail.'          - name: body
-            label: Body (Markdown, optional)
-            widget: markdown
-            required: false
+        hint: 'If true, the certificate page renders a PDF thumbnail.'
+      - name: body
+        label: Body (Markdown, optional)
+        widget: markdown
+        required: false
 
   # ── Media files (images) ──
   # Generic image registry — the user can add or delete images via
