@@ -15,6 +15,12 @@ backend:
   # not standard Sveltia keys and will break config parsing.
 
 # Default upload destination. Per-collection media_folder overrides below.
+# NOTE: any `files:`-collection whose JSON lives under /data/ MUST use a
+# leading slash on `media_folder` (e.g. '/imgs/uploads') to anchor it at
+# the site root. Without the slash, Sveltia resolves the path RELATIVE
+# TO THE JSON FILE'S DIRECTORY, so files land at /data/imgs/uploads/…
+# instead. Apply the same leading slash to any future collection under
+# /data/ that needs image uploads.
 media_folder: 'imgs/uploads'
 public_folder: '/imgs/uploads'
 
@@ -176,9 +182,11 @@ collections:
     files:
       - name: media-registry
         label: 'Image registry'
+        # Leading slash anchors media_folder at the site root — bare
+        # 'imgs/uploads' resolves relative to data/.
         file: data/media.json
         format: json
-        media_folder: 'imgs/uploads'
+        media_folder: '/imgs/uploads'
         public_folder: '/imgs/uploads'
         fields:
           - name: items
@@ -397,9 +405,11 @@ collections:
     files:
       - name: projects
         label: 'Projects content'
+        # Leading slash anchors media_folder at the site root — bare
+        # 'imgs/projects' resolves relative to data/.
         file: data/projects.json
         format: json
-        media_folder: 'imgs/projects'
+        media_folder: '/imgs/projects'
         public_folder: '/imgs/projects'
         fields:
           - name: intro
