@@ -5,7 +5,7 @@
    Bump CACHE_VERSION when shipping structural changes so old cached
    responses get evicted automatically next visit.
    ────────────────────────────────────────────────────────────────────────── */
-const CACHE_VERSION = 'hralmeida-v53';
+const CACHE_VERSION = 'hralmeida-v54';
 // Asset URLs include ?v=N to match the version-busters in HTML. Without the
 // query string, caches.match() keys are unqueried and the network request for
 // `./style.css?v=46` would always miss the precache — defeating the cache. With
@@ -31,7 +31,7 @@ const PRECACHE = [
   './cv.css?v=48',
   './404.css?v=48',
   './theme.js?v=48',
-  './posts.js?v=47',
+  './posts.js?v=59',
   './bio.js?v=47',
   './counter.js?v=47',
   './now.js?v=48',

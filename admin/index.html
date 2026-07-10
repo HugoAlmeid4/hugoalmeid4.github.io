@@ -184,15 +184,12 @@
       document.body.appendChild(wrap);
     }
   </script>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NLETHH38EW"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-NLETHH38EW');
-  </script>
+  <!-- No Google tag on /admin/: the private dashboard is noindex'd and
+       disallowed in robots.txt, but the gtag snippet here was still
+       sending pageviews against G-NLETHH38EW on every edit session.
+       Removing it keeps /admin/ entirely out of GA4. The other six HTML
+       pages (index / cv / gallery / certificates / now / 404) still load
+       gtag as usual. -->
 </head>
 <body>
   <noscript>
