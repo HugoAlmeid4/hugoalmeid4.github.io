@@ -1,11 +1,17 @@
 #!/usr/bin/env node
 // scripts/translate-content.mjs
 // ──────────────────────────────────────────────────────────────────────────
-// Translate the small per-page data JSON files (bio.json, cv.json, projects.json),
+// Translate the small per-page data JSON files (bio.json, cv.json),
 // gallery/index.json, and cert name frontmatter into Portuguese (pt) and
 // Spanish (es) using the unofficial Google Translate endpoint that posts.js
 // also uses at runtime. Run once after editing the English source; no
 // rebuild step is needed at runtime.
+//
+// Note: projects.json is intentionally NOT translated here. projects.js
+// reads the English source and translates each text field at runtime via
+// window.i18n.translateText() (matching posts.js), so admin only ever
+// writes English. Running this script against projects.json would freeze
+// stale translations into the JSON, defeating the auto-translate flow.
 //
 // What gets translated: human-readable text fields (paragraphs, headlines,
 // skill descriptions, project descriptions, interest strings, block intros,
@@ -191,7 +197,7 @@ async function enrich(node, path = []) {
   return node;
 }
 
-const FILES = ['bio.json', 'cv.json', 'projects.json'];
+const FILES = ['bio.json', 'cv.json'];
 const GALLERY_PATH = join(ROOT, 'gallery', 'index.json');
 const GALLERY_FIELDS = new Set(['title', 'alt', 'target', 'notes']);
 

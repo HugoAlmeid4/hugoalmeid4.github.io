@@ -23,7 +23,10 @@ body.dark-mode .projects-section-header h2{color:#ededed}
 body.dark-mode .projects-intro{color:#ccc}
 .projects-intro[hidden]{display:none}
 .projects-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
-.projects-status{font-size:12px;color:#888;text-align:center;padding:20px 0 8px;min-height:20px}
+.projects-status{font-size:12px;color:#888;text-align:center;padding:20px 0 8px;min-height:20px;display:flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase;letter-spacing:0.05em}
+.projects-spinner{display:inline-block;width:12px;height:12px;border:1.5px solid rgba(0,0,0,0.12);border-top-color:#333;border-radius:50%;animation:projects-spin 0.7s linear infinite;flex-shrink:0}
+body.dark-mode .projects-spinner{border-color:rgba(255,255,255,0.12);border-top-color:#ededed}
+@keyframes projects-spin{to{transform:rotate(360deg)}}
 
 /* ── Cards ──────────────────────────────────────────────────────── */
 .project-card{display:flex;flex-direction:column;border:1.5px solid #333;background:rgba(0,0,0,0.01);overflow:hidden;cursor:pointer;transition:background 0.15s,transform 0.18s ease}

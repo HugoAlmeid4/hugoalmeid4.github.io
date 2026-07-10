@@ -1,41 +1,17 @@
 {
-  "intro": {
-    "en": "Things I've built while learning — from Python utilities to web experiments. Each card opens to a longer write-up.",
-    "pt": "Coisas que construí enquanto aprendo — de utilitários Python a experiências web. Cada cartão abre para uma descrição mais longa.",
-    "es": "Cosas que he construido mientras aprendo — desde utilidades en Python hasta experimentos web. Cada tarjeta se abre con una descripción más larga.",
-    "hi": "सीखते हुए मैंने जो बनाया — पायथन उपयोगिताओं से लेकर वेब प्रयोगों तक। प्रत्येक कार्ड विस्तृत विवरण के साथ खुलता है।",
-    "zh": "学习过程中制作的小项目——从 Python 工具到网页实验。每张卡片都可以展开查看详细介绍。"
-  },
+  "intro": "Things I've built while learning — from Python utilities to web experiments. Each card opens to a longer write-up.",
   "items": [
     {
       "id": "universe-toolkit-pyqt",
-      "title": {
-        "en": "Universe Toolkit (PyQt)",
-        "pt": "Universe Toolkit (PyQt)",
-        "es": "Universe Toolkit (PyQt)",
-        "hi": "Universe Toolkit (PyQt)",
-        "zh": "Universe Toolkit (PyQt)"
-      },
-      "description": {
-        "en": "A small Python desktop app built as my final project for the Shark Coders Python course. It pulls sky data and renders helpful views for planning astrophotography sessions.",
-        "pt": "Uma pequena aplicação desktop em Python, criada como projeto final do curso de Python da Shark Coders. Obtém dados do céu e mostra vistas úteis para planear sessões de astrofotografia.",
-        "es": "Una pequeña aplicación de escritorio en Python, creada como proyecto final del curso de Python de Shark Coders. Obtiene datos del cielo y muestra vistas útiles para planificar sesiones de astrofotografía.",
-        "hi": "शार्क कोडर्स Python कोर्स के अंतिम प्रोजेक्ट के रूप में बनाया गया एक छोटा Python डेस्कटॉप ऐप। यह आकाश डेटा लाता है और एस्ट्रोफोटोग्राफी सत्रों की योजना बनाने के लिए उपयोगी दृश्य दिखाता है।",
-        "zh": "作为 Shark Coders Python 课程结业项目制作的小型 Python 桌面应用。它会获取天体数据，并渲染有助于规划天体摄影会话的视图。"
-      },
+      "title": "Universe Toolkit (PyQt)",
+      "description": "A small Python desktop app built as my final project for the Shark Coders Python course. It pulls sky data and renders helpful views for planning astrophotography sessions.",
+      "body": "Built while learning Python — pulls ephemeris data for common deep-sky targets and renders a few helpful views (rise/transit/set times, target altitude through the night, simple sky-map). It's rough around the edges, but it taught me a lot about Qt, threading, and the kind of patience astrophotography demands.",
       "status": "completed",
       "year": "2024",
       "tech": ["Python", "PyQt"],
       "repo_url": "https://gitlab.com/hralmeida/universe-toolkit-pyqt",
       "live_url": null,
-      "image": null,
-      "body": {
-        "en": "Built while learning Python — pulls ephemeris data for common deep-sky targets and renders a few helpful views (rise/transit/set times, target altitude through the night, simple sky-map). It's rough around the edges, but it taught me a lot about Qt, threading, and the kind of patience astrophotography demands.",
-        "pt": "Construído enquanto aprendia Python — obtém dados de efemérides para alvos comuns do céu profundo e mostra algumas vistas úteis (horas de nascimento/trânsito/ocaso, altitude do alvo ao longo da noite, mapa do céu simples). É imperfeito, mas ensinou-me muito sobre Qt, threads e a paciência que a astrofotografia exige.",
-        "es": "Creado mientras aprendía Python — obtiene datos de efemérides de objetivos comunes del cielo profundo y muestra algunas vistas útiles (hora de salida/tránsito/puesta, altitud del objetivo durante la noche, mapa del cielo simple). Es tosco, pero me enseñó mucho sobre Qt, hilos y la paciencia que exige la astrofotografía.",
-        "hi": "Python सीखते समय बनाया गया — सामान्य डीप-स्काई लक्ष्यों के लिए एफेमेरिस डेटा खींचता है और कुछ उपयोगी दृश्य प्रस्तुत करता है (उदय/पारगमन/अस्त समय, रात भर लक्ष्य की ऊंचाई, सरल आकाश मानचित्र)। यह अपूर्ण है, लेकिन इसने मुझे Qt, थ्रेडिंग और एस्ट्रोफोटोग्राफी की मांग वाले धैर्य के बारे में बहुत कुछ सिखाया।",
-        "zh": "在学习 Python 时制作——获取常见深空目标的星历数据，并渲染一些实用的视图（升/中天/落时间、夜间目标高度、简易天图）。它还很粗糙，但让我学到了很多关于 Qt、线程以及天体摄影所需耐心的知识。"
-      }
+      "image": null
     }
   ]
 }

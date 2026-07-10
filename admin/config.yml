@@ -386,8 +386,12 @@ collections:
 
   # ── Projects page ──
   # Renders the card grid + detail overlay on /projects. Each entry is a
-  # project with a status, year, optional image, optional repo / live link,
-  # and a multi-language description. `tech` shows as chips on the card.
+  # project with a status, year, optional image, optional repo / live link.
+  # All text fields are English-only — projects.js translates them at
+  # runtime through window.i18n.translateText() (same pipeline posts.js
+  # uses), matching how the user wants to author content: write English
+  # once, auto-translate the rest. `tech` shows as chips; brand words are
+  # kept verbatim by the translator's brand-word filter.
   - name: projects
     label: 'Projects'
     files:
@@ -400,53 +404,31 @@ collections:
         fields:
           - name: intro
             label: 'Intro paragraph (above the grid)'
-            widget: object
-            hint: 'Optional page intro. Leave a language empty to skip it there.'
-            fields:
-              - { name: en, label: English,    widget: text }
-              - { name: pt, label: Português,  widget: text }
-              - { name: es, label: Español,    widget: text }
-              - { name: hi, label: हिन्दी,   widget: text }
-              - { name: zh, label: 中文,        widget: text }
+            widget: text
+            required: false
+            hint: 'Optional short intro. Written in English; auto-translated at runtime.'
           - name: items
             label: 'Projects'
             widget: list
-            summary: '{{fields.title}}'
+            summary: '{{field.title}}'
             fields:
               - name: id
                 label: 'Slug / id'
                 widget: string
                 hint: 'Lowercase, hyphen-separated. Used as the data-* anchor.'
               - name: title
-                label: 'Title (per language)'
-                widget: object
-                fields:
-                  - { name: en, label: English,    widget: string }
-                  - { name: pt, label: Português,  widget: string }
-                  - { name: es, label: Español,    widget: string }
-                  - { name: hi, label: हिन्दी,   widget: string }
-                  - { name: zh, label: 中文,        widget: string }
+                label: 'Title'
+                widget: string
+                hint: 'English source. Auto-translated at runtime.'
               - name: description
-                label: 'Short description (per language)'
-                widget: object
-                hint: 'Renders on the card and the overlay intro.'
-                fields:
-                  - { name: en, label: English,    widget: text }
-                  - { name: pt, label: Português,  widget: text }
-                  - { name: es, label: Español,    widget: text }
-                  - { name: hi, label: हिन्दी,   widget: text }
-                  - { name: zh, label: 中文,        widget: text }
+                label: 'Short description'
+                widget: text
+                hint: 'Renders on the card and the overlay intro. English source.'
               - name: body
-                label: 'Long description (per language, optional)'
-                widget: object
+                label: 'Long description (optional)'
+                widget: text
                 required: false
                 hint: 'Renders below the short description in the overlay.'
-                fields:
-                  - { name: en, label: English,    widget: text }
-                  - { name: pt, label: Português,  widget: text }
-                  - { name: es, label: Español,    widget: text }
-                  - { name: hi, label: हिन्दी,   widget: text }
-                  - { name: zh, label: 中文,        widget: text }
               - name: status
                 label: 'Status'
                 widget: select
@@ -456,7 +438,7 @@ collections:
                   - { label: In progress, value: in-progress }
                   - { label: Planned,     value: planned }
               - name: year
-                label: 'Year (string, e.g. 2024 or 2025-2026)'
+                label: 'Year (e.g. 2024 or 2025-2026)'
                 widget: string
                 required: false
               - name: tech
@@ -464,7 +446,7 @@ collections:
                 widget: list
                 field: { label: Tool, widget: string }
                 required: false
-                hint: 'One chip per tool / language / framework. Keep entries short.'
+                hint: 'One chip per tool / language / framework. Brand names are kept as-is.'
               - name: image
                 label: 'Preview image'
                 widget: image
