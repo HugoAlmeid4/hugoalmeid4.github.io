@@ -2,16 +2,19 @@
   "intro": "Things I've built while learning — from Python utilities to web experiments. Each card opens to a longer write-up.",
   "items": [
     {
-      "id": "universe-toolkit-pyqt",
-      "title": "Universe Toolkit (PyQt)",
-      "description": "A small Python desktop app built as my final project for the Shark Coders Python course. It pulls sky data and renders helpful views for planning astrophotography sessions.",
-      "body": "Built while learning Python — pulls ephemeris data for common deep-sky targets and renders a few helpful views (rise/transit/set times, target altitude through the night, simple sky-map). It's rough around the edges, but it taught me a lot about Qt, threading, and the kind of patience astrophotography demands.",
-      "status": "completed",
-      "year": "2024",
-      "tech": ["Python", "PyQt"],
-      "repo_url": "https://gitlab.com/hralmeida/universe-toolkit-pyqt",
-      "live_url": null,
-      "image": null
+      "id": "leslie-comrie-toolkit",
+      "title": "Leslie Comrie Toolkit",
+      "description": "Small python project for astrophysics purposes, with general calculations made for learning purposes.",
+      "body": "",
+      "status": "planned",
+      "year": "2026",
+      "tech": [
+        "Python",
+        "PyQt"
+      ],
+      "image": "imgs/projects/Frame 1(1).png",
+      "repo_url": "https://github.com/HugoAlmeid4/Leslie-Comrie",
+      "live_url": ""
     }
   ]
 }
