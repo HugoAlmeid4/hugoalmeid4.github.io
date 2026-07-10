@@ -9,7 +9,7 @@ Personal website and blog of **Hralmeida**. Static site hosted on **GitHub Pages
 | `index.html` | Home — bio, socials, latest posts (loads `posts.js`) |
 | `gallery.html` | Astrophotography gallery (loads from `gallery/index.json`) |
 | `certificates.html` | Course certifications (loads from `certificates/index.json`, uses `pdf.js`) |
-| `now.html` | What I'm currently focused on (manual HTML, edit when your "now" changes) |
+| `projects.html` | Projects (loads from `data/projects.json` via `projects.js`) |
 | `cv.html` | Printable résumé — view in browser, "Print → Save as PDF" to export, or click the download link at the top |
 
 ## Authoring content
@@ -61,9 +61,11 @@ Personal website and blog of **Hralmeida**. Static site hosted on **GitHub Pages
    ```
 3. Reload — no build step needed.
 
-## Editing "Now"
+## Editing "Projects"
 
-`now.html` is a single static file. Update the `<time datetime="...">` near the top to the current month, swap bullet points, and commit.
+`projects.html` reads `data/projects.json`. Edit it directly to add / reorder / remove projects. Each project has `id`, `title`, `description`, optional `body`, `status` (completed / in-progress / planned), optional `year`, optional `tech` (chip list), optional `image`, optional `repo_url` and `live_url`. Any text field can be a single string or a `{en, pt, es, hi, zh}` object — `scripts/translate-content.mjs` will fill missing languages.
+
+For project preview images, upload them via `/admin` → **Projects** collection → **Preview image** field. Files land in `/imgs/projects/`.
 
 ## Editing CV
 

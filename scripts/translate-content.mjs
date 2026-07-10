@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // scripts/translate-content.mjs
 // ──────────────────────────────────────────────────────────────────────────
-// Translate the small per-page data JSON files (bio.json, cv.json, now.json),
+// Translate the small per-page data JSON files (bio.json, cv.json, projects.json),
 // gallery/index.json, and cert name frontmatter into Portuguese (pt) and
 // Spanish (es) using the unofficial Google Translate endpoint that posts.js
 // also uses at runtime. Run once after editing the English source; no
@@ -191,7 +191,7 @@ async function enrich(node, path = []) {
   return node;
 }
 
-const FILES = ['bio.json', 'cv.json', 'now.json'];
+const FILES = ['bio.json', 'cv.json', 'projects.json'];
 const GALLERY_PATH = join(ROOT, 'gallery', 'index.json');
 const GALLERY_FIELDS = new Set(['title', 'alt', 'target', 'notes']);
 

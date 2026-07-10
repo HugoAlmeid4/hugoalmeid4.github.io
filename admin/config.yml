@@ -157,11 +157,57 @@ collections:
         widget: boolean
         default: false
         required: false
-        hint: 'If true, the certificate page renders a PDF thumbnail.'
-      - name: body
-        label: Body (Markdown, optional)
-        widget: markdown
-        required: false
+        hint: 'If true, the certificate page renders a PDF thumbnail.'          - name: body
+            label: Body (Markdown, optional)
+            widget: markdown
+            required: false
+
+  # ── Media files (images) ──
+  # Generic image registry — the user can add or delete images via
+  # /admin → Media. Uploads land in /imgs/uploads/. Items here are just
+  # a record of uploaded files with alt / caption metadata so a
+  # future page can list "manage uploads" or wrap unrelated images.
+  # Other collections (projects, gallery, certificates, posts) keep
+  # their own image widgets, which all write into this same uploads
+  # dir under the hood.
+  - name: media
+    label: 'Media files (images)'
+    files:
+      - name: media-registry
+        label: 'Image registry'
+        file: data/media.json
+        format: json
+        media_folder: 'imgs/uploads'
+        public_folder: '/imgs/uploads'
+        fields:
+          - name: items
+            label: 'Images'
+            widget: list
+            summary: '{{fields.filename}}'
+            fields:
+              - name: filename
+                label: 'Image file'
+                widget: image
+                multiple: false
+                hint: 'Drop image here, or paste existing path under /imgs/uploads/. Delete the entry to remove the file from the repo.'
+              - name: alt
+                label: 'Alt text'
+                widget: string
+                hint: 'Describe the image for screen readers.'
+              - name: caption
+                label: 'Caption (optional)'
+                widget: text
+                required: false
+              - name: category
+                label: 'Category'
+                widget: select
+                default: 'misc'
+                options:
+                  - { label: Projects,    value: projects }
+                  - { label: Gallery,     value: gallery }
+                  - { label: Certificates, value: certificates }
+                  - { label: Misc,        value: misc }
+                hint: 'Helpful when the file is referenced from multiple pages.'
 
   # ── Gallery (single JSON file) ──
   - name: gallery
@@ -337,41 +383,103 @@ collections:
             label: Interests
             widget: text
 
-  # ── Now page ──
-  - name: now
-    label: 'Now page'
+  # ── Projects page ──
+  # Renders the card grid + detail overlay on /projects. Each entry is a
+  # project with a status, year, optional image, optional repo / live link,
+  # and a multi-language description. `tech` shows as chips on the card.
+  - name: projects
+    label: 'Projects'
     files:
-      - name: now
-        label: 'Now page content'
-        file: data/now.json
+      - name: projects
+        label: 'Projects content'
+        file: data/projects.json
         format: json
+        media_folder: 'imgs/projects'
+        public_folder: '/imgs/projects'
         fields:
-          - name: last_updated
-            label: 'Last updated (YYYY-MM)'
-            widget: string
-            hint: 'e.g. 2025-07'
-          - name: blocks
-            label: Sections
+          - name: intro
+            label: 'Intro paragraph (above the grid)'
+            widget: object
+            hint: 'Optional page intro. Leave a language empty to skip it there.'
+            fields:
+              - { name: en, label: English,    widget: text }
+              - { name: pt, label: Português,  widget: text }
+              - { name: es, label: Español,    widget: text }
+              - { name: hi, label: हिन्दी,   widget: text }
+              - { name: zh, label: 中文,        widget: text }
+          - name: items
+            label: 'Projects'
             widget: list
             summary: '{{fields.title}}'
             fields:
-              - name: title
-                label: Section title
+              - name: id
+                label: 'Slug / id'
                 widget: string
-              - name: intro
-                label: Intro paragraph (optional)
-                widget: text
+                hint: 'Lowercase, hyphen-separated. Used as the data-* anchor.'
+              - name: title
+                label: 'Title (per language)'
+                widget: object
+                fields:
+                  - { name: en, label: English,    widget: string }
+                  - { name: pt, label: Português,  widget: string }
+                  - { name: es, label: Español,    widget: string }
+                  - { name: hi, label: हिन्दी,   widget: string }
+                  - { name: zh, label: 中文,        widget: string }
+              - name: description
+                label: 'Short description (per language)'
+                widget: object
+                hint: 'Renders on the card and the overlay intro.'
+                fields:
+                  - { name: en, label: English,    widget: text }
+                  - { name: pt, label: Português,  widget: text }
+                  - { name: es, label: Español,    widget: text }
+                  - { name: hi, label: हिन्दी,   widget: text }
+                  - { name: zh, label: 中文,        widget: text }
+              - name: body
+                label: 'Long description (per language, optional)'
+                widget: object
                 required: false
-                hint: 'Renders before the list.'
-              - name: items
-                label: 'List items (HTML allowed for <em>, <a>)'
+                hint: 'Renders below the short description in the overlay.'
+                fields:
+                  - { name: en, label: English,    widget: text }
+                  - { name: pt, label: Português,  widget: text }
+                  - { name: es, label: Español,    widget: text }
+                  - { name: hi, label: हिन्दी,   widget: text }
+                  - { name: zh, label: 中文,        widget: text }
+              - name: status
+                label: 'Status'
+                widget: select
+                default: 'in-progress'
+                options:
+                  - { label: Completed,   value: completed }
+                  - { label: In progress, value: in-progress }
+                  - { label: Planned,     value: planned }
+              - name: year
+                label: 'Year (string, e.g. 2024 or 2025-2026)'
+                widget: string
+                required: false
+              - name: tech
+                label: 'Tech stack (chips)'
                 widget: list
-                field: { label: Item, widget: text }
+                field: { label: Tool, widget: string }
                 required: false
-              - name: text
-                label: 'Single paragraph (optional, renders instead of list)'
-                widget: text
+                hint: 'One chip per tool / language / framework. Keep entries short.'
+              - name: image
+                label: 'Preview image'
+                widget: image
                 required: false
+                multiple: false
+                hint: 'Goes into /imgs/projects/. Leave blank for placeholder card.'
+              - name: repo_url
+                label: 'Repository URL'
+                widget: string
+                required: false
+                hint: 'Renders as a "view source" button.'
+              - name: live_url
+                label: 'Live demo URL'
+                widget: string
+                required: false
+                hint: 'Renders as a "live demo" button.'
 
   # ── Banner (announcement strip) ──
   # Renders a thin dismissable strip at the very top of every page when

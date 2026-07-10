@@ -2,7 +2,7 @@
    i18n.js — Cross-page language switcher
    ────────────────────────────────────────────────────────────────────────
    Shared translation module used by every page (index.html, cv.html,
-   now.html, gallery.html, certificates.html, 404.html). Pairs with
+   projects.html, gallery.html, certificates.html, 404.html). Pairs with
    posts.js for the post overlay only when both scripts load on the same
    page.
 
@@ -14,8 +14,8 @@
       / [data-i18n-html] on elements whose attribute is a key in
       sharedTranslations. Updates the page instantly with no network call.
    4. Dispatches a "languageChange" CustomEvent on window, detail=lang.
-      Other scripts (bio.js, cv.js, now.js, certificates.js, gallery.js,
-      posts.js post overlay) listen and re-render / re-translate their
+   Other scripts (bio.js, cv.js, projects.js, certificates.js, gallery.js,
+   posts.js post overlay) listen and re-render / re-translate their
       own content. This decouples page scripts from the picker UI.
    5. Falls back to a cached Google Translate call for any text that
       didn't get pre-baked (e.g. user-supplied content). Cached in
@@ -69,7 +69,7 @@
       navHome: 'Home',
       navGallery: 'Gallery',
       navCertificates: 'Certificates',
-      navNow: 'Now',
+      navProjects: 'Projects',
       navCV: 'CV',
 
       /* Home (index.html) */
@@ -93,15 +93,22 @@
       cvPrintHint: 'opens your browser\'s print dialog',
       cvCheckItOut: 'check it out.',
 
-      /* Now page (now.html) */
-      nowPageTitle: 'Now',
-      nowLastUpdated: 'Last updated:',
-      nowInspiredBy: 'inspired by',
-      nowHeaderLearning: 'Learning',
-      nowHeaderWorkingOn: 'Working on',
-      nowHeaderImagingTargets: 'Imaging targets',
-      nowHeaderReading: 'Reading',
-      nowHeaderOutside: 'Outside this site',
+      /* Projects page (projects.html) */
+      projectsHeader: 'Projects',
+      projectsSubtitle: 'Things built while learning.',
+      projectsStatusCompleted: 'Completed',
+      projectsStatusInProgress: 'In progress',
+      projectsStatusPlanned: 'Planned',
+      projectsOverlayType: 'Project',
+      projectsOverlayYear: 'Year',
+      projectsLinkRepo: 'View source',
+      projectsLinkLive: 'Live demo',
+      projectsEmpty: 'No projects yet.',
+      projectsLoading: 'Loading projects…',
+      projectsErrorLoading: 'Could not load projects. Make sure data/projects.json exists.',
+      projectsCountSingular: 'project',
+      projectsCountPlural: 'projects',
+      projectsImagePlaceholder: 'No preview',
 
       /* Gallery page (gallery.html) */
       galleryHeader: 'Gallery',
@@ -164,7 +171,7 @@
       navHome: 'Início',
       navGallery: 'Galeria',
       navCertificates: 'Certificados',
-      navNow: 'Agora',
+      navProjects: 'Projetos',
       navCV: 'CV',
 
       homeSectionBio: 'Bio',
@@ -186,14 +193,21 @@
       cvPrintHint: 'abre a janela de impressão do seu navegador',
       cvCheckItOut: 'veja aqui.',
 
-      nowPageTitle: 'Agora',
-      nowLastUpdated: 'Última atualização:',
-      nowInspiredBy: 'inspirado por',
-      nowHeaderLearning: 'A aprender',
-      nowHeaderWorkingOn: 'A trabalhar em',
-      nowHeaderImagingTargets: 'Alvos de imagem',
-      nowHeaderReading: 'A ler',
-      nowHeaderOutside: 'Fora deste site',
+      projectsHeader: 'Projetos',
+      projectsSubtitle: 'Coisas que construí enquanto aprendo.',
+      projectsStatusCompleted: 'Concluído',
+      projectsStatusInProgress: 'Em curso',
+      projectsStatusPlanned: 'Planeado',
+      projectsOverlayType: 'Projeto',
+      projectsOverlayYear: 'Ano',
+      projectsLinkRepo: 'Ver código',
+      projectsLinkLive: 'Demo',
+      projectsEmpty: 'Ainda sem projetos.',
+      projectsLoading: 'A carregar projetos…',
+      projectsErrorLoading: 'Não foi possível carregar os projetos. Confirma que data/projects.json existe.',
+      projectsCountSingular: 'projeto',
+      projectsCountPlural: 'projetos',
+      projectsImagePlaceholder: 'Sem imagem',
 
       galleryHeader: 'Galeria',
       gallerySubtitle: 'Captar luz que viajou milhões de anos.',
@@ -251,7 +265,7 @@
       navHome: 'Inicio',
       navGallery: 'Galería',
       navCertificates: 'Certificados',
-      navNow: 'Ahora',
+      navProjects: 'Proyectos',
       navCV: 'CV',
 
       homeSectionBio: 'Bio',
@@ -273,14 +287,21 @@
       cvPrintHint: 'abre el diálogo de impresión del navegador',
       cvCheckItOut: 'mira aquí.',
 
-      nowPageTitle: 'Ahora',
-      nowLastUpdated: 'Última actualización:',
-      nowInspiredBy: 'inspirado por',
-      nowHeaderLearning: 'Aprendiendo',
-      nowHeaderWorkingOn: 'Trabajando en',
-      nowHeaderImagingTargets: 'Objetivos de imagen',
-      nowHeaderReading: 'Leyendo',
-      nowHeaderOutside: 'Fuera de este sitio',
+      projectsHeader: 'Proyectos',
+      projectsSubtitle: 'Cosas que construí mientras aprendo.',
+      projectsStatusCompleted: 'Completado',
+      projectsStatusInProgress: 'En curso',
+      projectsStatusPlanned: 'Planeado',
+      projectsOverlayType: 'Proyecto',
+      projectsOverlayYear: 'Año',
+      projectsLinkRepo: 'Ver código',
+      projectsLinkLive: 'Demo',
+      projectsEmpty: 'Aún no hay proyectos.',
+      projectsLoading: 'Cargando proyectos…',
+      projectsErrorLoading: 'No se pudieron cargar los proyectos. Verifica que data/projects.json exista.',
+      projectsCountSingular: 'proyecto',
+      projectsCountPlural: 'proyectos',
+      projectsImagePlaceholder: 'Sin imagen',
 
       galleryHeader: 'Galería',
       gallerySubtitle: 'Capturando luz que viajó millones de años.',
@@ -338,7 +359,7 @@
       navHome: 'होम',
       navGallery: 'गैलरी',
       navCertificates: 'प्रमाणपत्र',
-      navNow: 'अभी',
+      navProjects: 'प्रोजेक्ट',
       navCV: 'बायोडाटा',
 
       homeSectionBio: 'परिचय',
@@ -425,7 +446,7 @@
       navHome: '首页',
       navGallery: '画廊',
       navCertificates: '证书',
-      navNow: '当前',
+      navProjects: '项目',
       navCV: '简历',
 
       homeSectionBio: '简介',
@@ -447,14 +468,21 @@
       cvPrintHint: '将打开浏览器的打印对话框',
       cvCheckItOut: '请查看。',
 
-      nowPageTitle: '当前',
-      nowLastUpdated: '最后更新：',
-      nowInspiredBy: '灵感来自',
-      nowHeaderLearning: '正在学习',
-      nowHeaderWorkingOn: '正在进行',
-      nowHeaderImagingTargets: '拍摄目标',
-      nowHeaderReading: '正在阅读',
-      nowHeaderOutside: '站外动态',
+      projectsHeader: '项目',
+      projectsSubtitle: '在学习过程中制作的小作品。',
+      projectsStatusCompleted: '已完成',
+      projectsStatusInProgress: '进行中',
+      projectsStatusPlanned: '计划中',
+      projectsOverlayType: '项目',
+      projectsOverlayYear: '年份',
+      projectsLinkRepo: '查看代码',
+      projectsLinkLive: '在线演示',
+      projectsEmpty: '暂无项目。',
+      projectsLoading: '正在加载项目…',
+      projectsErrorLoading: '加载项目失败。请确认 data/projects.json 存在。',
+      projectsCountSingular: '个项目',
+      projectsCountPlural: '个项目',
+      projectsImagePlaceholder: '暂无图片',
 
       galleryHeader: '画廊',
       gallerySubtitle: '捕捉历经数百万年抵达此处的一缕光。',

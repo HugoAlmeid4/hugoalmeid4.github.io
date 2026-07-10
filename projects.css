@@ -1,0 +1,99 @@
+/* ─────────────────────────────────────────────────────────────────────
+   projects.css — Projects page styles
+   ─────────────────────────────────────────────────────────────────────
+   Matches the site's visual vocabulary used by certificates.css and
+   gallery's section frame: 1.5px sharp borders, Lilex uppercase
+   headers, square corners, light/dark theming, same fade-in entry
+   animation. Layout reuses the .container pattern from
+   .certificates-section / .gallery-section.
+
+   Detail overlay reuses the existing .project-fullscreen-overlay /
+   .project-fullscreen-content / .project-fullscreen-body CSS already
+   declared globally in style.css (originally written for posts.js's
+   long-form overlay). The lightbox behaves identically to the post
+   reader so the project page feels like the same product.
+   ───────────────────────────────────────────────────────────────────── */
+
+.projects-section{width:100%;max-width:900px;margin:0 auto;padding:0 24px 48px;opacity:0;animation:smoothFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.15s forwards}
+.projects-section-header{padding:20px 0 0;margin-bottom:18px}
+.projects-section-header h2{font-size:22px;font-weight:700;letter-spacing:-0.01em;margin-bottom:4px}
+body.dark-mode .projects-section-header h2{color:#ededed}
+.projects-section-subtitle{font-size:12px;color:#888;letter-spacing:0.04em}
+.projects-intro{font-size:14px;color:#555;line-height:1.7;margin-bottom:24px;max-width:680px}
+body.dark-mode .projects-intro{color:#ccc}
+.projects-intro[hidden]{display:none}
+.projects-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.projects-status{font-size:12px;color:#888;text-align:center;padding:20px 0 8px;min-height:20px}
+
+/* ── Cards ──────────────────────────────────────────────────────── */
+.project-card{display:flex;flex-direction:column;border:1.5px solid #333;background:rgba(0,0,0,0.01);overflow:hidden;cursor:pointer;transition:background 0.15s,transform 0.18s ease}
+body.dark-mode .project-card{border-color:#555;background:rgba(255,255,255,0.01)}
+@media (hover:hover){.project-card:hover{background:rgba(0,0,0,0.03);transform:translateY(-2px)}body.dark-mode .project-card:hover{background:rgba(255,255,255,0.03)}}
+.project-card:focus-visible{outline:2px solid #888;outline-offset:2px}
+body.dark-mode .project-card:focus-visible{outline-color:#ededed}
+
+.project-card-preview{position:relative;width:100%;aspect-ratio:16/9;border-bottom:1.5px solid #333;background:#eee;overflow:hidden}
+body.dark-mode .project-card-preview{border-bottom-color:#555;background:#2a2a2a}
+.project-card-preview img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity 0.4s ease}
+.project-card-preview img.loaded{opacity:1}
+.project-card-preview .preview-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Lilex','Noto Sans Devanagari','Noto Sans SC',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#888;background:repeating-linear-gradient(45deg,rgba(0,0,0,0.02) 0 8px,rgba(0,0,0,0.06) 8px 16px)}
+body.dark-mode .project-card-preview .preview-placeholder{color:#aaa;background:repeating-linear-gradient(45deg,rgba(255,255,255,0.02) 0 8px,rgba(255,255,255,0.06) 8px 16px)}
+.project-card-preview .preview-placeholder span{padding:6px 12px;border:1.5px dashed currentColor}
+
+.project-card-body{flex:1;padding:18px 20px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.project-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:2px}
+.project-card-title{font-size:15px;font-weight:700;color:#111;line-height:1.35;letter-spacing:-0.005em}
+body.dark-mode .project-card-title{color:#ededed}
+.project-card-year{font-size:11px;font-weight:600;color:#555;letter-spacing:0.05em;flex-shrink:0;padding-top:2px}
+body.dark-mode .project-card-year{color:#aaa}
+.project-card-desc{font-size:13px;line-height:1.6;color:#555;margin-bottom:6px}
+body.dark-mode .project-card-desc{color:#ccc}
+.project-card-tech{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.project-card-tech .tech-chip{display:inline-block;font-size:10px;padding:3px 8px;border:1.5px solid #555;font-weight:500;letter-spacing:0.04em;color:#333;background:rgba(0,0,0,0.02);text-transform:lowercase}
+body.dark-mode .project-card-tech .tech-chip{color:#ccc;border-color:#555;background:rgba(255,255,255,0.02)}
+
+/* Status badge — reuses the existing .status-badge / .status-completed /
+   .status-processing / .status-planned palette defined in style.css
+   under .data-log-table — so "completed" reads green, "in-progress"
+   amber, "planned" muted gray in both light & dark mode. */
+.project-card-status{margin-bottom:6px;display:flex}
+
+.project-card-empty-state{display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;padding:60px 20px;border:1.5px dashed #888;color:#888;text-align:center}
+body.dark-mode .project-card-empty-state{border-color:#555;color:#aaa}
+
+/* ── Detail overlay ──────────────────────────────────────────────── */
+.project-fullscreen-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;align-items:center}
+.project-fullscreen-meta .meta-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:#555;padding:4px 10px;border:1.5px solid #555;background:rgba(0,0,0,0.02)}
+body.dark-mode .project-fullscreen-meta .meta-chip{color:#aaa;border-color:#555;background:rgba(255,255,255,0.02)}
+.project-fullscreen-meta .meta-chip-label{opacity:0.7}
+.project-fullscreen-meta .meta-chip-value{color:#111;font-weight:700}
+body.dark-mode .project-fullscreen-meta .meta-chip-value{color:#ededed}
+
+.project-fullscreen-body p{font-size:15px;line-height:1.8;color:#333;max-width:720px}
+body.dark-mode .project-fullscreen-body p{color:#ccc}
+
+/* Tech chips inside the overlay use the same vocabulary but slightly
+   larger to fit the wider overlay. */
+.project-fullscreen-tech{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px}
+.project-fullscreen-tech .tech-chip{display:inline-block;font-size:11px;padding:5px 10px;border:1.5px solid #555;color:#333;background:rgba(0,0,0,0.02)}
+body.dark-mode .project-fullscreen-tech .tech-chip{color:#ccc;border-color:#555;background:rgba(255,255,255,0.02)}
+
+.project-fullscreen-link-container{display:flex;flex-wrap:wrap;gap:10px}
+.project-fullscreen-link-container .fullscreen-link-btn{display:inline-block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#333;border:1.5px solid #333;background:transparent;padding:8px 16px;text-decoration:none;font-family:'Lilex','Noto Sans Devanagari','Noto Sans SC',monospace;transition:all 0.2s ease}
+body.dark-mode .project-fullscreen-link-container .fullscreen-link-btn{color:#ededed;border-color:#ededed}
+@media (hover:hover){.project-fullscreen-link-container .fullscreen-link-btn:hover{background:#333;color:rgb(237,231,220)}body.dark-mode .project-fullscreen-link-container .fullscreen-link-btn:hover{background:#ededed;color:#1a1a1a}}
+
+@media (max-width:768px){
+  .projects-section{padding:0 20px 32px}
+  .projects-grid{grid-template-columns:1fr;gap:14px}
+  .project-card-preview{aspect-ratio:4/3}
+}
+@media (max-width:480px){
+  .projects-section{padding:0 16px 24px}
+  .projects-section-header h2{font-size:18px}
+  .project-card-body{padding:14px 16px 14px}
+  .project-card-title{font-size:14px}
+  .project-card-desc{font-size:12px}
+  .project-card-preview{aspect-ratio:4/3}
+  /* Inherit .project-fullscreen-content mobile padding from style.css. */
+}
