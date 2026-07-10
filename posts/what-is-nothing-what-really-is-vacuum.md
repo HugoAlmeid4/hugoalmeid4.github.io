@@ -5,7 +5,9 @@ excerpt: We really do not know what nothing is because we never saw absolute not
 author: hralmeida
 tags: vacuum, sound, space, light, waves
 banner_image: posts/what-is-space-milky-way-full-width.jpg.thumb.1024.1024.webp
-banner_image_alt: ''
+banner_image_alt: Milky Way Banner
+banner_image_credit: © sripfoto/ Shutterstock | Natural History Museum
+banner_image_credit_url: https://www.nhm.ac.uk/discover/what-is-space.html
 draft: false
 ---
 

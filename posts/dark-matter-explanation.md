@@ -4,11 +4,13 @@ date: 2026-06-20
 excerpt: Dark matter existence was suspected for now over 90 years, when a Swiss-American astronomer Fritz Zwicky noticed that galaxies in the Coma cluster were moving so quickly they should have been flung away to space yet they remained there because of unseen matter.
 author: hralmeida
 tags: dark matter, dark energy, newton equation
-banner_image: posts/20220329-Dark-matter.webp
-banner_image_alt: Rubin Observatory Dark Matter Banner
+banner_image: posts/darkmatter-kipacamnh-1200.webp
+banner_image_alt: Science Nasa Dark Matter Banner
+banner_image_credit: Ralf Kaehler/SLAC National Accelerator Laboratory, American Museum of Natural History | Nasa Science
+banner_image_credit_url: https://www.eso.org/public/images/eso2208-eht-mwd/
 ---
 
-### How was dark matter discovered?
+### Ralf Kaehler/SLAC National Accelerator Laboratory, American Museum of Natural HistoryHow was dark matter discovered?
 
 Dark matter existence was suspected for now over 90 years, when a Swiss-American astronomer Fritz Zwicky noticed that galaxies in the Coma cluster were moving so quickly they should have been flung away to space yet they remained there because of unseen matter.
 
