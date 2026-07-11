@@ -44,6 +44,16 @@
     'planned':    { labelKey: 'projectsStatusPlanned',    cssClass: 'status-planned'    }
   };
 
+  /* Mobile detection: returns true when the viewport is at or below the
+     768px breakpoint — i.e., the same width used for the slide/overlay
+     controls elsewhere in projects.css. Centralised here so the URL /
+     navigation logic and the CSS stay in lockstep (changing the breakpoint
+     here would force a matching change in the @media block in projects.css). */
+  function isMobileFullPageMode() {
+    return typeof window.matchMedia === 'function' &&
+           window.matchMedia('(max-width: 768px)').matches;
+  }
+
   var DATA = null;
   var ITEMS = [];
 
@@ -227,9 +237,13 @@
     var frag = document.createDocumentFragment();
     items.forEach(function (item) {
       var card = renderCard(item, lang);
-      card.addEventListener('click', function () { openOverlay(item, lang); });
+      /* Card click goes through openProject (not openOverlay directly) so
+         it can update the URL and toggle mobile-fullpage-mode CSS state
+         on mobile. openProject forwards to openOverlay after the URL/UX
+         hooks are set, so the rest of the rendering path is unchanged. */
+      card.addEventListener('click', function () { openProject(item, lang); });
       card.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOverlay(item, lang); }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openProject(item, lang); }
       });
       frag.appendChild(card);
     });
@@ -247,6 +261,34 @@
   /* ── Detail overlay ────────────────────────────────────────────── */
   var overlayEl, overlayContent, overlayCloseBtn, overlayTitle, overlayType,
       overlayMeta, overlayBody, overlayLinks, overlayHero;
+
+  /* openProject is the entry point called by project cards. It updates the
+     URL so that opening a project is shareable / bookmarkable / reload-safe,
+     then forwards to openOverlay.
+
+     - Mobile: pushState + body.mobile-fullpage-mode class. The CSS for that
+       class hides the header + projects grid, so the overlay IS the visible
+       page. pushState adds a back entry so the browser back button closes
+       the overlay and returns to the grid (matching posts.js's mobile UX).
+     - PC: replaceState only (no extra back entry). The overlay stays a
+       modal that animates over the grid, matching the existing PC behaviour.
+       replaceState (not pushState) keeps the back button out of the overlay
+       so pressing it doesn't trap users mid-modal.
+
+     The deep-link branch in load() handles the case of directly arriving at
+     ?project=X via shared link: it adds the body class but does NOT push
+     state (the URL IS the user's current entry). */
+  function openProject(item, lang) {
+    var url = new URL(window.location.href);
+    url.searchParams.set('project', item.id);
+    if (isMobileFullPageMode()) {
+      window.history.pushState({ projectId: item.id }, '', url);
+      document.body.classList.add('mobile-fullpage-mode');
+    } else {
+      window.history.replaceState({}, '', url);
+    }
+    openOverlay(item, lang);
+  }
 
   function openOverlay(item, lang) {
     if (!overlayEl) return;
@@ -319,6 +361,29 @@
     overlayEl.classList.remove('active');
     overlayEl.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    /* Always clear the mobile-fullpage body class on close so the page
+       chrome (header + projects grid) snaps back into view. Safe to call
+       when not in mobile mode — it's a no-op class removal. */
+    document.body.classList.remove('mobile-fullpage-mode');
+
+    /* URL cleanup mirrors what openProject / load() did at open time:
+       - Mobile pushState branch → history.back() pops the pushed entry so
+         the browser back button takes the user back to the project grid
+         (not to whatever site they were on before).
+       - PC replaceState branch OR a deep-link arrival (no push happened) →
+         replaceState strips ?project=X from the current URL.
+       In both cases, the resulting URL has no project param, so the page
+       returns to its resting "projects grid" state. */
+    var url = new URL(window.location.href);
+    if (url.searchParams.has('project')) {
+      var pushed = window.history.state && window.history.state.projectId;
+      if (pushed) {
+        window.history.back();
+      } else {
+        url.searchParams.delete('project');
+        window.history.replaceState({}, '', url);
+      }
+    }
   }
 
   function cacheOverlayEls() {
@@ -338,6 +403,39 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && overlayEl && overlayEl.classList.contains('active')) closeOverlay();
+  });
+
+  /* popstate listener handles browser Back / Forward buttons once the page
+     is in mobile-fullpage mode. Without this, history.back() from
+     closeOverlay() would leave the overlay visible because popstate itself
+     doesn't trigger closeOverlay — only the listener does. */
+
+  window.addEventListener('popstate', function () {
+    var projectId = new URLSearchParams(window.location.search).get('project');
+    if (projectId) {
+      /* Forward into another ?project=X (rare; only happens if the user
+         manually navigates to a second deep link). Open that project; the
+         overlay element is a singleton so this re-uses the same DOM and
+         just swaps the rendered content. */
+      var matchingItem = ITEMS.find(function (i) { return i.id === projectId; });
+      if (matchingItem) {
+        var lang = window.i18n ? window.i18n.lang : 'en';
+        if (isMobileFullPageMode()) document.body.classList.add('mobile-fullpage-mode');
+        openOverlay(matchingItem, lang);
+      }
+    } else {
+      /* Back to the project-less grid. If the overlay element still has
+         the .active class (could happen if history.back() fired from
+         elsewhere), force-close it. Idempotent: closeOverlay already
+         guard-checks .active. */
+      if (!overlayEl) return;
+      if (overlayEl.classList.contains('active')) {
+        overlayEl.classList.remove('active');
+        overlayEl.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        document.body.classList.remove('mobile-fullpage-mode');
+      }
+    }
   });
 
   /* ── i18n language-change pipeline (mirrors posts.js) ───────────── */
@@ -388,6 +486,22 @@
       DATA  = await res.json();
       ITEMS = Array.isArray(DATA.items) ? DATA.items : [];
       await renderAll(lang);
+
+      /* Deep-link handling: if the user landed here via a shared
+         ?project=X URL (or refreshed one), open that project after the
+         grid has rendered. On mobile we add the body class so the page
+         chrome hides (matches the in-app openProject behaviour); on PC
+         we just open the overlay directly. We do NOT pushState — the URL
+         is the user's current history entry, so closeOverlay() will
+         replaceState-strip the param rather than call history.back(). */
+      var deepLinkedId = new URLSearchParams(window.location.search).get('project');
+      if (deepLinkedId) {
+        var matchingItem = ITEMS.find(function (i) { return i.id === deepLinkedId; });
+        if (matchingItem) {
+          if (isMobileFullPageMode()) document.body.classList.add('mobile-fullpage-mode');
+          openOverlay(matchingItem, lang);
+        }
+      }
     } catch (err) {
       console.warn('Projects JSON load failed; nothing to show:', err.message);
       if (grid) grid.innerHTML = '<p class="projects-status">' + esc(t('projectsErrorLoading')) + '</p>';

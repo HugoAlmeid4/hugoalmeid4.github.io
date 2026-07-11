@@ -107,6 +107,61 @@ body.dark-mode .project-fullscreen-link-container .fullscreen-link-btn{color:#ed
   .projects-section{padding:0 20px 32px}
   .projects-grid{grid-template-columns:1fr;gap:14px}
   .project-card-preview{aspect-ratio:4/3}
+  /* Mobile deep-link mode: projects.js adds `body.mobile-fullpage-mode`
+     when an overlay opens from a card tap or a shared ?project=X URL.
+     Hide the page chrome (header + section + grid) so the overlay IS the
+     visible page — matches the "open on a new page" UX the user wants on
+     mobile. Scoped to max-width:768px so PC always retains its header /
+     grid even if a tab is rotated back from mobile while an overlay is
+     open (the body class survives, but the rule stops applying). */
+  body.mobile-fullpage-mode .Name-Photo,
+  body.mobile-fullpage-mode .projects-section,
+  body.mobile-fullpage-mode .projects-status{display:none !important}
+  /* On mobile the project overlay opens as a full page rather than a
+     slide-up modal. We target #projectOverlay (not #postFullscreenOverlay)
+     so posts.js keeps its existing slide behaviour. Specificity (1,2,0)
+     outranks the global `.project-fullscreen-overlay.active` rule (0,2,0).
+
+     `height: 100vh` then `height: 100dvh` pins the overlay to the actual
+     visible viewport height on mobile (iOS Safari + Chrome dynamically
+     resize when the URL bar hides, and `height:100%` on position:fixed
+     is unreliable there). The dvh declaration overrides vh on browsers
+     that support it; vh is the fallback for older mobile browsers.
+
+     BOTH declarations carry !important because the global rule in
+     posts.css sets `height: 100% !important` — without !important here,
+     the global rule wins on cascade (any !important beats any non-!
+     important, regardless of specificity). This was the silent bug in
+     the previous draft that left the overlay at the unreliable 100%
+     height on mobile. */
+  #projectOverlay.project-fullscreen-overlay,
+  #projectOverlay.project-fullscreen-overlay.active{
+    transform:none !important;
+    transition:opacity 0.25s ease !important;
+    will-change:opacity;
+    height:100vh !important;
+    height:100dvh !important
+  }
+  /* Larger hero image on mobile so the first thing the user sees feels
+     truly fullscreen — fills ~65% of the visible viewport instead of
+     leaving a thin strip with empty padding below (replaces the global
+     45vh cap from this media query's global rule via ID specificity
+     1,1,0 vs 0,1,0). The absolutely-positioned <img> inside inherits
+     the hero's height via inset:0, so the min-height lives on the
+     parent — keeps the "hero ranges 50vh–65vh on mobile" contract in
+     one place. */
+  #projectOverlay .project-fullscreen-hero{max-height:65vh;min-height:50vh}
+  #projectOverlay .project-fullscreen-hero img{max-height:65vh}
+}
+/* Honour the OS-level "reduce motion" toggle: vestibular-sensitive users
+   get an instant reveal on mobile instead of the 0.25s fade. PC is left
+   alone because the slide-up animation is the user's explicit request. */
+@media (max-width:768px) and (prefers-reduced-motion:reduce){
+  #projectOverlay.project-fullscreen-overlay,
+  #projectOverlay.project-fullscreen-overlay.active{
+    transition:none !important;
+    will-change:auto
+  }
 }
 @media (max-width:480px){
   .projects-section{padding:0 16px 24px}
@@ -115,5 +170,14 @@ body.dark-mode .project-fullscreen-link-container .fullscreen-link-btn{color:#ed
   .project-card-title{font-size:14px}
   .project-card-desc{font-size:12px}
   .project-card-preview{aspect-ratio:4/3}
+  /* Smaller-phone hero override — keep close to 55vh so the cover image
+     still feels fullscreen but doesn't squeeze the body text on tiny
+     screens. Pairs with the 65vh rule in the 768px breakpoint above.
+     min-height moves to the parent for the same reason as above: the
+     absolutely-positioned <img> inherits size from inset:0 + height:100%,
+     so putting the contract on .project-fullscreen-hero keeps it in
+     one place. */
+  #projectOverlay .project-fullscreen-hero{max-height:55vh;min-height:42vh}
+  #projectOverlay .project-fullscreen-hero img{max-height:55vh}
   /* Inherit .project-fullscreen-content mobile padding from style.css. */
 }
