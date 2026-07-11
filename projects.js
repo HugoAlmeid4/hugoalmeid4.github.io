@@ -246,7 +246,7 @@
 
   /* ── Detail overlay ────────────────────────────────────────────── */
   var overlayEl, overlayContent, overlayCloseBtn, overlayTitle, overlayType,
-      overlayMeta, overlayBody, overlayLinks;
+      overlayMeta, overlayBody, overlayLinks, overlayHero;
 
   function openOverlay(item, lang) {
     if (!overlayEl) return;
@@ -271,9 +271,8 @@
 
     var bodyBits = [];
     var safeImageSrc = item.image ? safeUrl(item.image) : '';
-    if (item.image) {
-      bodyBits.push('<p><img src="' + escAttr(safeImageSrc) + '" alt="' + escAttr(title) + '" loading="lazy" decoding="async"></p>');
-    }
+    /* Image is NOT rendered into the body anymore — it lives in
+       overlayHero as a full-viewport-width banner (see CSS). */
     if (Array.isArray(item.tech) && item.tech.length) {
       bodyBits.push('<div class="project-fullscreen-tech">' +
         item.tech.map(function (chip) { return '<span class="tech-chip">' + esc(chip) + '</span>'; }).join('') +
@@ -282,6 +281,23 @@
     if (description) bodyBits.push('<p>' + esc(description) + '</p>');
     if (body)        bodyBits.push('<p>' + esc(body) + '</p>');
     overlayBody.innerHTML = bodyBits.join('');
+
+    /* Hero banner — full-viewport-width image at the top of the overlay.
+       Mirrors renderCard(): fade in via .loaded class on img load/error
+       so the placeholder background doesn't flash a long-lived image
+       (large preview photos can take 200-500ms to decode). */
+    if (item.image) {
+      overlayHero.innerHTML = '<img src="' + escAttr(safeImageSrc) + '" alt="' + escAttr(title) + '" loading="lazy" decoding="async">';
+      overlayHero.hidden = false;
+      var heroImg = overlayHero.querySelector('img');
+      if (heroImg) {
+        heroImg.addEventListener('load',  function () { heroImg.classList.add('loaded'); }, { once: true });
+        heroImg.addEventListener('error', function () { heroImg.classList.add('loaded'); heroImg.classList.add('error'); }, { once: true });
+      }
+    } else {
+      overlayHero.innerHTML = '';
+      overlayHero.hidden = true;
+    }
 
     var linkBits = [];
     if (item.repo_url) {
@@ -312,6 +328,7 @@
     overlayTitle    = document.getElementById('projectOverlayTitle');
     overlayType     = document.getElementById('projectOverlayType');
     overlayMeta     = document.getElementById('projectOverlayMeta');
+    overlayHero     = document.getElementById('projectOverlayHero');
     overlayBody     = document.getElementById('projectOverlayBody');
     overlayLinks    = document.getElementById('projectOverlayLinks');
     if (!overlayEl) return;

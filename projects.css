@@ -65,6 +65,23 @@ body.dark-mode .project-card-tech .tech-chip{color:#ccc;border-color:#555;backgr
 body.dark-mode .project-card-empty-state{border-color:#555;color:#aaa}
 
 /* ── Detail overlay ──────────────────────────────────────────────── */
+/* ── Hero banner ──────────────────────────────────────────────────── */
+/* Lives as the first child INSIDE .project-fullscreen-overlay (see
+   projects.html) so the viewport-spanning fixed overlay paints it on
+   top. width:100% because the overlay's content box is already the
+   full viewport width — no bleed trick needed. max-height +
+   object-fit:cover keeps large/oddly shaped preview images from
+   dominating the viewport; cover (vs. contain) keeps wide shots
+   visually impactful on phone screens. */
+.project-fullscreen-hero{position:relative;width:100%;max-height:60vh;overflow:hidden;background:#eee}
+.project-fullscreen-hero[hidden]{display:none}
+body.dark-mode .project-fullscreen-hero{background:#2a2a2a}
+.project-fullscreen-hero img{position:absolute;inset:0;width:100%;height:100%;max-height:60vh;display:block;object-fit:cover;opacity:0;transition:opacity 0.45s ease;background:#eee}
+.project-fullscreen-hero img.loaded{opacity:1}
+.project-fullscreen-hero img.error{object-fit:contain;background:#1a1a1a}
+@media (max-width:768px){.project-fullscreen-hero{max-height:45vh}.project-fullscreen-hero img{max-height:45vh}}
+@media (max-width:480px){.project-fullscreen-hero{max-height:38vh}.project-fullscreen-hero img{max-height:38vh}}
+
 .project-fullscreen-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;align-items:center}
 .project-fullscreen-meta .meta-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:#555;padding:4px 10px;border:1.5px solid #555;background:rgba(0,0,0,0.02)}
 body.dark-mode .project-fullscreen-meta .meta-chip{color:#aaa;border-color:#555;background:rgba(255,255,255,0.02)}
