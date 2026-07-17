@@ -2,18 +2,17 @@
   "intro": "Things I've built while learning — from Python utilities to web experiments. Each card opens to a longer write-up.",
   "items": [
     {
-      "id": "leslie-comrie-toolkit",
-      "title": "Leslie Comrie Toolkit",
-      "description": "Small python project for astrophysics purposes, with general calculations made for learning purposes.",
+      "id": "focus-lab-3d",
+      "title": "Focus Lab 3D Startup",
+      "description": "Small company made for making and priting 3d models for astrophotography.",
       "body": "",
-      "status": "planned",
+      "status": "in-progress",
       "year": "2026",
       "tech": [
-        "Python",
-        "PyQt"
+        "3D Priting"
       ],
-      "image": "imgs/projects/leslie-comrie-toolkit.png",
-      "repo_url": "https://github.com/HugoAlmeid4/Leslie-Comrie",
+      "image": "/imgs/projects/Frame 9.png",
+      "repo_url": "https://linktr.ee/focuslab3d",
       "live_url": ""
     }
   ]
