@@ -304,6 +304,7 @@ body.dark-mode .contact-field.has-error input,body.dark-mode .contact-field.has-
 .contact-field.has-error .contact-field-error{display:block}
 body.dark-mode .contact-field-error{color:#ef5350}
 .contact-honeypot{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;opacity:0}
+
 .contact-submit{align-self:stretch;margin-top:6px;background:transparent;border:1.5px solid #333;color:#333;padding:14px 18px;font-family:'Lilex','Noto Sans Devanagari','Noto Sans SC',monospace;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s ease}
 .contact-submit:hover{background:#333;color:rgb(237,231,220)}
 .contact-submit:disabled{opacity:0.55;cursor:not-allowed;pointer-events:none}
@@ -406,3 +407,14 @@ body.dark-mode .site-banner-dismiss:focus-visible{outline-color:#ededed}
  * browses posts. Transitions don't animate position changes, but at
  * scrollTop=0 the visual position is unchanged so the swap is silent. */
 .site-banner-elevated{position:fixed;top:0;left:0;right:0;z-index:9999}
+
+/* ────────────────────────────────────────────────────────────────────────
+   prefers-reduced-motion — site-wide animation kill switch.
+   Companion CSS to qol.js's JS gate. The universal selector + !important
+   neutralizes every animation on the site without depending on JS state
+   (so it works during the first paint, before any script runs). Pair
+   rules are also collapsed into the same block to avoid redundant
+   selector lists; the JS gate in qol.js takes over for dynamic scrollTo
+   calls (TOC nav, back-to-top, overlay scroll).
+   ──────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}

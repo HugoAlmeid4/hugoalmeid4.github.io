@@ -19,17 +19,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://www.googletagmanager.com">
   <link href="https://fonts.googleapis.com/css2?family=Lilex:ital,wght@0,400..700;1,400..700&family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="imgs/imgs.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="imgs/pfp/pfp.webp" fetchpriority="high">
   <link rel="alternate" type="application/rss+xml" title="Hralmeida RSS" href="rss.xml">
-  <link rel="preload" href="style.css?v=56" as="style">
-  <link rel="stylesheet" href="style.css?v=56">
-  <link rel="preload" href="certificates.css?v=51" as="style">
-  <link rel="stylesheet" href="certificates.css?v=51">
-  <script src="i18n.js?v=50" defer></script>
-  <script src="banner.js?v=10" defer></script>
-  <script src="theme.js?v=52" defer></script>
-  <script src="hamburger.js?v=32" defer></script>
+  <link rel="preload" href="style.css?v=57" as="style">
+  <link rel="stylesheet" href="style.css?v=57">
+  <link rel="preload" href="certificates.css?v=52" as="style">
+  <link rel="stylesheet" href="certificates.css?v=52">
+  <script src="i18n.js?v=51" defer></script>
+  <script src="banner.js?v=11" defer></script>
+  <script src="theme.js?v=53" defer></script>
+  <script src="qol.js?v=2" defer></script>
+  <script src="hamburger.js?v=33" defer></script>
 
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script defer>
@@ -42,7 +44,7 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'G-NLETHH38EW');
+    gtag('config', 'G-NLETHH38EW', { anonymize_ip: true, ads_data_redaction: true });
   </script>
 </head>
 
@@ -65,8 +67,8 @@
 
   <header class="Name-Photo">
     <picture>
-    <source srcset="imgs/imgs.webp" type="image/webp">
-    <img src="imgs/imgs.jpg" alt="Hralmeida profile picture" width="100" height="100" fetchpriority="high">
+    <source srcset="imgs/pfp/pfp.webp" type="image/webp">
+    <img src="imgs/pfp/pfp.jpg" alt="Hralmeida profile picture" width="100" height="100" fetchpriority="high">
   </picture>
     <h3>Hralmeida</h3>
     <nav class="nav-links" aria-label="Main navigation">

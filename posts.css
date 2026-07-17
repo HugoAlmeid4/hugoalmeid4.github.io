@@ -22,6 +22,60 @@ body.dark-mode .post-banner-caption{border-top-color:rgba(255,255,255,0.1);color
 
 /* Post banner v3 — bottom-right corner credit overlay (photographer / source attribution) shown on top of the banner image. Sharp 1.5px translucent pill in Lilex uppercase matching the caption row vocabulary. Works on both light and dark photo content. */
 .post-banner-image-wrap{position:relative;display:block;width:100%}
+
+/* ────────────────────────────────────────────────────────────────────────
+   QOL additions — back-to-top button, site-wide scroll rail, NEW pill,
+   post-overlay TOC drawer, "More like this" rail on home.
+   Companion to qol.js. All new selectors are namespaced (.qol-, .post-toc-,
+   .more-like-this-, .mlt-) so they don't collide with existing tokens.
+   ──────────────────────────────────────────────────────────────────────── */
+.qol-back-to-top{position:fixed;right:20px;bottom:20px;z-index:2900;width:44px;height:44px;background:transparent;color:inherit;border:1.5px solid currentColor;font-family:inherit;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0.6;transition:opacity 0.2s ease,background 0.2s ease,color 0.2s ease}
+.qol-back-to-top:hover{opacity:1;background:currentColor;color:rgb(237,231,220)}
+.dark-mode .qol-back-to-top{color:#ededed;border-color:#ededed}
+.dark-mode .qol-back-to-top:hover{background:#ededed;color:#1a1a1a}
+.qol-back-to-top[hidden]{display:none}.qol-new-pill{display:inline-block;margin-left:8px;padding:2px 6px;font-size:10px;font-weight:700;letter-spacing:0.08em;background:#2e7d32;color:#fff;line-height:1;vertical-align:middle}
+.dark-mode .qol-new-pill{background:#66bb6a;color:#1a1a1a}
+
+.post-toc{display:flex;flex-direction:column;gap:6px;border:1.5px solid #333;padding:14px;margin:0 auto 24px;background:rgba(0,0,0,0.02);font-size:13px;max-width:800px;box-sizing:border-box;width:100%}
+body.dark-mode .post-toc{border-color:#555;background:rgba(255,255,255,0.02)}
+.post-toc-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin-bottom:6px}
+.post-toc-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:2px}
+.post-toc-item.h3{padding-left:14px;font-size:12px}
+.post-toc-link{color:inherit;text-decoration:none;padding:5px 8px;display:block;border-left:2px solid transparent;transition:border-color 0.15s ease,background 0.15s ease}
+.post-toc-link:hover{border-left-color:#333;background:rgba(0,0,0,0.04)}
+body.dark-mode .post-toc-link:hover{border-left-color:#ededed;background:rgba(255,255,255,0.04)}
+
+.more-like-this{margin:24px 16px 0;display:flex;flex-direction:column;gap:10px}
+.more-like-this h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin:0}
+.more-like-this-grid{display:flex;flex-direction:row;gap:12px;flex-wrap:wrap}
+.more-like-this-card{flex:1 1 220px;min-width:200px;border:1.5px solid #333;background:rgba(0,0,0,0.02);padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:background 0.15s ease}
+.more-like-this-card:hover{background:rgba(0,0,0,0.05)}
+.dark-mode .more-like-this-card{border-color:#555;background:rgba(255,255,255,0.02)}
+.dark-mode .more-like-this-card:hover{background:rgba(255,255,255,0.05)}
+.mlt-meta{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.05em}
+.mlt-title{font-size:13px;font-weight:700;color:#111;line-height:1.4}
+.dark-mode .mlt-title{color:#ededed}
+.mlt-excerpt{font-size:11px;color:#555;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.dark-mode .mlt-excerpt{color:#ccc}
+
+/* Post-overlay progress-bar polish: this bar is mounted by posts.js
+   inside #postFullscreenOverlay as the FIRST child
+   (<div class="reading-progress-container"><div id="readingProgressBar"></div></div>).
+   The track sits absolutely at the top of the scroll container so it
+   doesn't compete for layout space, and the bar uses a short linear
+   transition to smooth jitter on lower-refresh-rate displays. */
+.reading-progress-container{position:absolute;top:0;left:0;right:0;height:3px;z-index:5;pointer-events:none;background:transparent}
+#readingProgressBar{display:block;height:100%;width:0;background:#333;transition:width 0.15s linear;will-change:width}
+.dark-mode #readingProgressBar{background:#ededed}
+@media(prefers-reduced-motion:reduce){#readingProgressBar{transition:none}}
+
+/* scroll-margin-top on overlay headings: when the user clicks a TOC
+   link, the smooth-scroll target can land short of the heading
+   because lazy-loaded images above it haven't committed their height
+   yet. By giving h2/h3 in the overlay body a scroll-margin, native
+   scrollIntoView (and offsetTop-based fallbacks) land on the heading
+   after the reflow settles. */
+.project-fullscreen-body h2,.project-fullscreen-body h3{scroll-margin-top:80px}
 .post-banner-credit,.post-banner-credit:visited{position:absolute;bottom:10px;right:10px;display:inline-block;max-width:60%;padding:5px 9px;font-family:'Lilex','Noto Sans Devanagari','Noto Sans SC',monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;color:#fff;background:rgba(0,0,0,0.6);border:1.5px solid rgba(255,255,255,0.4);line-height:1.4;text-align:right;opacity:0.94;word-break:break-word;z-index:2}
 a.post-banner-credit,a.post-banner-credit:visited{cursor:pointer;transition:opacity 0.2s ease,background 0.2s ease}
 a.post-banner-credit:hover,a.post-banner-credit:focus,a.post-banner-credit:active{opacity:1;background:rgba(0,0,0,0.82)}
