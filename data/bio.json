@@ -29,13 +29,24 @@
     },
     {
       "label": {
+        "en": "Twitter",
+        "pt": "Twitter",
+        "es": "Twitter",
+        "hi": "ट्विटर",
+        "zh": "Twitter"
+      },
+      "url": "https://x.com/hralmeid4",
+      "icon": "✖"
+    },
+    {
+      "label": {
         "en": "Contact Form",
         "pt": "Formulário de contacto",
         "es": "Formulario de contacto",
         "hi": "संपर्क करें प्रपत्र",
         "zh": "联系表"
       },
-      "url": "#contact",
+      "url": "#tally-open=GxkEvO&tally-layout=modal&tally-emoji-animation=none&tally-auto-close=1000",
       "icon": "✉️"
     }
   ],
