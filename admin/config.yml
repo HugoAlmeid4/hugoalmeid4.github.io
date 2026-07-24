@@ -232,23 +232,30 @@ collections:
           - name: items
             label: Gallery items
             widget: list
+            summary: '{{fields.title.en}}'
             fields:
               - name: title
-                label: Title
-                widget: string
+                label: Title (per language)
+                widget: object
+                fields:
+                  - { name: en, label: English,   widget: string }
+                  - { name: pt, label: Português, widget: string, required: false }
+                  - { name: es, label: Español,   widget: string, required: false }
+                  - { name: hi, label: हिन्दी,  widget: string, required: false }
+                  - { name: zh, label: 中文,       widget: string, required: false }
               - name: src
                 label: Image file
                 widget: image
                 hint: Drop image here, or paste existing path under /gallery/...
               - name: alt
-                label: Alt text (accessibility)
-                widget: text
-                hint: Describe what's in the image for screen readers.
-              # Capture-info fields shown inside the gallery lightbox. These
-              # are nested per-item (Sveltia renders one row in the CMS for
-              # every entry in `/gallery/index.json` # items[]). Keeping them
-              # at the top level would expose a single file-wide input that
-              # would clobber all entries on save.
+                label: Alt text (per language)
+                widget: object
+                fields:
+                  - { name: en, label: English,   widget: text }
+                  - { name: pt, label: Português, widget: text, required: false }
+                  - { name: es, label: Español,   widget: text, required: false }
+                  - { name: hi, label: हिन्दी,  widget: text, required: false }
+                  - { name: zh, label: 中文,       widget: text, required: false }
               - name: category
                 label: Category slug
                 widget: select
@@ -261,10 +268,15 @@ collections:
                   - { label: Other,       value: other }
                 hint: 'Used by the gallery filter tabs. Add new categories here.'
               - name: target
-                label: 'Target (sky object)'
-                widget: string
+                label: 'Target (sky object, per language)'
+                widget: object
                 required: false
-                hint: 'Renders in the gallery lightbox alongside the photo.'
+                fields:
+                  - { name: en, label: English,   widget: string, required: false }
+                  - { name: pt, label: Português, widget: string, required: false }
+                  - { name: es, label: Español,   widget: string, required: false }
+                  - { name: hi, label: हिन्दी,  widget: string, required: false }
+                  - { name: zh, label: 中文,       widget: string, required: false }
               - name: date
                 label: 'Date captured'
                 widget: datetime
@@ -284,9 +296,15 @@ collections:
                 required: false
                 hint: 'e.g. "3.2 hours (192 × 60s subs)".'
               - name: notes
-                label: Notes
-                widget: text
+                label: Notes (per language)
+                widget: object
                 required: false
+                fields:
+                  - { name: en, label: English,   widget: text, required: false }
+                  - { name: pt, label: Português, widget: text, required: false }
+                  - { name: es, label: Español,   widget: text, required: false }
+                  - { name: hi, label: हिन्दी,  widget: text, required: false }
+                  - { name: zh, label: 中文,       widget: text, required: false }
 
   # ── Home page — Bio, socials, skills chips ──
   - name: bio
@@ -298,15 +316,27 @@ collections:
         format: json
         fields:
           - name: bio
-            label: Bio paragraph
-            widget: text
+            label: Bio paragraph (per language)
+            widget: object
+            fields:
+              - { name: en, label: English,   widget: text }
+              - { name: pt, label: Português, widget: text, required: false }
+              - { name: es, label: Español,   widget: text, required: false }
+              - { name: hi, label: हिन्दी,  widget: text, required: false }
+              - { name: zh, label: 中文,       widget: text, required: false }
           - name: socials
             label: Social links (homepage)
             widget: list
             fields:
               - name: label
-                label: Label
-                widget: string
+                label: Label (per language)
+                widget: object
+                fields:
+                  - { name: en, label: English,   widget: string }
+                  - { name: pt, label: Português, widget: string, required: false }
+                  - { name: es, label: Español,   widget: string, required: false }
+                  - { name: hi, label: हिन्दी,  widget: string, required: false }
+                  - { name: zh, label: 中文,       widget: string, required: false }
               - name: url
                 label: URL
                 widget: string
@@ -320,9 +350,14 @@ collections:
             widget: list
             fields:
               - name: category
-                label: Group name
-                widget: string
-                hint: 'e.g. Astro, Code, Languages.'
+                label: Group name (per language)
+                widget: object
+                fields:
+                  - { name: en, label: English,   widget: string }
+                  - { name: pt, label: Português, widget: string, required: false }
+                  - { name: es, label: Español,   widget: string, required: false }
+                  - { name: hi, label: हिन्दी,  widget: string, required: false }
+                  - { name: zh, label: 中文,       widget: string, required: false }
               - name: items
                 label: Items
                 widget: list
@@ -338,11 +373,23 @@ collections:
         format: json
         fields:
           - name: tagline
-            label: Tagline (under name)
-            widget: string
+            label: Tagline (under name, per language)
+            widget: object
+            fields:
+              - { name: en, label: English,   widget: string }
+              - { name: pt, label: Português, widget: string, required: false }
+              - { name: es, label: Español,   widget: string, required: false }
+              - { name: hi, label: हिन्दी,  widget: string, required: false }
+              - { name: zh, label: 中文,       widget: string, required: false }
           - name: bio
-            label: Bio paragraph
-            widget: text
+            label: Bio paragraph (per language)
+            widget: object
+            fields:
+              - { name: en, label: English,   widget: text }
+              - { name: pt, label: Português, widget: text, required: false }
+              - { name: es, label: Español,   widget: text, required: false }
+              - { name: hi, label: हिन्दी,  widget: text, required: false }
+              - { name: zh, label: 中文,       widget: text, required: false }
           - name: contact
             label: Contact links
             widget: list
@@ -358,39 +405,75 @@ collections:
             widget: list
             fields:
               - name: category
-                label: Category name
-                widget: string
+                label: Category name (per language)
+                widget: object
+                fields:
+                  - { name: en, label: English,   widget: string }
+                  - { name: pt, label: Português, widget: string, required: false }
+                  - { name: es, label: Español,   widget: string, required: false }
+                  - { name: hi, label: हिन्दी,  widget: string, required: false }
+                  - { name: zh, label: 中文,       widget: string, required: false }
               - name: description
-                label: Description
-                widget: text
+                label: Description (per language)
+                widget: object
+                fields:
+                  - { name: en, label: English,   widget: text }
+                  - { name: pt, label: Português, widget: text, required: false }
+                  - { name: es, label: Español,   widget: text, required: false }
+                  - { name: hi, label: हिन्दी,  widget: text, required: false }
+                  - { name: zh, label: 中文,       widget: text, required: false }
           - name: selected_posts
             label: 'Selected posts (link list)'
             widget: list
             fields:
               - name: title
-                label: Title
-                widget: string
+                label: Title (per language)
+                widget: object
+                fields:
+                  - { name: en, label: English,   widget: string }
+                  - { name: pt, label: Português, widget: string, required: false }
+                  - { name: es, label: Español,   widget: string, required: false }
+                  - { name: hi, label: हिन्दी,  widget: string, required: false }
+                  - { name: zh, label: 中文,       widget: string, required: false }
               - name: url
                 label: URL or path
                 widget: string
           - name: projects_intro
-            label: Projects intro text
-            widget: string
+            label: Projects intro text (per language)
+            widget: object
             required: false
+            fields:
+              - { name: en, label: English,   widget: string, required: false }
+              - { name: pt, label: Português, widget: string, required: false }
+              - { name: es, label: Español,   widget: string, required: false }
+              - { name: hi, label: हिन्दी,  widget: string, required: false }
+              - { name: zh, label: 中文,       widget: string, required: false }
           - name: projects
             label: Projects
             widget: list
             fields:
               - name: description
-                label: Description
-                widget: string
+                label: Description (per language)
+                widget: object
+                fields:
+                  - { name: en, label: English,   widget: string }
+                  - { name: pt, label: Português, widget: string, required: false }
+                  - { name: es, label: Español,   widget: string, required: false }
+                  - { name: hi, label: हिन्दी,  widget: string, required: false }
+                  - { name: zh, label: 中文,       widget: string, required: false }
               - name: url
                 label: URL
                 widget: string
                 required: false
           - name: interests
-            label: Interests
-            widget: text
+            label: Interests (per language)
+            widget: object
+            fields:
+              - { name: en, label: English,   widget: text }
+              - { name: pt, label: Português, widget: text, required: false }
+              - { name: es, label: Español,   widget: text, required: false }
+              - { name: hi, label: हिन्दी,  widget: text, required: false }
+              - { name: zh, label: 中文,       widget: text, required: false }
 
   # ── Projects page ──
   # Renders the card grid + detail overlay on /projects. Each entry is a
@@ -420,7 +503,7 @@ collections:
           - name: items
             label: 'Projects'
             widget: list
-            summary: '{{field.title}}'
+            summary: '{{fields.title}}'
             fields:
               - name: id
                 label: 'Slug / id'
